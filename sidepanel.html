@@ -163,12 +163,36 @@
       background: rgba(65, 124, 255, 0.15);
       color: var(--primary);
     }
+    /* OTA Footer / Check Action */
+    .footer-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding: 0 4px;
+    }
+    .btn-check-version {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-check-version:hover {
+      color: var(--foreground);
+      border-color: var(--primary);
+    }
     .app-version {
-      text-align: right;
       font-size: var(--text-xs);
       font-weight: 600;
       color: var(--muted-foreground);
-      padding: 4px 10px 0;
       letter-spacing: 0.3px;
     }
 
@@ -604,7 +628,13 @@
       <span>Reload Tab</span>
     </button>
 
-    <div class="app-version" id="app-version">v1.3.7</div>
+    <div class="footer-bar">
+      <button class="btn-check-version" id="btn-check-version">
+        <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        <span id="check-version-text">Cek Update</span>
+      </button>
+      <div class="app-version" id="app-version">v1.3.7</div>
+    </div>
   </div>
 
   <!-- TAB 2: Console Log -->

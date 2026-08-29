@@ -154,6 +154,10 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "1.4.34", date: "2026-08-30", items: [
+    "Tombol CTA 'Cek Update' Manual: Tombol di footer panel untuk men-trigger pencarian versi terbaru langsung ke GitHub secara real-time.",
+    "Live Feedback State: Animasi status 'Memeriksa...', 'Update Ditemukan!', atau 'Versi Terbaru (Up-to-date)'.",
+  ]},
   { ver: "1.4.33", date: "2026-08-30", items: [
     "GitHub OTA Update Engine: Deteksi otomatis update versi baru dari repository GitHub kangxgemini-netizen/eh-presensi.",
     "Shadcn Alert CTA Banner: Tampilan banner update interaktif lengkap dengan direct CTA ke GitHub & tab Changelog.",
@@ -751,11 +755,19 @@ function isNewerVersion(remote, local) {
   return false;
 }
 
-async function checkOTAUpdate() {
+async function checkOTAUpdate(isManual = false) {
+  const btnCheck = $("btn-check-version");
+  const textCheck = $("check-version-text");
+  
+  if (isManual && textCheck) {
+    textCheck.textContent = "Memeriksa...";
+    if (btnCheck) btnCheck.style.opacity = "0.7";
+  }
+
   try {
     const manifestUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/manifest.json`;
     const res = await fetch(manifestUrl, { cache: "no-cache" });
-    if (!res.ok) return;
+    if (!res.ok) throw new Error("Gagal mengambil manifest");
     const remoteManifest = await res.json();
     const localVer = chrome.runtime.getManifest().version;
     const remoteVer = remoteManifest.version;
@@ -769,15 +781,31 @@ async function checkOTAUpdate() {
         desc.textContent = `Versi v${remoteVer} tersedia di GitHub (saat ini v${localVer}).`;
         banner.style.display = "block";
       }
+      if (isManual && textCheck) {
+        textCheck.textContent = "Update Ditemukan!";
+        setTimeout(() => { textCheck.textContent = "Cek Update"; }, 3000);
+      }
+    } else {
+      if (isManual && textCheck) {
+        textCheck.textContent = "Versi Terbaru (Up-to-date)";
+        setTimeout(() => { textCheck.textContent = "Cek Update"; }, 2500);
+      }
     }
-  } catch (_) {
-    // Silent fail on network/offline
+  } catch (err) {
+    if (isManual && textCheck) {
+      textCheck.textContent = "Gagal Cek Update";
+      setTimeout(() => { textCheck.textContent = "Cek Update"; }, 2500);
+    }
+  } finally {
+    if (btnCheck) btnCheck.style.opacity = "1";
   }
 }
 
 function initOTA() {
   const btnOpen = $("btn-ota-open");
   const btnCl = $("btn-ota-changelog");
+  const btnCheck = $("btn-check-version");
+
   if (btnOpen) {
     btnOpen.addEventListener("click", () => {
       chrome.tabs.create({ url: REPO_URL });
@@ -788,7 +816,13 @@ function initOTA() {
       $("tab-btn-changelog").click();
     });
   }
-  checkOTAUpdate();
+  if (btnCheck) {
+    btnCheck.addEventListener("click", () => {
+      checkOTAUpdate(true);
+    });
+  }
+
+  checkOTAUpdate(false);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
