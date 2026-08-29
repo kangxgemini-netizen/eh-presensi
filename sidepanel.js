@@ -746,6 +746,64 @@ const REPO_OWNER = "kangxgemini-netizen";
 const REPO_NAME = "eh-presensi";
 const REPO_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
 
+const MANIFEST_FILE_LIST = [
+  "manifest.json",
+  "sidepanel.html",
+  "sidepanel.js",
+  "background.js",
+  "popup.html",
+  "popup.js",
+  "spoof.js",
+  "gps_presets.js",
+  "proxy-rotator.js",
+  "proxy-auto.js"
+];
+
+let targetNewVersion = null;
+
+async function executeAutoUpdate() {
+  const btn = $("btn-ota-open");
+  if (!btn) return;
+  const originalHtml = btn.innerHTML;
+  
+  try {
+    btn.disabled = true;
+    btn.innerHTML = `
+      <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;animation:eh-spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/></svg>
+      <span>Mendownload update file...</span>
+    `;
+
+    // Download rilis zip via chrome.downloads atau direct web fetch
+    const zipUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${targetNewVersion}/eh-presensi-v${targetNewVersion}.zip`;
+    
+    // Trigger download zip rilis ke folder ~/Downloads via Chrome Downloads API
+    await chrome.downloads.download({
+      url: zipUrl,
+      filename: `eh-presensi-v${targetNewVersion}.zip`,
+      saveAs: false,
+      conflictAction: "overwrite"
+    });
+
+    btn.innerHTML = `
+      <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M20 6L9 17l-5-5"/></svg>
+      <span>Rilis v${targetNewVersion} Terdownload! Merefresh...</span>
+    `;
+
+    // Reload extension
+    setTimeout(() => {
+      chrome.runtime.reload();
+    }, 1500);
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = `<span>Gagal Download: Buka GitHub</span>`;
+    setTimeout(() => {
+      chrome.tabs.create({ url: `${REPO_URL}/releases/latest` });
+      btn.innerHTML = originalHtml;
+    }, 1500);
+  }
+}
+
 function isNewerVersion(remote, local) {
   if (!remote || !local) return false;
   const p1 = remote.split(".").map(n => parseInt(n, 10) || 0);
@@ -777,14 +835,49 @@ async function checkOTAUpdate(isManual = false) {
     const remoteVer = remoteManifest.version;
 
     if (isNewerVersion(remoteVer, localVer)) {
+      targetNewVersion = remoteVer;
       const banner = $("ota-banner");
       const title = $("ota-title");
       const desc = $("ota-desc");
+      const clContent = $("ota-changelog-content");
+      
       if (banner && title && desc) {
         title.textContent = `Update Tersedia: v${remoteVer}`;
         desc.textContent = `Versi v${remoteVer} tersedia di GitHub (saat ini v${localVer}).`;
         banner.style.display = "block";
       }
+
+      // Fetch changelog remote jika ada, atau fallback ke CHANGELOG lokal/terbaru
+      if (clContent) {
+        try {
+          const sidepanelJsUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/sidepanel.js`;
+          const jsRes = await fetch(sidepanelJsUrl, { cache: "no-cache" });
+          if (jsRes.ok) {
+            const text = await jsRes.text();
+            const match = text.match(/const CHANGELOG = (\[[\s\S]*?\]);/);
+            if (match) {
+              const remoteLogs = JSON.parse(match[1]);
+              const newestLog = remoteLogs.find(l => l.ver === remoteVer) || remoteLogs[0];
+              if (newestLog && newestLog.items) {
+                clContent.innerHTML = `
+                  <div style="font-weight:700; margin-bottom:4px;">Rilis v${newestLog.ver} (${newestLog.date})</div>
+                  <ul>${newestLog.items.map(it => `<li>${it}</li>`).join("")}</ul>
+                `;
+              }
+            }
+          }
+        } catch (_) {
+          // Fallback ke local changelog data jika fetch sidepanel.js gagal
+          const localEntry = CHANGELOG.find(l => l.ver === remoteVer) || CHANGELOG[0];
+          if (localEntry && localEntry.items) {
+            clContent.innerHTML = `
+              <div style="font-weight:700; margin-bottom:4px;">Rilis v${localEntry.ver} (${localEntry.date})</div>
+              <ul>${localEntry.items.map(it => `<li>${it}</li>`).join("")}</ul>
+            `;
+          }
+        }
+      }
+
       if (isManual && textCheck) {
         textCheck.textContent = "Update Ditemukan!";
         setTimeout(() => { textCheck.textContent = "Cek Update"; }, 3000);
@@ -807,17 +900,11 @@ async function checkOTAUpdate(isManual = false) {
 
 function initOTA() {
   const btnOpen = $("btn-ota-open");
-  const btnCl = $("btn-ota-changelog");
   const btnCheck = $("btn-check-version");
 
   if (btnOpen) {
     btnOpen.addEventListener("click", () => {
-      chrome.tabs.create({ url: REPO_URL });
-    });
-  }
-  if (btnCl) {
-    btnCl.addEventListener("click", () => {
-      $("tab-btn-changelog").click();
+      executeAutoUpdate();
     });
   }
   if (btnCheck) {
