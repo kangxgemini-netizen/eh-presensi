@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @keyframes eh-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    :root {
+      --background: #fefefe;
+      --foreground: #000000;
+      --card: #fefefe;
+      --card-foreground: #000000;
+      --primary: #417cff;
+      --primary-foreground: #ffffff;
+      --secondary: #1fb141;
+      --secondary-foreground: #ffffff;
+      --muted: #ebebeb;
+      --muted-foreground: #898989;
+      --border: #dedede;
+      --radius: 0.5rem;
+      --success: #10b981;
+      --success-foreground: #ffffff;
+      --destructive: #ef4444;
+      --destructive-foreground: #ffffff;
+
+      /* Type scale (compact side-panel) */
+      --text-xs: 10px;    /* badges, captions, meta */
+      --text-sm: 11px;    /* descriptions, secondary */
+      --text-base: 12px;  /* body default, nav labels */
+      --text-md: 13px;    /* titles, buttons, card labels */
+      --text-lg: 14px;    /* headings if any */
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--background);
+      color: var(--foreground);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      font-size: var(--text-base);
+      -webkit-font-smoothing: antialiased;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    /* OTA Update Alert Banner */
+    .ota-banner {
+      display: none;
+      background: rgba(65, 124, 255, 0.08);
+      border: 1px solid rgba(65, 124, 255, 0.3);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      animation: fadeIn 0.2s ease;
+    }
+    .ota-banner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .ota-banner-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ota-banner-desc {
+      font-size: var(--text-xs);
+      color: var(--muted-foreground);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .ota-banner-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-ota-update {
+      flex: 1;
+      padding: 5px 8px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .btn-ota-changelog {
+      padding: 5px 8px;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      background: var(--card);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 8px; }
+    .brand-icon {
+      width: 28px; height: 28px;
+      background: var(--primary); border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+    }
+    .brand-text h1 { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.01em; }
+    .brand-text p { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 1px; }
+
+    .ic { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2;
+          fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+    .ic-lg { width: 16px; height: 16px; }
+
+    /* Tab Switcher Bar */
+    .tab-bar {
+      display: flex;
+      background: var(--muted);
+      padding: 3px;
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: none;
+      background: transparent;
+      color: var(--muted-foreground);
+      font-size: var(--text-base);
+      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--foreground);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .tab-badge {
+      font-size: var(--text-xs);
+      padding: 1px 5px;
+      border-radius: 99px;
+      background: rgba(65, 124, 255, 0.15);
+      color: var(--primary);
+    }
+    .app-version {
+      text-align: right;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--muted-foreground);
+      padding: 4px 10px 0;
+      letter-spacing: 0.3px;
+    }
+
+    /* Tab Content Areas */
+    .tab-content { display: none; flex: 1; flex-direction: column; }
+    .tab-content.active { display: flex; }
+
+    /* Status Card */
+    .status-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 11px; border-radius: var(--radius);
+      margin-bottom: 10px; background: var(--card);
+      border: 1px solid var(--border); transition: all 0.2s ease;
+    }
+    .status-card.active {
+      border-color: var(--secondary);
+      background: rgba(31, 177, 65, 0.06);
+    }
+    .status-info { display: flex; align-items: center; gap: 8px; }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted-foreground); transition: all 0.2s;
+    }
+    .status-card.active .status-dot { background: var(--secondary); }
+    .status-title { font-size: var(--text-md); font-weight: 600; }
+    .status-badge {
+      font-size: var(--text-xs); font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; background: var(--muted); color: var(--muted-foreground);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .status-card.active .status-badge { background: rgba(31,177,65,0.15); color: var(--secondary); }
+
+    /* Cards */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px; margin-bottom: 8px;
+    }
+    .card-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .card-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .card-ic {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--muted); color: var(--foreground);
+      display: flex; align-items: center; justify-content: center; flex: none;
+    }
+    .card-label { font-size: var(--text-md); font-weight: 600; color: var(--foreground); }
+    .card-desc { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 1px;
+                 line-height: 1.3; }
+    .card-sub { font-size: var(--text-xs); color: var(--success); font-family: ui-monospace, monospace; margin-top: 3px; font-weight: 600; }
+
+    /* Custom Switch */
+    .switch { position: relative; display: inline-block; width: 34px; height: 18px; flex: none; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 99px; transition: 0.2s; cursor: pointer;
+    }
+    .slider::before {
+      content: ""; position: absolute; height: 12px; width: 12px;
+      left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .switch input:checked + .slider { background: var(--primary); }
+    .switch input:checked + .slider::before { transform: translateX(16px); }
+
+    /* Collapsible */
+    details { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+    summary {
+      font-size: var(--text-sm); color: var(--muted-foreground); font-weight: 600;
+      cursor: pointer; user-select: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    summary:hover { color: var(--foreground); }
+    .config-box { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+    .config-item label { display: block; font-size: var(--text-xs); font-weight: 600;
+                         color: var(--muted-foreground); margin-bottom: 2px; }
+    input[type="text"], textarea, select {
+      width: 100%; padding: 6px 8px; background: var(--background);
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--foreground); font-family: ui-monospace, monospace; font-size: var(--text-sm);
+    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+    textarea { min-height: 42px; resize: vertical; }
+
+    /* Form controls — shadcn-aligned (semantic tokens, FieldSet/legend, pill group) */
+    fieldset { border: none; padding: 0; margin: 0; }
+    fieldset legend {
+      font-size: var(--text-xs); font-weight: 600; color: var(--muted-foreground);
+      margin-bottom: 4px; padding: 0;
+    }
+    .radio-group { display: flex; gap: 6px; width: 100%; }
+    .radio-pill {
+      position: relative; flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 32px;
+      padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: var(--text-base); font-weight: 600; color: var(--muted-foreground);
+      cursor: pointer; transition: all 0.15s ease; user-select: none;
+      text-align: center;
+    }
+    .radio-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .radio-pill:hover { border-color: var(--primary); color: var(--foreground); }
+    .radio-pill:has(input:checked) {
+      background: var(--primary); border-color: var(--primary); color: var(--primary-foreground);
+    }
+    .input-hint {
+      font-size: var(--text-xs); color: var(--muted-foreground);
+      margin-top: 3px; line-height: 1.3;
+    }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap input { width: 100%; padding-right: 26px; }
+    .input-check {
+      position: absolute; right: 8px; display: none;
+      align-items: center; justify-content: center;
+      color: var(--success); pointer-events: none;
+    }
+    .input-check .ic { width: 13px; height: 13px; stroke: currentColor; stroke-width: 3; }
+
+    /* Buttons */
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 9px; margin-top: 6px;
+      border: none; border-radius: var(--radius);
+      font-size: var(--text-md); font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+
+    /* Valid & Invalid Inputs */
+    input.geo-valid {
+      border-color: var(--success) !important;
+      background-color: color-mix(in srgb, var(--success) 8%, transparent) !important;
+      color: color-mix(in srgb, var(--success) 70%, #000) !important;
+    }
+    input.geo-invalid {
+      border-color: var(--destructive) !important;
+      background-color: color-mix(in srgb, var(--destructive) 5%, transparent) !important;
+    }
+    .btn-primary {
+      background: var(--primary); color: var(--primary-foreground);
+      box-shadow: 0 1px 3px rgba(65,124,255,0.35);
+    }
+    .btn-primary:hover { background: #356fe8; }
+    .btn-primary.off { background: var(--muted); color: var(--muted-foreground); box-shadow: none; }
+    .btn-deactivate {
+      background: var(--destructive); color: var(--destructive-foreground);
+      box-shadow: 0 1px 3px color-mix(in srgb, var(--destructive) 35%, transparent);
+    }
+    .btn-deactivate:hover { background: color-mix(in srgb, var(--destructive) 88%, #000); }
+    .btn-tertiary {
+      background: transparent; color: var(--muted-foreground);
+      border: 1px solid var(--border); font-weight: 500;
+    }
+    .btn-tertiary:hover { background: var(--muted); color: var(--foreground); }
+
+    /* Console Log Styling */
+    .console-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .btn-xs {
+      padding: 5px 8px;
+      font-size: var(--text-xs);
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--background);
+      color: var(--foreground);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-xs:hover { background: var(--muted); }
+
+    .log-container {
+      flex: 1;
+      min-height: 0;
+      background: #121316;
+      color: #e1e4ea;
+      border-radius: var(--radius);
+      padding: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: var(--text-sm);
+      overflow-y: auto;
+      border: 1px solid #2d3139;
+    }
+    .log-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 4px 0;
+      border-bottom: 1px solid #1f232b;
+      line-height: 1.4;
+    }
+    .log-row1 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .log-ts { color: #6b7280; flex-shrink: 0; }
+    .log-badge {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .badge-state { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+    .badge-ua { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-geo { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-proxy { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .badge-patch { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-inject { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .badge-error { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .log-msg { color: #e5e7eb; word-break: break-all; }
+    .log-desc { color: #cbd5e1; padding-left: 2px; word-break: break-word; }
+
+    /* Changelog Tab */
+    .changelog-container {
+      flex: 1;
+      min-height: 0;
+      background: var(--card);
+      color: var(--foreground);
+      border-radius: var(--radius);
+      padding: 10px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .cl-entry { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .cl-entry:last-child { border-bottom: none; }
+    .cl-ver { font-size: var(--text-md); font-weight: 700; color: var(--primary); }
+    .cl-date { font-size: var(--text-xs); color: var(--muted-foreground); margin-left: 6px; font-weight: 500; }
+    .cl-list { margin: 4px 0 0; padding-left: 16px; }
+    .cl-list li { font-size: var(--text-sm); color: var(--muted-foreground); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+  <!-- Tab Switcher Bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-btn-controls">
+      <svg class="ic" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+      <span>Controls</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-console">
+      <svg class="ic" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+      <span>Log</span>
+      <span class="tab-badge" id="log-count-badge">0</span>
+    </button>
+    <button class="tab-btn" id="tab-btn-changelog">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+      <span>Changelog</span>
+    </button>
+  </div>
+
+  <!-- TAB 1: Controls -->
+  <div class="tab-content active" id="tab-controls">
+    <!-- OTA Update Alert Banner -->
+    <div class="ota-banner" id="ota-banner">
+      <div class="ota-banner-header">
+        <div class="ota-banner-title">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span id="ota-title">Update Tersedia</span>
+        </div>
+      </div>
+      <div class="ota-banner-desc" id="ota-desc">Versi baru telah dirilis di GitHub repository.</div>
+      <div class="ota-banner-actions">
+        <button class="btn-ota-update" id="btn-ota-open">
+          <span>Update Repo</span>
+          <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+        </button>
+        <button class="btn-ota-changelog" id="btn-ota-changelog">Changelog</button>
+      </div>
+    </div>
+    <!-- Switch 1: iOS UA -->
+    <div class="card">
+      <div class="card-row">
+        <div class="card-left">
+          <div class="card-ic">
+            <svg class="ic" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+          </div>
+          <div>
+            <div class="card-label">iOS Safari Fingerprint</div>
+            <div class="card-desc">Mengubah user-agent menjadi iPhone serta melakukan purge window.chrome agar tidak terdeteksi sebagai simulator atau browser desktop.</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="ua-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Switch 2: Guard Patch -->
+    <div class="card">
+      <div class="card-row">
+        <div class="card-left">
+          <div class="card-ic">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+          </div>
+          <div>
+            <div class="card-label">security-guard.js Bypass</div>
+            <div class="card-desc">Menyisipkan patch di awal file JS untuk menetralkan pemeriksaan debugger dan anti-inspect agar halaman tetap bisa dimuat normal.</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="js-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <details>
+        <summary><span>Advanced</span> <span>▼</span></summary>
+        <div class="config-box">
+          <fieldset>
+            <legend>Target Pattern (CDP Glob)</legend>
+            <input type="text" id="pattern" />
+          </fieldset>
+          <fieldset>
+            <legend>Custom UA String</legend>
+            <textarea id="ua" spellcheck="false"></textarea>
+          </fieldset>
+        </div>
+      </details>
+    </div>
+
+    <!-- Switch 3: Geolocation -->
+    <div class="card">
+      <div class="card-row">
+        <div class="card-left">
+          <div class="card-ic">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="card-label">GPS Location Spoof</div>
+            <div class="card-desc">Memalsukan koordinat GPS melalui intercept Geolocation API dan Permissions agar terbaca sebagai lokasi Jakarta yang dipilih.</div>
+            <div class="card-sub" id="geo-coords">-6.342815, 106.859123</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="geo-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="config-box">
+        <fieldset>
+          <legend>Mode</legend>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="geo-mode" value="wfo" checked /><span>WFO</span></label>
+            <label class="radio-pill"><input type="radio" name="geo-mode" value="wfh" /><span>WFH</span></label>
+            <label class="radio-pill"><input type="radio" name="geo-mode" value="manual" /><span>Manual</span></label>
+          </div>
+        </fieldset>
+        <fieldset id="geo-anchor-box">
+          <legend>Anchor</legend>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="geo-anchor" value="kalibata" checked /><span>Kalibata</span></label>
+            <label class="radio-pill"><input type="radio" name="geo-anchor" value="kalisari" /><span>Kalisari</span></label>
+          </div>
+        </fieldset>
+        <div class="config-item" id="geo-manual-box" style="display:none;">
+          <label>Koordinat (lat, lng)</label>
+          <div class="input-wrap">
+            <input type="text" id="geo-manual" placeholder="-6.343051981616344, 106.85899648587281" />
+            <div id="geo-manual-check-ic" class="input-check" style="display:none;">
+              <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="input-hint">Format: -6.343049224430671, 106.85907517136334</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Switch 4: Proxy Route -->
+    <div class="card">
+      <div class="card-row">
+        <div class="card-left">
+          <div class="card-ic">
+            <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          </div>
+          <div>
+            <div class="card-label">Proxy Route (IP Jakarta)</div>
+            <div class="card-desc">Mengalirkan traffic browser melalui proxy agar alamat IP terbaca berasal dari Indonesia.</div>
+            <div class="card-sub" id="proxy-status">manual / off</div>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="proxy-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <details>
+        <summary><span>Proxy Config</span> <span>▼</span></summary>
+        <div class="config-box">
+          <div class="config-item" id="proxy-url-box">
+            <label>Proxy URL (socks5://.. / http://..)</label>
+            <div class="input-wrap">
+              <input type="text" id="proxy-url" placeholder="socks5://ip:port atau http://ip:port" />
+            </div>
+            <div class="input-hint">Contoh: socks5://103.65.237.92:1080 atau http://114.141.54.221:8080</div>
+          </div>
+          <fieldset>
+            <legend>Routing Scope</legend>
+            <div class="radio-group">
+              <label class="radio-pill"><input type="radio" name="proxy-scope" value="target" checked /><span>Target Host Only</span></label>
+              <label class="radio-pill"><input type="radio" name="proxy-scope" value="all" /><span>All Traffic</span></label>
+            </div>
+          </fieldset>
+          <div class="config-item" id="proxy-host-box">
+            <label>Target Host (hanya domain ini yang diarahkan ke proxy)</label>
+            <input type="text" id="proxy-host" placeholder="presensi.kemendesa.go.id" value="presensi.kemendesa.go.id" />
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+            <button class="btn btn-secondary" id="btn-proxy-test" style="flex: 1;">
+              <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span>Test Connection</span>
+            </button>
+          </div>
+          <div id="proxy-test-status" class="input-hint" style="margin-top: 4px;"></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Primary: Bypass All / Deactivate -->
+    <button class="btn btn-primary" id="btn-bypass-all">
+      <svg class="ic ic-lg" id="btn-bypass-ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span id="btn-bypass-label">Bypass All</span>
+    </button>
+
+    <!-- Tertiary: Reload Tab -->
+    <button class="btn btn-tertiary" id="btn-reload">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      <span>Reload Tab</span>
+    </button>
+
+    <div class="app-version" id="app-version">v1.3.7</div>
+  </div>
+
+  <!-- TAB 2: Console Log -->
+  <div class="tab-content" id="tab-console">
+    <div class="console-toolbar">
+      <select id="log-filter" style="width: auto; padding: 4px 6px;">
+        <option value="ALL">ALL Categories</option>
+        <option value="STATE">STATE</option>
+        <option value="UA">UA</option>
+        <option value="GEO">GEO</option>
+        <option value="PROXY">PROXY</option>
+        <option value="PATCH">PATCH</option>
+        <option value="INJECT">INJECT</option>
+        <option value="ERROR">ERROR</option>
+      </select>
+      <div style="display:flex; gap:4px;">
+        <button class="btn-xs" id="btn-copy-log">
+          <svg class="ic" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          Copy
+        </button>
+        <button class="btn-xs" id="btn-clear-log">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="log-container" id="log-container">
+      <!-- Dynamic Log Stream -->
+    </div>
+  </div>
+
+  <!-- TAB 3: Changelog -->
+  <div class="tab-content" id="tab-changelog">
+    <div class="changelog-container" id="changelog-container"></div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
