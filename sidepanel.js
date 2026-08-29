@@ -154,6 +154,10 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "1.4.35", date: "2026-08-30", items: [
+    "Theme Awareness (Dark/Light mode): Otomatis mendeteksi tema OS / Chrome browser (prefers-color-scheme) dengan token CSS variables shadcn.",
+    "OTA Update Alert Banner: Peningkatan kontras tema gelap dan penyesuaian styling dynamic card/controls."
+  ]},
   { ver: "1.4.34", date: "2026-08-30", items: [
     "Tombol CTA 'Cek Update' Manual: Tombol di footer panel untuk men-trigger pencarian versi terbaru langsung ke GitHub secara real-time.",
     "Live Feedback State: Animasi status 'Memeriksa...', 'Update Ditemukan!', atau 'Versi Terbaru (Up-to-date)'.",
