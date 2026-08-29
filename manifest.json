@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "eh-Presensi",
-  "version": "1.4.36",
+  "version": "1.4.37",
   "description": "bantu pegawai yang struggle di jalanan menuju kantor",
   "permissions": ["debugger", "storage", "activeTab", "tabs", "scripting", "proxy", "sidePanel", "alarms", "downloads", "declarativeNetRequest", "declarativeNetRequestWithHostAccess"],
   "host_permissions": ["<all_urls>"],

@@ -154,7 +154,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
-  { ver: "1.4.35", date: "2026-08-30", items: [
+  { ver: "1.4.37", date: "2026-08-30", items: [
+    "New Branding Icon: Logo roset anyaman geometris biru modern (16px, 48px, 128px) dengan render ultra-tajam dan transparan.",
+    "Codebase Refactor & Dead Code Elimination: Menghapus seluruh dead script (proxy-auto.js, proxy-rotator.js, popup.js/html, shell scripts lama) untuk efisiensi dan performa maksimal.",
+    "Optimasi Bundle: Ukuran codebase bersih dan efisien tanpa dependensi yang tidak terpakai."
+  ]},
+  { ver: "1.4.36", date: "2026-08-30", items: [
     "Theme Awareness (Dark/Light mode): Otomatis mendeteksi tema OS / Chrome browser (prefers-color-scheme) dengan token CSS variables shadcn.",
     "OTA Update Alert Banner: Peningkatan kontras tema gelap dan penyesuaian styling dynamic card/controls."
   ]},
@@ -745,19 +750,6 @@ chrome.runtime.onMessage.addListener((msg) => {
 const REPO_OWNER = "kangxgemini-netizen";
 const REPO_NAME = "eh-presensi";
 const REPO_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
-
-const MANIFEST_FILE_LIST = [
-  "manifest.json",
-  "sidepanel.html",
-  "sidepanel.js",
-  "background.js",
-  "popup.html",
-  "popup.js",
-  "spoof.js",
-  "gps_presets.js",
-  "proxy-rotator.js",
-  "proxy-auto.js"
-];
 
 let targetNewVersion = null;
 
