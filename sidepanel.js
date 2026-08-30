@@ -818,12 +818,35 @@ async function checkOTAUpdate(isManual = false) {
   }
 
   try {
-    const manifestUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/manifest.json`;
-    const res = await fetch(manifestUrl, { cache: "no-cache" });
-    if (!res.ok) throw new Error("Gagal mengambil manifest");
-    const remoteManifest = await res.json();
+    // 1. Coba fetch dari GitHub API Releases terbaru lebih dulu (real-time tanpa CDN cache)
+    let remoteVer = null;
+    let remoteNotes = null;
+    
+    try {
+      const releaseApiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
+      const relRes = await fetch(releaseApiUrl, {
+        headers: { "Accept": "application/vnd.github.v3+json" }
+      });
+      if (relRes.ok) {
+        const relData = await relRes.json();
+        if (relData && relData.tag_name) {
+          remoteVer = relData.tag_name.replace(/^v/, "").trim();
+          remoteNotes = relData.body || "";
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fallback ke raw manifest.json dengan timestamp query param untuk bypass CDN cache 300s
+    if (!remoteVer) {
+      const ts = Date.now();
+      const manifestUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/manifest.json?_t=${ts}`;
+      const res = await fetch(manifestUrl, { cache: "no-cache" });
+      if (!res.ok) throw new Error("Gagal mengambil manifest");
+      const remoteManifest = await res.json();
+      remoteVer = remoteManifest.version;
+    }
+
     const localVer = chrome.runtime.getManifest().version;
-    const remoteVer = remoteManifest.version;
 
     if (isNewerVersion(remoteVer, localVer)) {
       targetNewVersion = remoteVer;
@@ -838,27 +861,20 @@ async function checkOTAUpdate(isManual = false) {
         banner.style.display = "block";
       }
 
-      // Fetch changelog remote jika ada, atau fallback ke CHANGELOG lokal/terbaru
+      // Render release notes / changelog
       if (clContent) {
-        try {
-          const sidepanelJsUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/sidepanel.js`;
-          const jsRes = await fetch(sidepanelJsUrl, { cache: "no-cache" });
-          if (jsRes.ok) {
-            const text = await jsRes.text();
-            const match = text.match(/const CHANGELOG = (\[[\s\S]*?\]);/);
-            if (match) {
-              const remoteLogs = JSON.parse(match[1]);
-              const newestLog = remoteLogs.find(l => l.ver === remoteVer) || remoteLogs[0];
-              if (newestLog && newestLog.items) {
-                clContent.innerHTML = `
-                  <div style="font-weight:700; margin-bottom:4px;">Rilis v${newestLog.ver} (${newestLog.date})</div>
-                  <ul>${newestLog.items.map(it => `<li>${it}</li>`).join("")}</ul>
-                `;
-              }
-            }
-          }
-        } catch (_) {
-          // Fallback ke local changelog data jika fetch sidepanel.js gagal
+        if (remoteNotes) {
+          // Format release notes dari GitHub Release
+          const formattedNotes = remoteNotes
+            .replace(/^##\s+.*$/m, "")
+            .replace(/\n\s*-\s+/g, "<br>• ")
+            .trim();
+          clContent.innerHTML = `
+            <div style="font-weight:700; margin-bottom:4px;">Rilis v${remoteVer}</div>
+            <div style="line-height:1.4;">${formattedNotes}</div>
+          `;
+        } else {
+          // Fallback ke local changelog entry
           const localEntry = CHANGELOG.find(l => l.ver === remoteVer) || CHANGELOG[0];
           if (localEntry && localEntry.items) {
             clContent.innerHTML = `
