@@ -417,20 +417,19 @@ function render() {
   const js = $("js-toggle").checked;
   const ua = $("ua-toggle").checked;
   const geo = $("geo-toggle").checked;
-  const proxy = $("proxy-toggle").checked;
   const card = $("status-card");
   const title = $("status-title");
   const badge = $("status-badge");
-  const count = [js, ua, geo, proxy].filter(Boolean).length;
+  const count = [js, ua, geo].filter(Boolean).length;
 
   if (card && title && badge) {
-    if (count === 4) {
+    if (count === 3) {
       card.className = "status-card active";
       title.textContent = "Fully Bypassed & Armed";
       badge.textContent = "FULL";
     } else if (count > 0) {
       card.className = "status-card active";
-      title.textContent = `${count}/4 Active`;
+      title.textContent = `${count}/3 Active`;
       badge.textContent = "PARTIAL";
     } else {
       card.className = "status-card";
@@ -439,13 +438,13 @@ function render() {
     }
   }
 
-  // Bypass All CTA state: active (all 4 on) -> Deactivate, else -> Bypass All
+  // Bypass All CTA state: active (all 3 on: UA, JS, Geo) -> Deactivate All, else -> Bypass All
   const btn = $("btn-bypass-all");
   const label = $("btn-bypass-label");
   const ic = $("btn-bypass-ic");
-  if (count === 4) {
+  if (count === 3) {
     btn.className = "btn btn-deactivate";
-    label.textContent = "Deactivate";
+    label.textContent = "Deactivate All";
     ic.innerHTML = '<path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/>';
   } else {
     btn.className = "btn btn-primary";
