@@ -154,12 +154,24 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "1.4.39", date: "2026-08-30", items: [
+    "Instant Real-Time OTA Fetcher: Menggunakan GitHub Releases REST API (/releases/latest) dengan bypass cache CDN agar rilis baru terdeteksi secara instan.",
+    "Dynamic Release Notes Accordion: Render catatan rilis langsung di banner warning update tanpa perlu berpindah tab."
+  ]},
+  { ver: "1.4.38", date: "2026-08-30", items: [
+    "Bypass All Module Isolation: Tombol master hanya menghitung 3 modul inti (iOS Safari UA, Guard Neutralizer, GPS Spoof), sepenuhnya independen dari Proxy Route.",
+    "Deactivate All State: Tombol bertransformasi menjadi 'Deactivate All' dengan style merah saat 3 modul aktif."
+  ]},
   { ver: "1.4.37", date: "2026-08-30", items: [
     "New Branding Icon: Logo roset anyaman geometris biru modern (16px, 48px, 128px) dengan render ultra-tajam dan transparan.",
     "Codebase Refactor & Dead Code Elimination: Menghapus seluruh dead script (proxy-auto.js, proxy-rotator.js, popup.js/html, shell scripts lama) untuk efisiensi dan performa maksimal.",
     "Optimasi Bundle: Ukuran codebase bersih dan efisien tanpa dependensi yang tidak terpakai."
   ]},
   { ver: "1.4.36", date: "2026-08-30", items: [
+    "One-Click Direct OTA Download & Reload: Klik tombol update langsung mendownload rilis zip dan merefresh runtime ekstensi.",
+    "Warning/Yellow Alert Banner: Tampilan banner update baru dengan tone warna Amber/Kuning dan icon warning yang kontras."
+  ]},
+  { ver: "1.4.35", date: "2026-08-30", items: [
     "Theme Awareness (Dark/Light mode): Otomatis mendeteksi tema OS / Chrome browser (prefers-color-scheme) dengan token CSS variables shadcn.",
     "OTA Update Alert Banner: Peningkatan kontras tema gelap dan penyesuaian styling dynamic card/controls."
   ]},
