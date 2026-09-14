@@ -440,6 +440,10 @@
       border: 1px solid var(--border); font-weight: 500;
     }
     .btn-tertiary:hover { background: var(--muted); color: var(--foreground); }
+    .btn-icon {
+      width: 38px; min-width: 38px; flex: none; padding: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
 
     /* Console Log Styling */
     .console-toolbar {
@@ -757,11 +761,16 @@
       </details>
     </div>
 
-    <!-- Primary: Bypass All / Deactivate -->
-    <button class="btn btn-primary" id="btn-bypass-all">
-      <svg class="ic ic-lg" id="btn-bypass-ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-      <span id="btn-bypass-label">Bypass All</span>
-    </button>
+    <!-- Master Actions: Bypass All + Reload Tab Icon Button -->
+    <div style="display: flex; gap: 6px; margin-top: 6px; align-items: stretch;">
+      <button class="btn btn-primary" id="btn-bypass-all" style="margin-top: 0; flex: 1;">
+        <svg class="ic ic-lg" id="btn-bypass-ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span id="btn-bypass-label">Bypass All</span>
+      </button>
+      <button class="btn btn-tertiary btn-icon" id="btn-reload" title="Reload Tab" aria-label="Reload Tab" style="margin-top: 0;">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
 
     <!-- Quick Nav CTAs (2 columns) -->
     <div class="btn-row">
@@ -774,12 +783,6 @@
         <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Presensi Lama</span>
       </button>
     </div>
-
-    <!-- Tertiary: Reload Tab -->
-    <button class="btn btn-tertiary" id="btn-reload">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-      <span>Reload Tab</span>
-    </button>
 
     <div class="footer-bar">
       <button class="btn-check-version" id="btn-check-version">

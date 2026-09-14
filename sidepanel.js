@@ -755,6 +755,16 @@ function updateProxyStatusLive() {
 }
 
 $("btn-reload").addEventListener("click", async () => {
+  const btn = $("btn-reload");
+  const ic = btn ? btn.querySelector(".ic") : null;
+  if (ic) {
+    ic.style.transition = "transform 0.4s ease";
+    ic.style.transform = "rotate(360deg)";
+    setTimeout(() => {
+      ic.style.transition = "none";
+      ic.style.transform = "none";
+    }, 400);
+  }
   const tab = await currentTab();
   if (!tab || !tab.id) return;
   if ($("geo-toggle").checked) {
