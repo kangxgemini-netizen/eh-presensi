@@ -53,6 +53,15 @@
     }
   }
 
+  // Report an action back to the background logger (shown in Console Log tab)
+  function report(cat, msg) {
+    try {
+      if (typeof chrome !== "undefined" && chrome.runtime && typeof chrome.runtime.sendMessage === "function") {
+        chrome.runtime.sendMessage({ action: "INJECT_LOG", cat: cat, msg: msg });
+      }
+    } catch (_) {}
+  }
+
   // --- navigator static fingerprint ---
   if (typeof Navigator !== "undefined" && Navigator.prototype) {
     defineGetter(Navigator.prototype, "userAgent", IOS.userAgent);
@@ -343,14 +352,7 @@
       return !!cfg.disabled || cfg.mode === "off";
     }
 
-    // Report an action back to the background logger (shown in Console Log tab)
-    function report(cat, msg) {
-      try {
-        if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
-          chrome.runtime.sendMessage({ action: "INJECT_LOG", cat: cat, msg: msg });
-        }
-      } catch (_) {}
-    }
+
 
     report("INJECT", "iOS Safari fingerprint armed — navigator UA/platform/vendor, screen 390x844, touch + Chromium signals (window.chrome, userAgentData) removed");
     report("INJECT", "GPS Location Spoof armed — Geolocation.prototype + Permissions.prototype intercepted");
