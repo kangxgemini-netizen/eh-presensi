@@ -8,6 +8,10 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.0.3 (2026-09-14)
+- **Startup Dynamic Script Purge:** Pembersihan total cache registrasi dynamic content script (`chrome.scripting.unregisterContentScripts`) pada saat background worker startup. Hal ini menjamin pembaharuan kode `spoof.js` langsung dieksekusi secara instan oleh browser tanpa tersangkut cache internal LevelDB per tab.
+- **Hardened Injection Synchronization:** Sinkronisasi bersih modul spoofing iOS Safari dan anti-gatekeeper SweetAlert2 di setiap refresh tab.
+
 ### v2.0.2 (2026-09-14)
 - **Hotfix Swal Proxy Scoping:** Memindahkan fungsi report logger ke root scope IIFE di `spoof.js` guna mencegah exception `ReferenceError: report is not defined` saat gatekeeper modal dicegah pada halaman ubah password (`/ubah-password`).
 - **Zero-Interruption Page Lifecycle:** Memastikan alur ganti password dan pemanggilan SweetAlert status presensi berjalan mulus tanpa hambatan error konsol.

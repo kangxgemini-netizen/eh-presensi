@@ -154,6 +154,10 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.0.3", date: "2026-09-14", items: [
+    "Startup Dynamic Script Purge: Pembersihan total LevelDB dynamic content script cache saat background service worker startup untuk memastikan pembaruan spoof.js langsung aktif tanpa hambatan cache browser.",
+    "Hardened Injection Synchronization: Menjamin module iOS spoofing dan SweetAlert gatekeeper blocker selalu berjalan di versi disk paling mutakhir di seluruh tab.",
+  ]},
   { ver: "2.0.2", date: "2026-09-14", items: [
     "Hotfix Swal Proxy Scoping: Memindahkan fungsi report logger ke root scope IIFE di spoof.js guna mencegah 'ReferenceError: report is not defined' saat gatekeeper modal dicegah pada halaman ubah-password.",
     "Zero-Interruption Page Lifecycle: Menjamin halaman pergantian password dan dialog status presensi berjalan mulus tanpa error konsol.",
