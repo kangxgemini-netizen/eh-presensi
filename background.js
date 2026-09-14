@@ -39,16 +39,14 @@ async function addLog(category, message, level = "info") {
 
 addLog("STATE", "eh-Presensi background initialized");
 
-// Clean up any stale or orphaned registered content scripts (e.g. legacy vbg scripts)
+// Clean up any stale or cached registered content scripts on startup
 (async () => {
   try {
     const scripts = await chrome.scripting.getRegisteredContentScripts();
-    const staleIds = scripts
-      .map((s) => s.id)
-      .filter((id) => id.startsWith("vbg-") || !id.startsWith("spoof-"));
+    const staleIds = scripts.map((s) => s.id);
     if (staleIds.length > 0) {
       await chrome.scripting.unregisterContentScripts({ ids: staleIds });
-      addLog("STATE", `Purged ${staleIds.length} stale content script registrations: ${staleIds.join(", ")}`);
+      addLog("STATE", `Purged ${staleIds.length} content script registrations on startup`);
     }
   } catch (_) {}
   try {
