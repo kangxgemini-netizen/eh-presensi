@@ -118,7 +118,12 @@ function pickGeo(mode, manualLat, manualLng) {
   return GEO_LIST[Math.floor(Math.random() * GEO_LIST.length)];
 }
 
-chrome.debugger.onEvent.addListener(onDebugEvent);
+chrome.debugger.onEvent.addListener((debuggeeId, method, params) => {
+  onDebugEvent(debuggeeId, method, params).catch(() => {});
+});
+chrome.debugger.onDetach.addListener((source) => {
+  if (source && source.tabId) attached.delete(source.tabId);
+});
 chrome.tabs.onRemoved.addListener((tabId) => { spoofOff(tabId); maybeDetachTab(tabId); });
 chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
   if (spoofTabs.has(tabId) && info.url) registerSpoofOnce(tabId, info.url);
@@ -339,7 +344,7 @@ async function attach(tabId) {
   }
 
   attached.add(tabId);
-  await chrome.debugger.sendCommand({ tabId }, "Network.enable", {});
+  await chrome.debugger.sendCommand({ tabId }, "Network.enable", {}).catch(() => {});
   await chrome.debugger.sendCommand({ tabId }, "Emulation.enable", {}).catch(() => {});
 }
 
@@ -720,9 +725,13 @@ async function onDebugEvent(debuggeeId, method, params) {
   if (method !== "Fetch.requestPaused") return;
   const tabId = debuggeeId.tabId;
   const reqId = params.requestId;
+  if (!tabId || !reqId) return;
+
   const t = tabs.get(tabId);
   if (!t || !t.js || !params.responseStatusCode) {
-    chrome.debugger.sendCommand({ tabId }, "Fetch.continueRequest", { requestId: reqId }).catch(() => {});
+    try {
+      await chrome.debugger.sendCommand({ tabId }, "Fetch.continueRequest", { requestId: reqId });
+    } catch (_) {}
     return;
   }
   try {
@@ -744,7 +753,9 @@ async function onDebugEvent(debuggeeId, method, params) {
       body: utf8ToBase64(body),
     });
     addLog("PATCH", `Patched JS response on tab #${tabId}`);
-  } catch (_) {
-    chrome.debugger.sendCommand({ tabId }, "Fetch.continueRequest", { requestId: reqId });
+  } catch (err) {
+    try {
+      await chrome.debugger.sendCommand({ tabId }, "Fetch.continueRequest", { requestId: reqId });
+    } catch (_) {}
   }
 }
