@@ -415,7 +415,7 @@
   } catch (_) {}
 
   // =========================================================================
-  // --- SweetAlert2 iOS AppStore Gatekeeper Blocker ---
+  // --- SweetAlert2 iOS AppStore Gatekeeper Blocker (Hardened) ---
   // =========================================================================
   var GATE_STYLE_ID = "__eh_gate_block_style__";
 
@@ -429,7 +429,8 @@
   function applyGateBlock() {
     if (!isGateBlockEnabled()) return;
 
-    // 1. Inject or ensure style element exists at early parse stage
+    // 1. Surgical CSS: targets ONLY the iOS AppStore gate modal container/wrap.
+    // NEVER target generic .swal2-container or #swal2-title, and NEVER hijack body overflow globally!
     try {
       var existingStyle = document.getElementById(GATE_STYLE_ID);
       if (!existingStyle) {
@@ -438,10 +439,8 @@
         style.textContent = [
           ".swal2-container:has(.ios-appstore-gate-popup),",
           ".swal2-container:has(.ios-appstore-gate-wrap),",
-          ".swal2-container:has([class*='ios-appstore']),",
           ".swal2-container:has(a[href*='id6800222797']),",
-          ".swal2-container:has(a[href*='apps.apple.com']),",
-          ".swal2-container.swal2-backdrop-show:has(#swal2-title),",
+          ".swal2-container:has(a[href*='epresensi-kemendespdt']),",
           ".ios-appstore-gate-popup,",
           ".ios-appstore-gate-wrap {",
           "  display: none !important;",
@@ -449,10 +448,6 @@
           "  visibility: hidden !important;",
           "  pointer-events: none !important;",
           "  z-index: -999999 !important;",
-          "}",
-          "html.swal2-shown, body.swal2-shown {",
-          "  overflow: auto !important;",
-          "  height: auto !important;",
           "}"
         ].join("\n");
         (document.head || document.documentElement).appendChild(style);
@@ -460,35 +455,55 @@
     } catch (_) {}
 
     // 2. Scan and remove any existing gatekeeper modal in DOM
+    purgeGateElements();
+  }
+
+  function purgeGateElements() {
+    if (!isGateBlockEnabled()) return false;
+    var purged = false;
     try {
-      var candidates = document.querySelectorAll(".swal2-container, .ios-appstore-gate-popup, .ios-appstore-gate-wrap");
-      var removed = 0;
+      // Find elements strictly associated with the iOS AppStore gatekeeper modal
+      var candidates = document.querySelectorAll(
+        ".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='id6800222797'], a[href*='epresensi-kemendespdt']"
+      );
       for (var i = 0; i < candidates.length; i++) {
         var el = candidates[i];
-        var isGate = (el.classList && (el.classList.contains("ios-appstore-gate-popup") || el.classList.contains("ios-appstore-gate-wrap"))) ||
-                     (el.querySelector && el.querySelector(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='apps.apple.com'], a[href*='id6800222797']")) ||
-                     (el.textContent && (
-                       el.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1 ||
-                       el.textContent.indexOf("Akses ePresensi KemendesPDT melalui browser pada iPhone") !== -1
-                     ));
-        if (isGate) {
-          var container = (el.closest && el.closest(".swal2-container")) || el;
-          container.remove();
-          removed++;
+        var container = (el.closest && el.closest(".swal2-container")) || el;
+        if (container && container.parentNode) {
+          container.parentNode.removeChild(container);
+          purged = true;
         }
       }
 
-      if (removed > 0 || (document.body && document.body.classList.contains("swal2-shown"))) {
-        document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
-        document.documentElement.style.overflow = "";
-        if (document.body) {
-          document.body.classList.remove("swal2-shown", "swal2-height-auto");
-          document.body.style.overflow = "";
-          document.body.style.paddingRight = "";
+      // Check specifically for the text of the gatekeeper modal in swal containers
+      var swals = document.querySelectorAll(".swal2-container");
+      for (var j = 0; j < swals.length; j++) {
+        var s = swals[j];
+        var title = s.querySelector && s.querySelector("#swal2-title");
+        if (title && title.textContent && title.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1) {
+          if (s.parentNode) {
+            s.parentNode.removeChild(s);
+            purged = true;
+          }
         }
-        report("GATE", "Blocked & purged SweetAlert2 iOS AppStore modal");
+      }
+
+      // Only clean up body classes if the gate modal was actually purged AND no other valid modal is showing
+      if (purged) {
+        var remaining = document.querySelectorAll(".swal2-container");
+        if (!remaining.length) {
+          document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
+          document.documentElement.style.overflow = "";
+          if (document.body) {
+            document.body.classList.remove("swal2-shown", "swal2-height-auto");
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+          }
+        }
+        report("GATE", "Purged SweetAlert2 iOS AppStore modal from DOM");
       }
     } catch (_) {}
+    return purged;
   }
 
   function removeGateBlock() {
@@ -514,7 +529,7 @@
     window.addEventListener("load", applyGateBlock, { once: true });
   }
 
-  // MutationObserver to catch dynamic creation instantly
+  // MutationObserver to catch dynamic creation instantly without false-positives
   try {
     var gateObserver = new MutationObserver(function (mutations) {
       if (!isGateBlockEnabled()) return;
@@ -524,10 +539,11 @@
           var node = m.addedNodes[j];
           if (node.nodeType !== 1) continue;
           if (
-            (node.classList && (node.classList.contains("swal2-container") || node.classList.contains("ios-appstore-gate-popup") || node.classList.contains("ios-appstore-gate-wrap"))) ||
-            (node.querySelector && node.querySelector(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='apps.apple.com']"))
+            (node.classList && (node.classList.contains("ios-appstore-gate-popup") || node.classList.contains("ios-appstore-gate-wrap"))) ||
+            (node.querySelector && node.querySelector(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='id6800222797'], a[href*='epresensi-kemendespdt']")) ||
+            (node.textContent && node.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1)
           ) {
-            applyGateBlock();
+            purgeGateElements();
             return;
           }
         }
@@ -536,74 +552,98 @@
     gateObserver.observe(document.documentElement, { childList: true, subtree: true });
   } catch (_) {}
 
-  // Hook window.Swal and window.sweetAlert to suppress Swal.fire before DOM creation
+  // Hook window.Swal safely without breaking prototypes or legitimate dialogs
   function isBlockedSwalArgs(args) {
-    if (!isGateBlockEnabled()) return false;
+    if (!isGateBlockEnabled() || !args || !args.length) return false;
     try {
-      var arg0 = args[0];
-      if (!arg0) return false;
-      var str = typeof arg0 === "string" ? arg0 : JSON.stringify(arg0);
-      if (
-        str.indexOf("ios-appstore") !== -1 ||
-        str.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 ||
-        str.indexOf("apps.apple.com") !== -1 ||
-        str.indexOf("Akses ePresensi KemendesPDT melalui browser pada iPhone") !== -1
-      ) {
-        return true;
+      for (var i = 0; i < args.length; i++) {
+        var a = args[i];
+        if (!a) continue;
+        if (typeof a === "string") {
+          if (
+            a.indexOf("ios-appstore") !== -1 ||
+            a.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 ||
+            a.indexOf("id6800222797") !== -1 ||
+            a.indexOf("Akses ePresensi KemendesPDT melalui browser pada iPhone") !== -1
+          ) {
+            return true;
+          }
+        } else if (typeof a === "object") {
+          var title = a.title;
+          if (typeof title === "string" && title.indexOf("Versi Web Sudah Tidak Digunakan") !== -1) {
+            return true;
+          }
+          var text = a.text;
+          if (typeof text === "string" && (text.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 || text.indexOf("Akses ePresensi") !== -1)) {
+            return true;
+          }
+          var html = a.html;
+          if (typeof html === "string" && (html.indexOf("ios-appstore") !== -1 || html.indexOf("id6800222797") !== -1 || html.indexOf("Versi Web") !== -1)) {
+            return true;
+          }
+          if (a.customClass) {
+            var cc = typeof a.customClass === "string" ? a.customClass : (a.customClass.popup || "");
+            if (typeof cc === "string" && cc.indexOf("ios-appstore") !== -1) {
+              return true;
+            }
+          }
+        }
       }
     } catch (_) {}
     return false;
   }
 
-  function hookSwalInstance(origSwal) {
-    if (!origSwal || typeof origSwal !== "function") return origSwal;
-    if (origSwal.__eh_hooked__) return origSwal;
-
-    var wrapped = function () {
-      if (isBlockedSwalArgs(arguments)) {
-        report("GATE", "Suppressed Swal() call for iOS AppStore gatekeeper");
-        return Promise.resolve({ isConfirmed: false, isDenied: false, isDismissed: true, value: false });
-      }
-      return origSwal.apply(this, arguments);
-    };
-
-    for (var k in origSwal) {
-      try { wrapped[k] = origSwal[k]; } catch (_) {}
-    }
-
-    var origFire = origSwal.fire;
-    if (typeof origFire === "function") {
-      wrapped.fire = function () {
-        if (isBlockedSwalArgs(arguments)) {
-          report("GATE", "Suppressed Swal.fire() for iOS AppStore gatekeeper");
-          return Promise.resolve({ isConfirmed: false, isDenied: false, isDismissed: true, value: false });
+  function wrapSwal(target) {
+    if (!target || target.__eh_proxied__) return target;
+    try {
+      var proxy = new Proxy(target, {
+        apply: function (fn, thisArg, args) {
+          if (isBlockedSwalArgs(args)) {
+            report("GATE", "Suppressed Swal() call for iOS AppStore gatekeeper");
+            return Promise.resolve({ isConfirmed: false, isDenied: false, isDismissed: true, value: false });
+          }
+          return Reflect.apply(fn, thisArg, args);
+        },
+        get: function (obj, prop, receiver) {
+          if (prop === "__eh_proxied__") return true;
+          if (prop === "fire") {
+            var origFire = obj.fire;
+            if (typeof origFire === "function") {
+              return function () {
+                if (isBlockedSwalArgs(arguments)) {
+                  report("GATE", "Suppressed Swal.fire() for iOS AppStore gatekeeper");
+                  return Promise.resolve({ isConfirmed: false, isDenied: false, isDismissed: true, value: false });
+                }
+                return origFire.apply(obj, arguments);
+              };
+            }
+          }
+          return Reflect.get(obj, prop, receiver);
         }
-        return origFire.apply(origSwal, arguments);
-      };
+      });
+      return proxy;
+    } catch (_) {
+      return target;
     }
-
-    wrapped.__eh_hooked__ = true;
-    return wrapped;
   }
 
-  var _swalVal = window.Swal;
-  if (_swalVal) {
-    _swalVal = hookSwalInstance(_swalVal);
-  }
+  var _swalVal = wrapSwal(window.Swal);
 
   try {
     Object.defineProperty(window, "Swal", {
-      get: function () { return _swalVal; },
-      set: function (v) { _swalVal = hookSwalInstance(v); },
       configurable: true,
-      enumerable: true
+      enumerable: true,
+      get: function () { return _swalVal; },
+      set: function (v) { _swalVal = wrapSwal(v); }
     });
     Object.defineProperty(window, "sweetAlert", {
-      get: function () { return _swalVal; },
-      set: function (v) { _swalVal = hookSwalInstance(v); },
       configurable: true,
-      enumerable: true
+      enumerable: true,
+      get: function () { return _swalVal; },
+      set: function (v) { _swalVal = wrapSwal(v); }
     });
-  } catch (_) {}
+  } catch (_) {
+    window.Swal = _swalVal;
+  }
 
 })();

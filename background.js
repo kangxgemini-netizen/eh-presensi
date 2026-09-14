@@ -255,10 +255,8 @@ async function gateBlockSet(tabId, enabled) {
                   style.textContent = [
                     ".swal2-container:has(.ios-appstore-gate-popup),",
                     ".swal2-container:has(.ios-appstore-gate-wrap),",
-                    ".swal2-container:has([class*='ios-appstore']),",
                     ".swal2-container:has(a[href*='id6800222797']),",
-                    ".swal2-container:has(a[href*='apps.apple.com']),",
-                    ".swal2-container.swal2-backdrop-show:has(#swal2-title),",
+                    ".swal2-container:has(a[href*='epresensi-kemendespdt']),",
                     ".ios-appstore-gate-popup,",
                     ".ios-appstore-gate-wrap {",
                     "  display: none !important;",
@@ -266,34 +264,42 @@ async function gateBlockSet(tabId, enabled) {
                     "  visibility: hidden !important;",
                     "  pointer-events: none !important;",
                     "  z-index: -999999 !important;",
-                    "}",
-                    "html.swal2-shown, body.swal2-shown {",
-                    "  overflow: auto !important;",
-                    "  height: auto !important;",
                     "}"
                   ].join("\n");
                   (document.head || document.documentElement).appendChild(style);
                 }
-                var candidates = document.querySelectorAll(".swal2-container, .ios-appstore-gate-popup, .ios-appstore-gate-wrap");
+                var candidates = document.querySelectorAll(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='id6800222797'], a[href*='epresensi-kemendespdt']");
+                var purged = false;
                 for (var i = 0; i < candidates.length; i++) {
                   var el = candidates[i];
-                  var isGate = (el.classList && (el.classList.contains("ios-appstore-gate-popup") || el.classList.contains("ios-appstore-gate-wrap"))) ||
-                               (el.querySelector && el.querySelector(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='apps.apple.com'], a[href*='id6800222797']")) ||
-                               (el.textContent && (
-                                 el.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1 ||
-                                 el.textContent.indexOf("Akses ePresensi KemendesPDT melalui browser pada iPhone") !== -1
-                               ));
-                  if (isGate) {
-                    var container = (el.closest && el.closest(".swal2-container")) || el;
-                    container.remove();
+                  var container = (el.closest && el.closest(".swal2-container")) || el;
+                  if (container && container.parentNode) {
+                    container.parentNode.removeChild(container);
+                    purged = true;
                   }
                 }
-                document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
-                document.documentElement.style.overflow = "";
-                if (document.body) {
-                  document.body.classList.remove("swal2-shown", "swal2-height-auto");
-                  document.body.style.overflow = "";
-                  document.body.style.paddingRight = "";
+                var swals = document.querySelectorAll(".swal2-container");
+                for (var j = 0; j < swals.length; j++) {
+                  var s = swals[j];
+                  var title = s.querySelector && s.querySelector("#swal2-title");
+                  if (title && title.textContent && title.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1) {
+                    if (s.parentNode) {
+                      s.parentNode.removeChild(s);
+                      purged = true;
+                    }
+                  }
+                }
+                if (purged) {
+                  var remaining = document.querySelectorAll(".swal2-container");
+                  if (!remaining.length) {
+                    document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
+                    document.documentElement.style.overflow = "";
+                    if (document.body) {
+                      document.body.classList.remove("swal2-shown", "swal2-height-auto");
+                      document.body.style.overflow = "";
+                      document.body.style.paddingRight = "";
+                    }
+                  }
                 }
               } catch (_) {}
             }
@@ -713,10 +719,12 @@ async function proxyTest(proxyUrl) {
 async function onDebugEvent(debuggeeId, method, params) {
   if (method !== "Fetch.requestPaused") return;
   const tabId = debuggeeId.tabId;
-  const t = tabs.get(tabId);
-  if (!t || !t.js || !params.responseStatusCode) return;
-
   const reqId = params.requestId;
+  const t = tabs.get(tabId);
+  if (!t || !t.js || !params.responseStatusCode) {
+    chrome.debugger.sendCommand({ tabId }, "Fetch.continueRequest", { requestId: reqId }).catch(() => {});
+    return;
+  }
   try {
     const result = await chrome.debugger.sendCommand({ tabId }, "Fetch.getResponseBody", { requestId: reqId });
     let body = result.base64Encoded ? base64ToUtf8(result.body) : result.body;
