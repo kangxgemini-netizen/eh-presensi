@@ -8,6 +8,10 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.0.2 (2026-09-14)
+- **Hotfix Swal Proxy Scoping:** Memindahkan fungsi report logger ke root scope IIFE di `spoof.js` guna mencegah exception `ReferenceError: report is not defined` saat gatekeeper modal dicegah pada halaman ubah password (`/ubah-password`).
+- **Zero-Interruption Page Lifecycle:** Memastikan alur ganti password dan pemanggilan SweetAlert status presensi berjalan mulus tanpa hambatan error konsol.
+
 ### v2.0.1 (2026-09-14)
 - **Stability & Blocker Hardening:** Selektor bedah khusus untuk iOS AppStore Gatekeeper tanpa merusak modal dialog SweetAlert lainnya (konfirmasi kehadiran, dialog radius, notifikasi error).
 - **CDP Request Recovery:** Penanganan error `-32602` (`Invalid InterceptionId`) saat reload/navigasi cepat agar tidak memicu unhandled promise exception.

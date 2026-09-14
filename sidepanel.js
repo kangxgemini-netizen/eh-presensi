@@ -154,6 +154,10 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.0.2", date: "2026-09-14", items: [
+    "Hotfix Swal Proxy Scoping: Memindahkan fungsi report logger ke root scope IIFE di spoof.js guna mencegah 'ReferenceError: report is not defined' saat gatekeeper modal dicegah pada halaman ubah-password.",
+    "Zero-Interruption Page Lifecycle: Menjamin halaman pergantian password dan dialog status presensi berjalan mulus tanpa error konsol.",
+  ]},
   { ver: "2.0.1", date: "2026-09-14", items: [
     "Stability & Blocker Hardening: Selektor bedah khusus untuk iOS Gatekeeper tanpa merusak modal dialog SweetAlert lainnya (konfirmasi absen, notifikasi radius, error).",
     "CDP Request Recovery: Penanganan error -32602 (Invalid InterceptionId) saat reload/navigasi cepat agar tidak memicu uncaught promise exception.",
