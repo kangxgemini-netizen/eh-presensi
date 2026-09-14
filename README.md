@@ -10,7 +10,7 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ### v2.0.0 (2026-09-14)
 - **Block iOS AppStore Gate:** Menambahkan modul pemblokir modal SweetAlert2 ("ePresensi Versi Web Sudah Tidak Digunakan") dan backdrop overlay-nya agar presensi tetap lancar saat spoofing iOS Safari. Dilengkapi toggle ON/OFF independen di Side Panel dan integrasi ke master Bypass All.
-- **Direct Navigation CTA:** Tombol CTA "Buka Dashboard Absen-Dev" langsung di bawah tombol Bypass All untuk navigasi cepat tab aktif ke `https://presensi.kemendesa.go.id/absen-dev/dashboard`.
+- **Dual Direct Navigation CTA:** Shortcut 2 kolom di bawah tombol Bypass All untuk navigasi instan tab aktif ke `https://presensi.kemendesa.go.id/absen-dev/dashboard` ("Buka Absen-Dev") dan `https://presensi.kemendesa.go.id/dashboard` ("Buka Presensi Lama").
 - **Engine Hardening:** Pembersihan otomatis script registrasi dinamis saat background worker startup.
 
 ### v1.4.39 (2026-08-30)

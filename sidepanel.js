@@ -156,7 +156,7 @@ function initTabs() {
 const CHANGELOG = [
   { ver: "2.0.0", date: "2026-09-14", items: [
     "Major Release: Block iOS AppStore Gate — memblokir modal SweetAlert 'ePresensi Versi Web Sudah Tidak Digunakan' beserta backdrop gelapnya secara instan.",
-    "Shortcut Buka Dashboard Absen-Dev: Tombol CTA baru tepat di bawah Bypass All untuk langsung membuka tab aktif ke URL dashboard absen-dev.",
+    "Dual Quick Nav CTA: Tombol shortcut 2 kolom di bawah Bypass All untuk akses instan ke 'Buka Absen-Dev' dan 'Buka Presensi Lama'.",
     "Engine Hardening & Clean Startup: Pembersihan otomatis residual script registrasi dinamis dan isolasi penuh sakelar Bypass All.",
   ]},
   { ver: "1.4.39", date: "2026-08-30", items: [
@@ -784,6 +784,18 @@ $("btn-bypass-all").addEventListener("click", async () => {
 if ($("btn-open-dashboard")) {
   $("btn-open-dashboard").addEventListener("click", async () => {
     const targetUrl = "https://presensi.kemendesa.go.id/absen-dev/dashboard";
+    const tab = await currentTab();
+    if (tab && tab.id) {
+      chrome.tabs.update(tab.id, { url: targetUrl, active: true });
+    } else {
+      chrome.tabs.create({ url: targetUrl, active: true });
+    }
+  });
+}
+
+if ($("btn-open-legacy")) {
+  $("btn-open-legacy").addEventListener("click", async () => {
+    const targetUrl = "https://presensi.kemendesa.go.id/dashboard";
     const tab = await currentTab();
     if (tab && tab.id) {
       chrome.tabs.update(tab.id, { url: targetUrl, active: true });

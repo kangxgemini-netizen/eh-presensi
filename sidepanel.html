@@ -429,6 +429,12 @@
       border: 1px solid var(--border); font-weight: 600;
     }
     .btn-secondary:hover { background: var(--muted); border-color: var(--primary); }
+    .btn-row {
+      display: flex; gap: 6px; width: 100%; margin-top: 6px;
+    }
+    .btn-row .btn {
+      flex: 1; margin-top: 0; min-width: 0; padding: 8px 6px; font-size: var(--text-sm);
+    }
     .btn-tertiary {
       background: transparent; color: var(--muted-foreground);
       border: 1px solid var(--border); font-weight: 500;
@@ -757,11 +763,17 @@
       <span id="btn-bypass-label">Bypass All</span>
     </button>
 
-    <!-- Open Dashboard CTA -->
-    <button class="btn btn-secondary" id="btn-open-dashboard">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      <span>Buka Dashboard Absen-Dev</span>
-    </button>
+    <!-- Quick Nav CTAs (2 columns) -->
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
+        <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Absen-Dev</span>
+      </button>
+      <button class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
+        <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Presensi Lama</span>
+      </button>
+    </div>
 
     <!-- Tertiary: Reload Tab -->
     <button class="btn btn-tertiary" id="btn-reload">
