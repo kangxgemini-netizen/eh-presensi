@@ -8,6 +8,19 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.0.0 (2026-09-14)
+- **Block iOS AppStore Gate:** Menambahkan modul pemblokir modal SweetAlert2 ("ePresensi Versi Web Sudah Tidak Digunakan") dan backdrop overlay-nya agar presensi tetap lancar saat spoofing iOS Safari. Dilengkapi toggle ON/OFF independen di Side Panel dan integrasi ke master Bypass All.
+- **Direct Navigation CTA:** Tombol CTA "Buka Dashboard Absen-Dev" langsung di bawah tombol Bypass All untuk navigasi cepat tab aktif ke `https://presensi.kemendesa.go.id/absen-dev/dashboard`.
+- **Engine Hardening:** Pembersihan otomatis script registrasi dinamis saat background worker startup.
+
+### v1.4.39 (2026-08-30)
+- **Instant Real-Time OTA Fetcher:** Menggunakan GitHub Releases REST API (/releases/latest) dengan bypass cache CDN agar rilis baru terdeteksi secara instan.
+- **Dynamic Release Notes Accordion:** Render catatan rilis langsung di banner warning update tanpa perlu berpindah tab.
+
+### v1.4.38 (2026-08-30)
+- **Bypass All Module Isolation:** Tombol master hanya menghitung 3 modul inti (iOS Safari UA, Guard Neutralizer, GPS Spoof), sepenuhnya independen dari Proxy Route.
+- **Deactivate All State:** Tombol bertransformasi menjadi 'Deactivate All' dengan style merah saat 3 modul aktif.
+
 ### v1.4.29 (2026-08-30)
 - **Full Manual Proxy Route (UI/UX Polish):** Menghapus preset hardcoded AWS, menyediakan input langsung yang responsif (`socks5://..` atau `http://..`) dengan input hint, inline testing button, dan real-time error indicator.
 - **Routing Scope Selector:** Tetap menyediakan pilihan `Target Host Only` vs `All Traffic`.

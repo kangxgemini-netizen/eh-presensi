@@ -39,6 +39,23 @@ async function addLog(category, message, level = "info") {
 
 addLog("STATE", "eh-Presensi background initialized");
 
+// Clean up any stale or orphaned registered content scripts (e.g. legacy vbg scripts)
+(async () => {
+  try {
+    const scripts = await chrome.scripting.getRegisteredContentScripts();
+    const staleIds = scripts
+      .map((s) => s.id)
+      .filter((id) => id.startsWith("vbg-") || !id.startsWith("spoof-"));
+    if (staleIds.length > 0) {
+      await chrome.scripting.unregisterContentScripts({ ids: staleIds });
+      addLog("STATE", `Purged ${staleIds.length} stale content script registrations: ${staleIds.join(", ")}`);
+    }
+  } catch (_) {}
+  try {
+    await chrome.storage.local.remove(["vbgEnabled", "vbgMode", "vbgPreset", "vbgCustomImg"]);
+  } catch (_) {}
+})();
+
 // Curated 50 preset coordinates within 60m diameter (30m radius) of -6.343295, 106.858673
 const GEO_LIST = [
   { lat: -6.34326123634936, lng: 106.85888739468149 },
@@ -152,6 +169,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "PROXY_SET")  { proxySet(msg.proxyUrl, msg.targetHost, msg.scope).then(sendResponse).catch(() => sendResponse({ ok: false, error: "proxySet failed" })); return true; }
   if (msg.type === "PROXY_TEST") { proxyTest(msg.proxyUrl).then(sendResponse).catch((e) => sendResponse({ ok: false, error: "proxyTest failed: " + e.message })); return true; }
   if (msg.type === "PROXY_CLEAR"){ proxyClear().then(sendResponse).catch(() => sendResponse({ ok: false, error: "proxyClear failed" })); return true; }
+  if (msg.type === "GATE_BLOCK_SET") { gateBlockSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "gateBlockSet failed" })); return true; }
   if (msg.action === "INJECT_LOG") { addLog(msg.cat || "INJECT", msg.msg); return false; }
 });
 
@@ -181,13 +199,118 @@ async function safeGetTab(tabId) {
 // ---------- state ----------
 function status(tabId) {
   const t = tabs.get(tabId) || {};
-  return { js: !!t.js, ua: t.ua || null, geo: t.geo || null, proxy: t.proxy || null, geoEnabled: !!t.geoEnabled };
+  return {
+    js: !!t.js,
+    ua: t.ua || null,
+    geo: t.geo || null,
+    proxy: t.proxy || null,
+    geoEnabled: !!t.geoEnabled,
+    gateBlockEnabled: t.gateBlockEnabled !== false
+  };
 }
 
 async function getTab(tabId) {
   let t = tabs.get(tabId);
-  if (!t) { t = { js: null, ua: null, geo: null, geoAuto: false, geoEnabled: false, proxy: null }; tabs.set(tabId, t); }
+  if (!t) {
+    t = {
+      js: null,
+      ua: null,
+      geo: null,
+      geoAuto: false,
+      geoEnabled: false,
+      proxy: null,
+      gateBlockEnabled: true
+    };
+    tabs.set(tabId, t);
+  }
   return t;
+}
+
+// ---------- Gatekeeper modal blocker ----------
+async function gateBlockSet(tabId, enabled) {
+  const t = await getTab(tabId);
+  t.gateBlockEnabled = !!enabled;
+  await chrome.storage.local.set({ gateBlockEnabled: !!enabled });
+  addLog("GATE", `Block iOS AppStore Gate ${enabled ? "armed / ON" : "disabled / OFF"}`);
+
+  const tab = await safeGetTab(tabId);
+  if (tab && isHttpUrl(tab.url)) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        world: "MAIN",
+        func: (on) => {
+          window.__EH_GATE_BLOCK__ = on;
+          if (on) {
+            if (typeof window.__EH_APPLY_GATE_BLOCK__ === "function") {
+              window.__EH_APPLY_GATE_BLOCK__();
+            } else {
+              // Standalone fallback if spoof.js not loaded yet
+              try {
+                var sId = "__eh_gate_block_style__";
+                var style = document.getElementById(sId);
+                if (!style) {
+                  style = document.createElement("style");
+                  style.id = sId;
+                  style.textContent = [
+                    ".swal2-container:has(.ios-appstore-gate-popup),",
+                    ".swal2-container:has(.ios-appstore-gate-wrap),",
+                    ".swal2-container:has([class*='ios-appstore']),",
+                    ".swal2-container:has(a[href*='id6800222797']),",
+                    ".swal2-container:has(a[href*='apps.apple.com']),",
+                    ".swal2-container.swal2-backdrop-show:has(#swal2-title),",
+                    ".ios-appstore-gate-popup,",
+                    ".ios-appstore-gate-wrap {",
+                    "  display: none !important;",
+                    "  opacity: 0 !important;",
+                    "  visibility: hidden !important;",
+                    "  pointer-events: none !important;",
+                    "  z-index: -999999 !important;",
+                    "}",
+                    "html.swal2-shown, body.swal2-shown {",
+                    "  overflow: auto !important;",
+                    "  height: auto !important;",
+                    "}"
+                  ].join("\n");
+                  (document.head || document.documentElement).appendChild(style);
+                }
+                var candidates = document.querySelectorAll(".swal2-container, .ios-appstore-gate-popup, .ios-appstore-gate-wrap");
+                for (var i = 0; i < candidates.length; i++) {
+                  var el = candidates[i];
+                  var isGate = (el.classList && (el.classList.contains("ios-appstore-gate-popup") || el.classList.contains("ios-appstore-gate-wrap"))) ||
+                               (el.querySelector && el.querySelector(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='apps.apple.com'], a[href*='id6800222797']")) ||
+                               (el.textContent && (
+                                 el.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1 ||
+                                 el.textContent.indexOf("Akses ePresensi KemendesPDT melalui browser pada iPhone") !== -1
+                               ));
+                  if (isGate) {
+                    var container = (el.closest && el.closest(".swal2-container")) || el;
+                    container.remove();
+                  }
+                }
+                document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
+                document.documentElement.style.overflow = "";
+                if (document.body) {
+                  document.body.classList.remove("swal2-shown", "swal2-height-auto");
+                  document.body.style.overflow = "";
+                  document.body.style.paddingRight = "";
+                }
+              } catch (_) {}
+            }
+          } else {
+            if (typeof window.__EH_REMOVE_GATE_BLOCK__ === "function") {
+              window.__EH_REMOVE_GATE_BLOCK__();
+            } else {
+              var s = document.getElementById("__eh_gate_block_style__");
+              if (s) s.remove();
+            }
+          }
+        },
+        args: [!!enabled]
+      });
+    } catch (_) {}
+  }
+  return { ok: true, gateBlockEnabled: !!enabled };
 }
 
 // ---------- debugger attach ----------
@@ -395,14 +518,20 @@ async function registerSpoofOnce(tabId, url) {
   if (!matches.length) return;
 
   const scriptId = `spoof-${tabId}`;
-  // Already registered for this tab?
-  let registered = false;
+  const currentMatch = matches[0];
+  let existing = [];
   try {
-    const existing = await chrome.scripting.getRegisteredContentScripts({ ids: [scriptId] });
-    registered = existing && existing.length > 0;
+    existing = await chrome.scripting.getRegisteredContentScripts({ ids: [scriptId] });
   } catch (_) {}
 
-  if (!registered) {
+  const ready = existing.length > 0 &&
+    Array.isArray(existing[0].matches) && existing[0].matches.includes(currentMatch) &&
+    Array.isArray(existing[0].js) && existing[0].js.includes("spoof.js");
+
+  if (existing.length > 0 && !ready) {
+    try { await chrome.scripting.unregisterContentScripts({ ids: [scriptId] }); } catch (_) {}
+  }
+  if (!ready) {
     try {
       await chrome.scripting.registerContentScripts([{
         id: scriptId,
@@ -414,17 +543,23 @@ async function registerSpoofOnce(tabId, url) {
     } catch (_) {}
   }
 
-  // Inject current geo config into MAIN world
   const t = await getTab(tabId);
   const geoCfg = (t.geoEnabled && t.geo)
     ? { mode: t.geoAuto ? "auto" : "manual", lat: t.geo.lat, lng: t.geo.lng }
     : { mode: "off", disabled: true };
+  const gateOn = (t.gateBlockEnabled !== false);
   try {
     await chrome.scripting.executeScript({
       target: { tabId },
       world: "MAIN",
-      func: (cfg) => { window.__EH_GEO__ = cfg; },
-      args: [geoCfg],
+      func: (cfg, gateBlock) => {
+        window.__EH_GEO__ = cfg;
+        window.__EH_GATE_BLOCK__ = gateBlock;
+        if (gateBlock && typeof window.__EH_APPLY_GATE_BLOCK__ === "function") {
+          window.__EH_APPLY_GATE_BLOCK__();
+        }
+      },
+      args: [geoCfg, gateOn],
       injectImmediately: true,
     });
   } catch (_) {}

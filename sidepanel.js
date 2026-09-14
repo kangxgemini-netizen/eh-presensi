@@ -154,6 +154,11 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.0.0", date: "2026-09-14", items: [
+    "Major Release: Block iOS AppStore Gate — memblokir modal SweetAlert 'ePresensi Versi Web Sudah Tidak Digunakan' beserta backdrop gelapnya secara instan.",
+    "Shortcut Buka Dashboard Absen-Dev: Tombol CTA baru tepat di bawah Bypass All untuk langsung membuka tab aktif ke URL dashboard absen-dev.",
+    "Engine Hardening & Clean Startup: Pembersihan otomatis residual script registrasi dinamis dan isolasi penuh sakelar Bypass All.",
+  ]},
   { ver: "1.4.39", date: "2026-08-30", items: [
     "Instant Real-Time OTA Fetcher: Menggunakan GitHub Releases REST API (/releases/latest) dengan bypass cache CDN agar rilis baru terdeteksi secara instan.",
     "Dynamic Release Notes Accordion: Render catatan rilis langsung di banner warning update tanpa perlu berpindah tab."
@@ -297,7 +302,7 @@ function renderLogs(logs) {
   const container = $("log-container");
   const badgeCount = $("log-count-badge");
   if (!container) return;
-  
+
   if (badgeCount) badgeCount.textContent = logs.length;
   container.innerHTML = "";
 
@@ -362,10 +367,10 @@ function initConsoleToolbar() {
 
 // --- CONTROLS LOGIC ---
 async function load() {
-  const data = await chrome.storage.local.get(["pattern", "mode", "js", "ua", "proxyUrl", "proxyHost", "proxyOn", "proxyScope", "geoMode", "geoAnchor", "geoManual", "logHistory"]);
+  const data = await chrome.storage.local.get(["pattern", "mode", "js", "ua", "proxyUrl", "proxyHost", "proxyOn", "proxyScope", "geoMode", "geoAnchor", "geoManual", "logHistory", "gateBlockEnabled"]);
   $("pattern").value = data.pattern || DEFAULT_PATTERN;
   $("ua").value = data.ua || DEFAULT_UA;
-  
+
   // Clean custom proxy input (clear any stale legacy default URL if present)
   let savedProxyUrl = (data.proxyUrl || "").trim();
   if (savedProxyUrl.includes("43.218.127.193") || savedProxyUrl.includes("16.78.6.181")) {
@@ -384,6 +389,10 @@ async function load() {
   $("geo-manual-box").style.display = (getGeoMode() === "manual") ? "block" : "none";
   validateAndApplyGeoManual();
   updateProxyStatusLive();
+
+  const gateOn = (data.gateBlockEnabled !== false);
+  if ($("gate-toggle")) $("gate-toggle").checked = gateOn;
+  updateGateStatusLive();
 
   renderLogs(Array.isArray(data.logHistory) ? data.logHistory : []);
 
@@ -408,19 +417,24 @@ async function load() {
     const geoOn = !!(res && res.geo);
     const currentProxyUrl = ($("proxy-url") ? $("proxy-url").value.trim() : "");
     const proxyOn = !!(currentProxyUrl && (res.proxy || data.proxyOn));
-    
+
     $("js-toggle").checked = jsOn;
     $("ua-toggle").checked = uaOn;
     $("geo-toggle").checked = geoOn;
     $("proxy-toggle").checked = proxyOn;
+    if ($("gate-toggle") && res && res.gateBlockEnabled !== undefined) {
+      $("gate-toggle").checked = !!res.gateBlockEnabled;
+    }
+    updateGateStatusLive();
     if (uaOn) $("ua").value = res.ua;
     if (geoOn) $("geo-coords").textContent = `${res.geo.lat.toFixed(6)}, ${res.geo.lng.toFixed(6)}`;
-    
+
     if (currentProxyUrl) {
       $("proxy-status").textContent = (proxyOn ? "manual (aktif): " : "manual: ") + currentProxyUrl;
     } else {
       $("proxy-status").textContent = "manual / off";
     }
+
     render();
   });
 }
@@ -524,10 +538,28 @@ async function applyAll(on) {
   $("ua-toggle").checked = on;
   $("js-toggle").checked = on;
   $("geo-toggle").checked = on;
+  if ($("gate-toggle")) {
+    $("gate-toggle").checked = on;
+    await chrome.storage.local.set({ gateBlockEnabled: on });
+    updateGateStatusLive();
+    chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on });
+  }
   render();
 }
 
 // Event Listeners
+if ($("gate-toggle")) {
+  $("gate-toggle").addEventListener("change", async (e) => {
+    const on = e.target.checked;
+    await chrome.storage.local.set({ gateBlockEnabled: on });
+    updateGateStatusLive();
+    const tab = await currentTab();
+    if (tab) {
+      chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on }, render);
+    }
+  });
+}
+
 $("ua-toggle").addEventListener("change", async (e) => {
   const tab = await currentTab();
   if (!tab) return;
@@ -628,7 +660,7 @@ async function applyProxyIfOn() {
   let url = $("proxy-url").value.trim();
   const host = $("proxy-host").value.trim();
   const scope = getProxyScope();
-  
+
   if (!url) {
     $("proxy-status").textContent = "manual: belum diisi";
     return;
@@ -700,12 +732,19 @@ $("proxy-host").addEventListener("input", () => {
 });
 
 // Real-time status text (tanpa nunggu toggle ON)
+function updateGateStatusLive() {
+  const el = $("gate-status");
+  if (!el) return;
+  const on = $("gate-toggle") ? $("gate-toggle").checked : false;
+  el.textContent = on ? "blocker: aktif" : "blocker: nonaktif";
+}
+
 function updateProxyStatusLive() {
   const scope = getProxyScope();
   let url = $("proxy-url") ? $("proxy-url").value.trim() : "";
   const host = $("proxy-host") ? $("proxy-host").value.trim() : "";
   const on = $("proxy-toggle") ? $("proxy-toggle").checked : false;
-  
+
   if (!url) {
     $("proxy-status").textContent = on ? "aktif: url kosong" : "manual / off";
     return;
@@ -742,6 +781,18 @@ $("btn-bypass-all").addEventListener("click", async () => {
   } catch (_) {}
 });
 
+if ($("btn-open-dashboard")) {
+  $("btn-open-dashboard").addEventListener("click", async () => {
+    const targetUrl = "https://presensi.kemendesa.go.id/absen-dev/dashboard";
+    const tab = await currentTab();
+    if (tab && tab.id) {
+      chrome.tabs.update(tab.id, { url: targetUrl, active: true });
+    } else {
+      chrome.tabs.create({ url: targetUrl, active: true });
+    }
+  });
+}
+
 // Live Log Listener
 const STAGE_KEYWORDS = [
   { key: "ambil", re: /mengambil daftar proxy/i },
@@ -768,7 +819,7 @@ async function executeAutoUpdate() {
   const btn = $("btn-ota-open");
   if (!btn) return;
   const originalHtml = btn.innerHTML;
-  
+
   try {
     btn.disabled = true;
     btn.innerHTML = `
@@ -778,7 +829,7 @@ async function executeAutoUpdate() {
 
     // Download rilis zip via chrome.downloads atau direct web fetch
     const zipUrl = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${targetNewVersion}/eh-presensi-v${targetNewVersion}.zip`;
-    
+
     // Trigger download zip rilis ke folder ~/Downloads via Chrome Downloads API
     await chrome.downloads.download({
       url: zipUrl,
@@ -823,7 +874,7 @@ function isNewerVersion(remote, local) {
 async function checkOTAUpdate(isManual = false) {
   const btnCheck = $("btn-check-version");
   const textCheck = $("check-version-text");
-  
+
   if (isManual && textCheck) {
     textCheck.textContent = "Memeriksa...";
     if (btnCheck) btnCheck.style.opacity = "0.7";
@@ -833,7 +884,7 @@ async function checkOTAUpdate(isManual = false) {
     // 1. Coba fetch dari GitHub API Releases terbaru lebih dulu (real-time tanpa CDN cache)
     let remoteVer = null;
     let remoteNotes = null;
-    
+
     try {
       const releaseApiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
       const relRes = await fetch(releaseApiUrl, {
@@ -866,7 +917,7 @@ async function checkOTAUpdate(isManual = false) {
       const title = $("ota-title");
       const desc = $("ota-desc");
       const clContent = $("ota-changelog-content");
-      
+
       if (banner && title && desc) {
         title.textContent = `Update Tersedia: v${remoteVer}`;
         desc.textContent = `Versi v${remoteVer} tersedia di GitHub (saat ini v${localVer}).`;
