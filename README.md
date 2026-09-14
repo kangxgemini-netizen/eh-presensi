@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.0.1 (2026-09-14)
+- **Stability & Blocker Hardening:** Selektor bedah khusus untuk iOS AppStore Gatekeeper tanpa merusak modal dialog SweetAlert lainnya (konfirmasi kehadiran, dialog radius, notifikasi error).
+- **CDP Request Recovery:** Penanganan error `-32602` (`Invalid InterceptionId`) saat reload/navigasi cepat agar tidak memicu unhandled promise exception.
+- **UI Refinements:** Tombol Reload Tab dipindah ke samping kanan tombol Bypass All sebagai icon button mandiri dengan animasi spin interaktif.
+- **Transparent ES6 Proxy Hooking:** Mengganti monkey-patching `Swal` dengan ES6 `Proxy` untuk kompatibilitas penuh method dan prototype SweetAlert bawaan website.
+
 ### v2.0.0 (2026-09-14)
 - **Block iOS AppStore Gate:** Menambahkan modul pemblokir modal SweetAlert2 ("ePresensi Versi Web Sudah Tidak Digunakan") dan backdrop overlay-nya agar presensi tetap lancar saat spoofing iOS Safari. Dilengkapi toggle ON/OFF independen di Side Panel dan integrasi ke master Bypass All.
 - **Dual Direct Navigation CTA:** Shortcut 2 kolom di bawah tombol Bypass All untuk navigasi instan tab aktif ke `https://presensi.kemendesa.go.id/absen-dev/dashboard` ("Buka Absen-Dev") dan `https://presensi.kemendesa.go.id/dashboard` ("Buka Presensi Lama").

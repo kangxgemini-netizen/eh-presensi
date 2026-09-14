@@ -154,6 +154,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.0.1", date: "2026-09-14", items: [
+    "Stability & Blocker Hardening: Selektor bedah khusus untuk iOS Gatekeeper tanpa merusak modal dialog SweetAlert lainnya (konfirmasi absen, notifikasi radius, error).",
+    "CDP Request Recovery: Penanganan error -32602 (Invalid InterceptionId) saat reload/navigasi cepat agar tidak memicu uncaught promise exception.",
+    "UI Refinements: Tombol Reload Tab dipindah ke samping kanan Bypass All sebagai icon button mandiri dengan animasi spin interaktif.",
+    "Transparent Proxy Hooking: Mengganti monkey-patching Swal dengan ES6 Proxy untuk menjamin kompatibilitas penuh method dan prototype SweetAlert bawaan website.",
+  ]},
   { ver: "2.0.0", date: "2026-09-14", items: [
     "Major Release: Block iOS AppStore Gate — memblokir modal SweetAlert 'ePresensi Versi Web Sudah Tidak Digunakan' beserta backdrop gelapnya secara instan.",
     "Dual Quick Nav CTA: Tombol shortcut 2 kolom di bawah Bypass All untuk akses instan ke 'Buka Absen-Dev' dan 'Buka Presensi Lama'.",
