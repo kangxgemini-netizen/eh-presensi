@@ -56,64 +56,65 @@ addLog("STATE", "eh-Presensi background initialized");
 
 // Curated 50 preset coordinates within 60m diameter (30m radius) of -6.343295, 106.858673
 const GEO_LIST = [
-  { lat: -6.34326123634936, lng: 106.85888739468149 },
-  { lat: -6.34315550962773, lng: 106.85869684957954 },
-  { lat: -6.3435024086635, lng: 106.85856946085879 },
-  { lat: -6.34316261500587, lng: 106.8588920937062 },
-  { lat: -6.34326238121559, lng: 106.85884624591483 },
-  { lat: -6.34329924404357, lng: 106.85854614131384 },
-  { lat: -6.34325330185886, lng: 106.85868697157417 },
-  { lat: -6.34335560307944, lng: 106.8584628294717 },
-  { lat: -6.34336238029577, lng: 106.85856507415986 },
-  { lat: -6.3432850913222, lng: 106.85891702309317 },
-  { lat: -6.34352444514515, lng: 106.85859499422284 },
-  { lat: -6.34316457230047, lng: 106.8587616077868 },
-  { lat: -6.34306915482371, lng: 106.85853552146274 },
-  { lat: -6.34324808661052, lng: 106.85874087007217 },
-  { lat: -6.3434456538863, lng: 106.858474318075 },
-  { lat: -6.34353542319374, lng: 106.85864202613418 },
-  { lat: -6.34332821401204, lng: 106.85886895323162 },
-  { lat: -6.34334831442434, lng: 106.85851483388454 },
-  { lat: -6.34346152565975, lng: 106.85849121697217 },
-  { lat: -6.34341198600928, lng: 106.85845019056016 },
-  { lat: -6.34323069299665, lng: 106.85889147922678 },
-  { lat: -6.34317012683962, lng: 106.85864125503029 },
-  { lat: -6.34321923439124, lng: 106.85868127512751 },
-  { lat: -6.3432105777466, lng: 106.8586579145958 },
-  { lat: -6.34313349500822, lng: 106.85853004135139 },
-  { lat: -6.34313613338896, lng: 106.85871456944612 },
-  { lat: -6.34334903080669, lng: 106.85880229850547 },
-  { lat: -6.34343252500506, lng: 106.85850386495824 },
-  { lat: -6.34340565334838, lng: 106.85865831409927 },
-  { lat: -6.34322007168938, lng: 106.8585932664165 },
-  { lat: -6.34350178968459, lng: 106.85850087437389 },
-  { lat: -6.34347959241269, lng: 106.85859209265188 },
-  { lat: -6.34353939420489, lng: 106.85871353193008 },
-  { lat: -6.34326913340198, lng: 106.85880028365209 },
-  { lat: -6.34314440869325, lng: 106.8586560399998 },
-  { lat: -6.34333850589112, lng: 106.85878975231718 },
-  { lat: -6.34306300141186, lng: 106.85857254724138 },
-  { lat: -6.34316181208189, lng: 106.85849881382788 },
-  { lat: -6.34322903395307, lng: 106.85842202705827 },
-  { lat: -6.34315617633922, lng: 106.85867596023621 },
-  { lat: -6.34309350377378, lng: 106.85865673450442 },
-  { lat: -6.34341852072691, lng: 106.85883922885313 },
-  { lat: -6.34312765165464, lng: 106.85870586542033 },
-  { lat: -6.34331111927116, lng: 106.85840236153707 },
-  { lat: -6.3432712682261, lng: 106.85875128746896 },
-  { lat: -6.34335913527716, lng: 106.85861042330552 },
-  { lat: -6.34318218956627, lng: 106.85845972879626 },
-  { lat: -6.34324895658539, lng: 106.8586226498143 },
-  { lat: -6.34334398401921, lng: 106.85840658909143 },
-  { lat: -6.34349902087856, lng: 106.85884452124772 }
+  { lat: -6.3432612, lng: 106.8588874 },
+  { lat: -6.3431555, lng: 106.8586968 },
+  { lat: -6.3435024, lng: 106.8585695 },
+  { lat: -6.3431626, lng: 106.8588921 },
+  { lat: -6.3432624, lng: 106.8588462 },
+  { lat: -6.3432992, lng: 106.8585461 },
+  { lat: -6.3432533, lng: 106.858687 },
+  { lat: -6.3433556, lng: 106.8584628 },
+  { lat: -6.3433624, lng: 106.8585651 },
+  { lat: -6.3432851, lng: 106.858917 },
+  { lat: -6.3435244, lng: 106.858595 },
+  { lat: -6.3431646, lng: 106.8587616 },
+  { lat: -6.3430692, lng: 106.8585355 },
+  { lat: -6.3432481, lng: 106.8587409 },
+  { lat: -6.3434457, lng: 106.8584743 },
+  { lat: -6.3435354, lng: 106.858642 },
+  { lat: -6.3433282, lng: 106.858869 },
+  { lat: -6.3433483, lng: 106.8585148 },
+  { lat: -6.3434615, lng: 106.8584912 },
+  { lat: -6.343412, lng: 106.8584502 },
+  { lat: -6.3432307, lng: 106.8588915 },
+  { lat: -6.3431701, lng: 106.8586413 },
+  { lat: -6.3432192, lng: 106.8586813 },
+  { lat: -6.3432106, lng: 106.8586579 },
+  { lat: -6.3431335, lng: 106.85853 },
+  { lat: -6.3431361, lng: 106.8587146 },
+  { lat: -6.343349, lng: 106.8588023 },
+  { lat: -6.3434325, lng: 106.8585039 },
+  { lat: -6.3434057, lng: 106.8586583 },
+  { lat: -6.3432201, lng: 106.8585933 },
+  { lat: -6.3435018, lng: 106.8585009 },
+  { lat: -6.3434796, lng: 106.8585921 },
+  { lat: -6.3435394, lng: 106.8587135 },
+  { lat: -6.3432691, lng: 106.8588003 },
+  { lat: -6.3431444, lng: 106.858656 },
+  { lat: -6.3433385, lng: 106.8587898 },
+  { lat: -6.343063, lng: 106.8585725 },
+  { lat: -6.3431618, lng: 106.8584988 },
+  { lat: -6.343229, lng: 106.858422 },
+  { lat: -6.3431562, lng: 106.858676 },
+  { lat: -6.3430935, lng: 106.8586567 },
+  { lat: -6.3434185, lng: 106.8588392 },
+  { lat: -6.3431277, lng: 106.8587059 },
+  { lat: -6.3433111, lng: 106.8584024 },
+  { lat: -6.3432713, lng: 106.8587513 },
+  { lat: -6.3433591, lng: 106.8586104 },
+  { lat: -6.3431822, lng: 106.8584597 },
+  { lat: -6.343249, lng: 106.8586226 },
+  { lat: -6.343344, lng: 106.8584066 },
+  { lat: -6.343499, lng: 106.8588445 }
 ];
 
 function pickGeo(mode, manualLat, manualLng) {
   if (mode === "manual" && manualLat != null && manualLng != null) {
     const lat = parseFloat(manualLat), lng = parseFloat(manualLng);
-    if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+    if (!isNaN(lat) && !isNaN(lng)) return { lat: Number(lat.toFixed(7)), lng: Number(lng.toFixed(7)) };
   }
-  return GEO_LIST[Math.floor(Math.random() * GEO_LIST.length)];
+  const item = GEO_LIST[Math.floor(Math.random() * GEO_LIST.length)];
+  return { lat: Number(item.lat.toFixed(7)), lng: Number(item.lng.toFixed(7)) };
 }
 
 chrome.debugger.onEvent.addListener((debuggeeId, method, params) => {
@@ -375,11 +376,13 @@ async function geoApply(tabId, g) {
 
 async function geoSet(tabId, lat, lng, geoAuto) {
   const t = await getTab(tabId);
-  t.geo = { lat, lng };
+  const rLat = Number(parseFloat(lat).toFixed(7));
+  const rLng = Number(parseFloat(lng).toFixed(7));
+  t.geo = { lat: rLat, lng: rLng };
   t.geoAuto = !!geoAuto;
   t.geoEnabled = true;
-  await chrome.storage.local.set({ geoDisabled: false });
-  addLog("GEO", `Geo Spoof set (${geoAuto ? "Auto" : "Manual"}: ${lat}, ${lng})`);
+  await chrome.storage.local.set({ geoDisabled: false, geoLat: rLat, geoLng: rLng });
+  addLog("GEO", `Geo Spoof set (${geoAuto ? "Auto" : "Manual"}: ${rLat.toFixed(7)}, ${rLng.toFixed(7)})`);
   // Make sure the MAIN-world spoof script is registered (geo works without UA spoof)
   const tab = await safeGetTab(tabId);
   if (tab && isHttpUrl(tab.url)) {

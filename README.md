@@ -8,6 +8,10 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.0.4 (2026-09-14)
+- **Normalisasi Desimal GPS (7 Digit):** Seluruh koordinat GPS pada preset WFO (Kalibata & Kalisari), anchor, spoof engine, dan input manual distandardisasi menjadi tepat 7 digit desimal (misalnya `-6.2547403, 106.7249433`).
+- **Natural Sensor Emulation:** Menghapus artefak kalkulasi floating-point 14-16 desimal yang tidak wajar agar data koordinat yang dikirim ke API presensi terbaca otentik seperti sensor GPS fisik smartphone.
+
 ### v2.0.3 (2026-09-14)
 - **Startup Dynamic Script Purge:** Pembersihan total cache registrasi dynamic content script (`chrome.scripting.unregisterContentScripts`) pada saat background worker startup. Hal ini menjamin pembaharuan kode `spoof.js` langsung dieksekusi secara instan oleh browser tanpa tersangkut cache internal LevelDB per tab.
 - **Hardened Injection Synchronization:** Sinkronisasi bersih modul spoofing iOS Safari dan anti-gatekeeper SweetAlert2 di setiap refresh tab.
