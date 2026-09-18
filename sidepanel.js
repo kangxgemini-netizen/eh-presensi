@@ -156,6 +156,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.0.5", date: "2026-09-14", items: [
+    "Pembaruan Label UI/UX:",
+    "• CTA Update: Label tombol OTA diubah menjadi 'Update latest version'.",
+    "• Modul Lokasi: Label card diubah menjadi 'GPS Location' (dari sebelumnya 'GPS Location Spoof').",
+    "• Deskripsi Netral: Kata 'Memalsukan' diubah menjadi 'Mengubah koordinat GPS...'.",
+  ]},
   { ver: "2.0.4", date: "2026-09-14", items: [
     "Normalisasi Desimal GPS (7 Digit): Menyeragamkan seluruh koordinat preset WFO (Kalibata & Kalisari), anchor, spoof engine, dan input manual menjadi tepat 7 digit desimal (standar presisi GPS smartphone).",
     "Natural Sensor Emulation: Menghilangkan artefak kalkulasi floating-point 14-16 desimal yang tidak wajar agar terbaca otentik seperti sensor perangkat fisik.",

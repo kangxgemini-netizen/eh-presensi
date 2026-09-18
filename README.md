@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.0.5 (2026-09-14)
+- **Pembaruan Label UI/UX:**
+  - Label CTA update GitHub diubah menjadi "Update latest version".
+  - Judul fitur card diubah menjadi "GPS Location" (sebelumnya "GPS Location Spoof").
+  - Deskripsi disempurnakan menjadi lebih netral: "Mengubah koordinat GPS..." (menggantikan kata "Memalsukan").
+
 ### v2.0.4 (2026-09-14)
 - **Normalisasi Desimal GPS (7 Digit):** Seluruh koordinat GPS pada preset WFO (Kalibata & Kalisari), anchor, spoof engine, dan input manual distandardisasi menjadi tepat 7 digit desimal (misalnya `-6.2547403, 106.7249433`).
 - **Natural Sensor Emulation:** Menghapus artefak kalkulasi floating-point 14-16 desimal yang tidak wajar agar data koordinat yang dikirim ke API presensi terbaca otentik seperti sensor GPS fisik smartphone.
@@ -130,7 +136,7 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 - **Short information di tiap card fitur.**
   - iOS Safari Fingerprint: "Mengubah user-agent menjadi iPhone serta melakukan purge window.chrome agar tidak terdeteksi sebagai simulator atau browser desktop."
   - security-guard.js Bypass: "Menyisipkan patch di awal file JS untuk menetralkan pemeriksaan debugger dan anti-inspect agar halaman tetap bisa dimuat normal."
-  - GPS Location Spoof: "Memalsukan koordinat GPS melalui intercept Geolocation API dan Permissions agar terbaca sebagai lokasi Jakarta yang dipilih."
+  - GPS Location: "Mengubah koordinat GPS melalui intercept Geolocation API dan Permissions agar terbaca sebagai lokasi Jakarta yang dipilih."
   - Proxy Route (IP Jakarta): "Mengalirkan seluruh traffic browser melalui proxy SOCKS5 Jakarta agar alamat IP terbaca berasal dari Indonesia."
   - Deskripsi yang tadinya `nowrap` diubah jadi wrap.
 
