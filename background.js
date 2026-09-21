@@ -209,13 +209,18 @@ function status(tabId) {
     geo: t.geo || null,
     proxy: t.proxy || null,
     geoEnabled: !!t.geoEnabled,
-    gateBlockEnabled: t.gateBlockEnabled !== false
+    gateBlockEnabled: !!t.gateBlockEnabled
   };
 }
 
 async function getTab(tabId) {
   let t = tabs.get(tabId);
   if (!t) {
+    let gateSaved = false;
+    try {
+      const d = await chrome.storage.local.get("gateBlockEnabled");
+      gateSaved = !!d.gateBlockEnabled;
+    } catch (_) {}
     t = {
       js: null,
       ua: null,
@@ -223,7 +228,7 @@ async function getTab(tabId) {
       geoAuto: false,
       geoEnabled: false,
       proxy: null,
-      gateBlockEnabled: true
+      gateBlockEnabled: gateSaved
     };
     tabs.set(tabId, t);
   }
@@ -561,7 +566,7 @@ async function registerSpoofOnce(tabId, url) {
   const geoCfg = (t.geoEnabled && t.geo)
     ? { mode: t.geoAuto ? "auto" : "manual", lat: t.geo.lat, lng: t.geo.lng }
     : { mode: "off", disabled: true };
-  const gateOn = (t.gateBlockEnabled !== false);
+  const gateOn = !!t.gateBlockEnabled;
   try {
     await chrome.scripting.executeScript({
       target: { tabId },

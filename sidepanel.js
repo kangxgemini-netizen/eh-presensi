@@ -261,6 +261,11 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.1.1", date: "2026-09-21", items: [
+    "Block iOS AppStore Gate Default Non-Aktif: Mengubah status bawaan (default) fitur Block iOS AppStore Gate menjadi non-aktif (OFF) saat ekstensi diaktifkan atau dipasang.",
+    "Manual & Independent Gate Blocker: Mengeluarkan toggle Gate Blocker dari tombol master Bypass All agar tidak aktif otomatis tanpa persetujuan eksplisit pengguna.",
+    "Synchronized State Verification: Sinkronisasi status blocker di sidepanel UI, background service worker, dan content script injection agar secara konsisten non-aktif kecuali diaktifkan manual.",
+  ]},
   { ver: "2.1.0", date: "2026-09-18", items: [
     "Fitur GPS Location Style (iOS & Android):",
     "• iOS Style: Emulasi presisi CoreLocation / WebKit 64-bit IEEE 754 double precision (14 digit desimal, misal: -6.34294464805416, 106.859012539737).",
@@ -530,7 +535,7 @@ async function load() {
   validateAndApplyGeoManual();
   updateProxyStatusLive();
 
-  const gateOn = (data.gateBlockEnabled !== false);
+  const gateOn = !!data.gateBlockEnabled;
   if ($("gate-toggle")) $("gate-toggle").checked = gateOn;
   updateGateStatusLive();
 
@@ -674,17 +679,11 @@ async function applyAll(on) {
     chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id });
   }
 
-  // Proxy Route murni manual & independen: jangan diubah otomatis oleh Bypass All
+  // Proxy Route & Block iOS AppStore Gate murni manual & independen: jangan diubah otomatis oleh Bypass All
 
   $("ua-toggle").checked = on;
   $("js-toggle").checked = on;
   $("geo-toggle").checked = on;
-  if ($("gate-toggle")) {
-    $("gate-toggle").checked = on;
-    await chrome.storage.local.set({ gateBlockEnabled: on });
-    updateGateStatusLive();
-    chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on });
-  }
   render();
 }
 

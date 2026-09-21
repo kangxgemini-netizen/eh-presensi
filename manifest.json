@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "eh-Presensi",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "bantu pegawai yang struggle di jalanan menuju kantor",
   "icons": {
     "16": "icon-16.png",

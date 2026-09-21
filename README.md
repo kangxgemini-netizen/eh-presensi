@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.1.1 (2026-09-21)
+- **Block iOS AppStore Gate Default Non-Aktif:**
+  - Status awal (default) fitur Block iOS AppStore Gate diubah menjadi non-aktif (OFF) saat ekstensi baru dipasang atau diaktifkan di browser.
+  - Mengeluarkan toggle Gate Blocker dari master button *Bypass All* agar tidak aktif secara otomatis dan murni berada di bawah kendali manual pengguna.
+  - Menyelaraskan status default pada sidepanel UI, background service worker, dan content script injection.
+
 ### v2.1.0 (2026-09-18)
 - **Fitur GPS Location Style (iOS & Android):**
   - **iOS Style:** Emulasi format presisi tinggi Apple CoreLocation / WebKit 64-bit IEEE 754 double precision (14 digit desimal, misal: `-6.34294464805416, 106.859012539737`).

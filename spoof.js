@@ -432,7 +432,7 @@
     if (typeof window !== "undefined" && window.__EH_GATE_BLOCK__ !== undefined) {
       return !!window.__EH_GATE_BLOCK__;
     }
-    return true; // Default ON
+    return false; // Default OFF
   }
 
   function applyGateBlock() {
