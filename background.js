@@ -168,7 +168,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "UA_SET")     { uaSet(msg.tabId, msg.ua).then(sendResponse).catch(() => sendResponse({ ok: false, error: "uaSet failed" })); return true; }
   if (msg.type === "UA_CLEAR")   { uaClear(msg.tabId).then(sendResponse).catch(() => sendResponse({ ok: false, error: "uaClear failed" })); return true; }
   if (msg.type === "STATUS")     { sendResponse(status(msg.tabId));                  return false; }
-  if (msg.type === "GEO_SET")    { geoSet(msg.tabId, msg.lat, msg.lng, msg.geoAuto).then(sendResponse).catch(() => sendResponse({ ok: false, error: "geoSet failed" })); return true; }
+  if (msg.type === "GEO_SET")    { geoSet(msg.tabId, msg.lat, msg.lng, msg.geoAuto, msg.geoStyle).then(sendResponse).catch(() => sendResponse({ ok: false, error: "geoSet failed" })); return true; }
   if (msg.type === "GEO_CLEAR")  { geoClear(msg.tabId).then(sendResponse).catch(() => sendResponse({ ok: false, error: "geoClear failed" })); return true; }
   if (msg.type === "PROXY_SET")  { proxySet(msg.proxyUrl, msg.targetHost, msg.scope).then(sendResponse).catch(() => sendResponse({ ok: false, error: "proxySet failed" })); return true; }
   if (msg.type === "PROXY_TEST") { proxyTest(msg.proxyUrl).then(sendResponse).catch((e) => sendResponse({ ok: false, error: "proxyTest failed: " + e.message })); return true; }
@@ -374,15 +374,17 @@ async function geoApply(tabId, g) {
   }
 }
 
-async function geoSet(tabId, lat, lng, geoAuto) {
+async function geoSet(tabId, lat, lng, geoAuto, geoStyle) {
   const t = await getTab(tabId);
-  const rLat = Number(parseFloat(lat).toFixed(7));
-  const rLng = Number(parseFloat(lng).toFixed(7));
-  t.geo = { lat: rLat, lng: rLng };
+  const numLat = parseFloat(lat);
+  const numLng = parseFloat(lng);
+  if (isNaN(numLat) || isNaN(numLng)) return { ok: false, error: "Invalid coordinates" };
+  t.geo = { lat: numLat, lng: numLng };
   t.geoAuto = !!geoAuto;
   t.geoEnabled = true;
-  await chrome.storage.local.set({ geoDisabled: false, geoLat: rLat, geoLng: rLng });
-  addLog("GEO", `Geo Spoof set (${geoAuto ? "Auto" : "Manual"}: ${rLat.toFixed(7)}, ${rLng.toFixed(7)})`);
+  t.geoStyle = geoStyle || "ios";
+  await chrome.storage.local.set({ geoDisabled: false, geoLat: numLat, geoLng: numLng, geoStyle: t.geoStyle });
+  addLog("GEO", `Geo Location set (${geoAuto ? "Auto" : "Manual"} [${t.geoStyle.toUpperCase()}]: ${numLat}, ${numLng})`);
   // Make sure the MAIN-world spoof script is registered (geo works without UA spoof)
   const tab = await safeGetTab(tabId);
   if (tab && isHttpUrl(tab.url)) {

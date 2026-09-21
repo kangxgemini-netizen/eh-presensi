@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.1.0 (2026-09-18)
+- **Fitur GPS Location Style (iOS & Android):**
+  - **iOS Style:** Emulasi format presisi tinggi Apple CoreLocation / WebKit 64-bit IEEE 754 double precision (14 digit desimal, misal: `-6.34294464805416, 106.859012539737`).
+  - **Android Style:** Format presisi standar FusedLocationProvider / Chromium Android (6-7 digit desimal, misal: `-6.254742, 106.7249454`).
+  - **Dynamic Conversion & Flexible Parsing:** Input manual koordinat kini mendukung pemisah koma, tab (`\t`), atau spasi, serta otomatis mengkonversi ke gaya perangkat yang dipilih.
+  - **Dual Preset Engine:** Tersedia 30 titik acak WFO Kalibata & Kalisari khusus untuk mode iOS dan Android.
+
 ### v2.0.5 (2026-09-14)
 - **Pembaruan Label UI/UX:**
   - Label CTA update GitHub diubah menjadi "Update latest version".

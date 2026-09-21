@@ -19,6 +19,28 @@ function setGeoMode(v) {
   if (r) r.checked = true;
 }
 
+function getGeoStyle() {
+  const el = document.querySelector('input[name="geo-style"]:checked');
+  return el ? el.value : "ios";
+}
+function setGeoStyle(v) {
+  const r = document.querySelector('input[name="geo-style"][value="' + v + '"]');
+  if (r) r.checked = true;
+}
+
+function updateGeoPlaceholder(style) {
+  const inputEl = $("geo-manual");
+  const hintEl = $("geo-manual-hint");
+  if (!inputEl) return;
+  if (style === "android") {
+    inputEl.placeholder = "-6.254742, 106.7249454";
+    if (hintEl) hintEl.textContent = "Format: -6.254742, 106.7249454 (Android style: 6-7 digit desimal)";
+  } else {
+    inputEl.placeholder = "-6.34294464805416, 106.859012539737";
+    if (hintEl) hintEl.textContent = "Format: -6.34294464805416, 106.859012539737 (iOS style: 14 digit desimal)";
+  }
+}
+
 
 function getProxyScope() {
   const el = document.querySelector('input[name="proxy-scope"]:checked');
@@ -33,76 +55,160 @@ const DEFAULT_UA =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1";
 
 const ANCHORS = {
-  kalibata: { lat: -6.2549094, lng: 106.8514313 },
-  kalisari: { lat: -6.3430492, lng: 106.8590752 }
+  ios: {
+    kalibata: { lat: -6.254909403644054, lng: 106.85143128081853 },
+    kalisari: { lat: -6.343049224430671, lng: 106.85907517136334 }
+  },
+  android: {
+    kalibata: { lat: -6.254909, lng: 106.8514313 },
+    kalisari: { lat: -6.343049, lng: 106.8590752 }
+  }
 };
+
+const WFH_COORDS = {
+  ios: { lat: -6.343049224430671, lng: 106.85907517136334 },
+  android: { lat: -6.343049, lng: 106.8590752 }
+};
+
 const WFO_PRESETS = {
-  kalibata: [{"lat":-6.2549276,"lng":106.8514093},{"lat":-6.2549227,"lng":106.8515156},{"lat":-6.254922,"lng":106.8512831},{"lat":-6.2548681,"lng":106.8513979},{"lat":-6.2549368,"lng":106.851446},{"lat":-6.2548844,"lng":106.8515573},{"lat":-6.2548304,"lng":106.8514447},{"lat":-6.2549874,"lng":106.8513234},{"lat":-6.2548839,"lng":106.8515676},{"lat":-6.2549041,"lng":106.8514177},{"lat":-6.2548578,"lng":106.8512895},{"lat":-6.2549475,"lng":106.8514914},{"lat":-6.2548089,"lng":106.8514034},{"lat":-6.2548628,"lng":106.8514622},{"lat":-6.2548291,"lng":106.8513164},{"lat":-6.2548555,"lng":106.8512867},{"lat":-6.2550821,"lng":106.851391},{"lat":-6.2550059,"lng":106.8515241},{"lat":-6.2548418,"lng":106.8513065},{"lat":-6.2548213,"lng":106.8513264},{"lat":-6.2549202,"lng":106.8513942},{"lat":-6.254896,"lng":106.8515276},{"lat":-6.2548334,"lng":106.8514732},{"lat":-6.2548331,"lng":106.8514878},{"lat":-6.2549808,"lng":106.8513491},{"lat":-6.2549658,"lng":106.8514915},{"lat":-6.2549279,"lng":106.8516052},{"lat":-6.2549932,"lng":106.8513182},{"lat":-6.2548365,"lng":106.8515671},{"lat":-6.2548521,"lng":106.8515265}],
-  kalisari: [{"lat":-6.3429058,"lng":106.8590657},{"lat":-6.3431885,"lng":106.8590228},{"lat":-6.342962,"lng":106.8589423},{"lat":-6.343045,"lng":106.8591073},{"lat":-6.3430864,"lng":106.8591609},{"lat":-6.3430069,"lng":106.8592455},{"lat":-6.3429773,"lng":106.8590041},{"lat":-6.3431125,"lng":106.858981},{"lat":-6.3429446,"lng":106.8590125},{"lat":-6.3430576,"lng":106.8591646},{"lat":-6.3431346,"lng":106.8590403},{"lat":-6.343196,"lng":106.8589884},{"lat":-6.3431171,"lng":106.8591252},{"lat":-6.342921,"lng":106.8590732},{"lat":-6.3430164,"lng":106.8590964},{"lat":-6.3429394,"lng":106.8591662},{"lat":-6.3430187,"lng":106.8589618},{"lat":-6.342947,"lng":106.8591186},{"lat":-6.3429186,"lng":106.859072},{"lat":-6.3428853,"lng":106.8590449},{"lat":-6.3428971,"lng":106.8590862},{"lat":-6.343104,"lng":106.8589547},{"lat":-6.3430644,"lng":106.8592191},{"lat":-6.3429587,"lng":106.859152},{"lat":-6.3432173,"lng":106.8591258},{"lat":-6.3429837,"lng":106.8590099},{"lat":-6.3431252,"lng":106.8590749},{"lat":-6.3429062,"lng":106.8589872},{"lat":-6.3430923,"lng":106.859213},{"lat":-6.3431036,"lng":106.8590305}]
+  ios: {
+    kalibata: [{"lat": -6.254927593631349, "lng": 106.85140932272272}, {"lat": -6.254922697519233, "lng": 106.85151561714237}, {"lat": -6.254921951521704, "lng": 106.85128313927164}, {"lat": -6.25486812780363, "lng": 106.85139787712154}, {"lat": -6.2549367590237015, "lng": 106.8514459797313}, {"lat": -6.25488439875606, "lng": 106.85155727813797}, {"lat": -6.254830401032189, "lng": 106.85144465600945}, {"lat": -6.254987437688222, "lng": 106.85132339777968}, {"lat": -6.254883936053605, "lng": 106.85156763598403}, {"lat": -6.25490412015442, "lng": 106.85141771469434}, {"lat": -6.2548578271930335, "lng": 106.85128945862739}, {"lat": -6.25494745701193, "lng": 106.85149139307322}, {"lat": -6.254808913499901, "lng": 106.85140342920505}, {"lat": -6.254862751501531, "lng": 106.8514622129487}, {"lat": -6.254829138556013, "lng": 106.85131638256804}, {"lat": -6.254855489461963, "lng": 106.85128672643877}, {"lat": -6.255082062621966, "lng": 106.8513910461431}, {"lat": -6.255005866627508, "lng": 106.85152410444694}, {"lat": -6.254841796829954, "lng": 106.85130646434055}, {"lat": -6.254821263277841, "lng": 106.85132640995053}, {"lat": -6.254920232857241, "lng": 106.85139415627498}, {"lat": -6.254896025179033, "lng": 106.85152757254372}, {"lat": -6.254833387210668, "lng": 106.85147319140692}, {"lat": -6.25483312241945, "lng": 106.85148777539706}, {"lat": -6.254980817420954, "lng": 106.85134908277502}, {"lat": -6.254965765423752, "lng": 106.85149152203927}, {"lat": -6.25492791696741, "lng": 106.85160520656576}, {"lat": -6.2549932173118625, "lng": 106.85131819267933}, {"lat": -6.254836460701443, "lng": 106.85156705000934}, {"lat": -6.254852113775574, "lng": 106.85152653753497}],
+    kalisari: [{"lat": -6.342905805959112, "lng": 106.85906565870027}, {"lat": -6.343188463779803, "lng": 106.85902278592775}, {"lat": -6.34296204050186, "lng": 106.85894227033938}, {"lat": -6.343044999109876, "lng": 106.85910727865158}, {"lat": -6.343086387545774, "lng": 106.85916090879653}, {"lat": -6.343006882716122, "lng": 106.8592454559652}, {"lat": -6.342977349914106, "lng": 106.85900408642941}, {"lat": -6.343112485511974, "lng": 106.85898095460189}, {"lat": -6.34294464805416, "lng": 106.85901253973728}, {"lat": -6.343057554187329, "lng": 106.85916455200355}, {"lat": -6.343134554689285, "lng": 106.85904032195981}, {"lat": -6.343195978881353, "lng": 106.85898836408934}, {"lat": -6.343117107436662, "lng": 106.85912518919687}, {"lat": -6.342920994881032, "lng": 106.85907317505823}, {"lat": -6.3430164172377514, "lng": 106.85909638522605}, {"lat": -6.342939370555359, "lng": 106.85916620046864}, {"lat": -6.343018719310226, "lng": 106.85896180019901}, {"lat": -6.3429469622445795, "lng": 106.85911857114681}, {"lat": -6.342918576483772, "lng": 106.85907196721602}, {"lat": -6.342885281638708, "lng": 106.85904486182702}, {"lat": -6.342897096253924, "lng": 106.85908623228059}, {"lat": -6.343103996323526, "lng": 106.85895471492435}, {"lat": -6.343064402043868, "lng": 106.85921908712523}, {"lat": -6.342958687569869, "lng": 106.85915203993997}, {"lat": -6.343217323835156, "lng": 106.85912578384008}, {"lat": -6.342983676996946, "lng": 106.85900992331872}, {"lat": -6.343125162167386, "lng": 106.85907488998693}, {"lat": -6.342906228004826, "lng": 106.85898716218394}, {"lat": -6.34309226617131, "lng": 106.85921302531669}, {"lat": -6.34310363255925, "lng": 106.85903047725714}]
+  },
+  android: {
+    kalibata: [{"lat": -6.254928, "lng": 106.8514093}, {"lat": -6.254923, "lng": 106.8515156}, {"lat": -6.254922, "lng": 106.8512831}, {"lat": -6.254868, "lng": 106.8513979}, {"lat": -6.254937, "lng": 106.851446}, {"lat": -6.254884, "lng": 106.8515573}, {"lat": -6.25483, "lng": 106.8514447}, {"lat": -6.254987, "lng": 106.8513234}, {"lat": -6.254884, "lng": 106.8515676}, {"lat": -6.254904, "lng": 106.8514177}, {"lat": -6.254858, "lng": 106.8512895}, {"lat": -6.254947, "lng": 106.8514914}, {"lat": -6.254809, "lng": 106.8514034}, {"lat": -6.254863, "lng": 106.8514622}, {"lat": -6.254829, "lng": 106.8513164}, {"lat": -6.254855, "lng": 106.8512867}, {"lat": -6.255082, "lng": 106.851391}, {"lat": -6.255006, "lng": 106.8515241}, {"lat": -6.254842, "lng": 106.8513065}, {"lat": -6.254821, "lng": 106.8513264}, {"lat": -6.25492, "lng": 106.8513942}, {"lat": -6.254896, "lng": 106.8515276}, {"lat": -6.254833, "lng": 106.8514732}, {"lat": -6.254833, "lng": 106.8514878}, {"lat": -6.254981, "lng": 106.8513491}, {"lat": -6.254966, "lng": 106.8514915}, {"lat": -6.254928, "lng": 106.8516052}, {"lat": -6.254993, "lng": 106.8513182}, {"lat": -6.254836, "lng": 106.8515671}, {"lat": -6.254852, "lng": 106.8515265}],
+    kalisari: [{"lat": -6.342906, "lng": 106.8590657}, {"lat": -6.343188, "lng": 106.8590228}, {"lat": -6.342962, "lng": 106.8589423}, {"lat": -6.343045, "lng": 106.8591073}, {"lat": -6.343086, "lng": 106.8591609}, {"lat": -6.343007, "lng": 106.8592455}, {"lat": -6.342977, "lng": 106.8590041}, {"lat": -6.343112, "lng": 106.858981}, {"lat": -6.342945, "lng": 106.8590125}, {"lat": -6.343058, "lng": 106.8591646}, {"lat": -6.343135, "lng": 106.8590403}, {"lat": -6.343196, "lng": 106.8589884}, {"lat": -6.343117, "lng": 106.8591252}, {"lat": -6.342921, "lng": 106.8590732}, {"lat": -6.343016, "lng": 106.8590964}, {"lat": -6.342939, "lng": 106.8591662}, {"lat": -6.343019, "lng": 106.8589618}, {"lat": -6.342947, "lng": 106.8591186}, {"lat": -6.342919, "lng": 106.859072}, {"lat": -6.342885, "lng": 106.8590449}, {"lat": -6.342897, "lng": 106.8590862}, {"lat": -6.343104, "lng": 106.8589547}, {"lat": -6.343064, "lng": 106.8592191}, {"lat": -6.342959, "lng": 106.859152}, {"lat": -6.343217, "lng": 106.8591258}, {"lat": -6.342984, "lng": 106.8590099}, {"lat": -6.343125, "lng": 106.8590749}, {"lat": -6.342906, "lng": 106.8589872}, {"lat": -6.343092, "lng": 106.859213}, {"lat": -6.343104, "lng": 106.8590305}]
+  }
 };
+
 function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function applyGeoStyle(coord, style) {
+  if (!coord) return null;
+  const s = style || "ios";
+  const numLat = typeof coord.lat === "number" ? coord.lat : parseFloat(coord.lat);
+  const numLng = typeof coord.lng === "number" ? coord.lng : parseFloat(coord.lng);
+  if (isNaN(numLat) || isNaN(numLng)) return null;
+
+  if (s === "android") {
+    return {
+      lat: Number(numLat.toFixed(6)),
+      lng: Number(numLng.toFixed(7))
+    };
+  }
+
+  // iOS style: high precision float (14 decimals for lat, 12-14 decimals for lng)
+  const strLat = String(numLat);
+  const strLng = String(numLng);
+  const latDecs = (strLat.split(".")[1] || "").length;
+  const lngDecs = (strLng.split(".")[1] || "").length;
+
+  let finalLat = numLat;
+  let finalLng = numLng;
+
+  if (latDecs < 10) {
+    const seed = Math.abs(Math.sin(numLat * 98765.4321));
+    const tailStr = seed.toFixed(14).slice(7, 14);
+    finalLat = Number(numLat.toFixed(7) + tailStr);
+  } else {
+    finalLat = Number(numLat.toFixed(14));
+  }
+
+  if (lngDecs < 10) {
+    const seed = Math.abs(Math.cos(numLng * 12345.6789));
+    const tailStr = seed.toFixed(12).slice(7, 12);
+    finalLng = Number(numLng.toFixed(7) + tailStr);
+  } else {
+    finalLng = Number(numLng.toFixed(12));
+  }
+
+  return { lat: finalLat, lng: finalLng };
+}
 
 function parseGeoCoord(str) {
   if (!str) return null;
-  const m = String(str).split(",");
-  if (m.length < 2) return null;
-  const lat = parseFloat(m[0].trim());
-  const lng = parseFloat(m[1].trim());
+  const trimmed = String(str).trim();
+  let parts;
+  if (trimmed.includes(",")) {
+    parts = trimmed.split(",");
+  } else if (trimmed.includes("\t")) {
+    parts = trimmed.split("\t");
+  } else {
+    parts = trimmed.split(/\s+/);
+  }
+  if (parts.length < 2) return null;
+  const lat = parseFloat(parts[0].trim());
+  const lng = parseFloat(parts[1].trim());
   if (isNaN(lat) || isNaN(lng)) return null;
   if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-  return { lat: Number(lat.toFixed(7)), lng: Number(lng.toFixed(7)) };
+  return { lat, lng };
 }
 
-function pickGeo(mode, manualCoord, anchor) {
+function pickGeo(mode, manualCoord, anchor, style) {
+  const s = style || getGeoStyle();
   if (mode === "manual") {
     const c = parseGeoCoord(manualCoord);
-    if (c) return c;
+    if (c) return applyGeoStyle(c, s);
   }
   if (mode === "wfo") {
-    const wfo = WFO_PRESETS[anchor] || WFO_PRESETS.kalibata;
+    const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
+    const wfo = presetsByStyle[anchor] || presetsByStyle.kalibata;
     const item = randItem(wfo);
-    return { lat: Number(item.lat.toFixed(7)), lng: Number(item.lng.toFixed(7)) };
+    return { lat: item.lat, lng: item.lng };
   }
-  if (mode === "wfh") return { lat: -6.3430492, lng: 106.8590752 };
-  const item = randItem(WFO_PRESETS.kalibata);
-  return { lat: Number(item.lat.toFixed(7)), lng: Number(item.lng.toFixed(7)) };
+  if (mode === "wfh") {
+    const wfh = WFH_COORDS[s] || WFH_COORDS.ios;
+    return { lat: wfh.lat, lng: wfh.lng };
+  }
+  const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
+  const item = randItem(presetsByStyle.kalibata);
+  return { lat: item.lat, lng: item.lng };
 }
 
-function renderGeoCoords(mode, anchor, manual) {
+function renderGeoCoords(mode, anchor, manual, style) {
   const el = $("geo-coords");
   if (!el) return;
+  const s = style || getGeoStyle();
   if (mode === "manual" && parseGeoCoord(manual)) {
-    const c = parseGeoCoord(manual);
-    el.textContent = `Manual · ${c.lat.toFixed(7)}, ${c.lng.toFixed(7)}`;
+    const c = applyGeoStyle(parseGeoCoord(manual), s);
+    el.textContent = `Manual · ${s.toUpperCase()} · ${c.lat}, ${c.lng}`;
     return;
   }
-  const a = ANCHORS[anchor] || ANCHORS.kalibata;
-  el.textContent = `${mode.toUpperCase()} · ${anchor[0].toUpperCase()+anchor.slice(1)} · ${a.lat.toFixed(7)}, ${a.lng.toFixed(7)}`;
+  const anchorsByStyle = ANCHORS[s] || ANCHORS.ios;
+  const a = anchorsByStyle[anchor] || anchorsByStyle.kalibata;
+  el.textContent = `${mode.toUpperCase()} · ${anchor[0].toUpperCase()+anchor.slice(1)} · ${s.toUpperCase()} · ${a.lat}, ${a.lng}`;
 }
 
 async function validateAndApplyGeoManual() {
   const mode = getGeoMode();
   const anchor = getGeoAnchor();
+  const style = getGeoStyle();
   const val = $("geo-manual").value.trim();
-  const coord = parseGeoCoord(val);
+  const rawCoord = parseGeoCoord(val);
   const inputEl = $("geo-manual");
   const checkIc = $("geo-manual-check-ic");
 
-  if (coord) {
+  if (rawCoord) {
+    const coord = applyGeoStyle(rawCoord, style);
     inputEl.classList.add("geo-valid");
     inputEl.classList.remove("geo-invalid");
     if (checkIc) checkIc.style.display = "flex";
 
-    await chrome.storage.local.set({ geoManual: val });
+    await chrome.storage.local.set({ geoManual: val, geoLat: coord.lat, geoLng: coord.lng });
 
-    renderGeoCoords("manual", anchor, val);
+    renderGeoCoords("manual", anchor, val, style);
 
     if ($("geo-toggle").checked) {
       const tab = await currentTab();
       if (tab) {
         chrome.runtime.sendMessage(
-          { type: "GEO_SET", tabId: tab.id, lat: coord.lat, lng: coord.lng, geoAuto: false },
-          () => { render(); }
+          { type: "GEO_SET", tabId: tab.id, lat: coord.lat, lng: coord.lng, geoAuto: false, geoStyle: style },
+          (res) => {
+            if (res && res.geo) {
+              $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+            }
+            render();
+          }
         );
       }
     }
@@ -113,10 +219,9 @@ async function validateAndApplyGeoManual() {
     if (checkIc) checkIc.style.display = "none";
 
     await chrome.storage.local.set({ geoManual: val });
-    renderGeoCoords(mode, anchor, "");
+    renderGeoCoords(mode, anchor, "", style);
   }
 }
-
 const DEFAULT_PATTERN = "*/security-guard.js*";
 const DEFAULT_MODE = "prepend";
 const DEFAULT_PATCH_JS =
@@ -156,6 +261,13 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.1.0", date: "2026-09-18", items: [
+    "Fitur GPS Location Style (iOS & Android):",
+    "• iOS Style: Emulasi presisi CoreLocation / WebKit 64-bit IEEE 754 double precision (14 digit desimal, misal: -6.34294464805416, 106.859012539737).",
+    "• Android Style: Format presisi standar FusedLocationProvider / Chromium Android (6-7 digit desimal, misal: -6.254742, 106.7249454).",
+    "• Dynamic Conversion & Input Parsing: Input manual mendukung pemisah koma, tab (\\t), atau spasi, serta otomatis beradaptasi dengan gaya perangkat yang dipilih.",
+    "• Dual Preset Engine: Tersedia 30 titik acak WFO Kalibata & Kalisari khusus untuk mode iOS dan Android.",
+  ]},
   { ver: "2.0.5", date: "2026-09-14", items: [
     "Pembaruan Label UI/UX:",
     "• CTA Update: Label tombol OTA diubah menjadi 'Update latest version'.",
@@ -393,7 +505,7 @@ function initConsoleToolbar() {
 
 // --- CONTROLS LOGIC ---
 async function load() {
-  const data = await chrome.storage.local.get(["pattern", "mode", "js", "ua", "proxyUrl", "proxyHost", "proxyOn", "proxyScope", "geoMode", "geoAnchor", "geoManual", "logHistory", "gateBlockEnabled"]);
+  const data = await chrome.storage.local.get(["pattern", "mode", "js", "ua", "proxyUrl", "proxyHost", "proxyOn", "proxyScope", "geoMode", "geoAnchor", "geoManual", "geoStyle", "logHistory", "gateBlockEnabled"]);
   $("pattern").value = data.pattern || DEFAULT_PATTERN;
   $("ua").value = data.ua || DEFAULT_UA;
 
@@ -411,6 +523,8 @@ async function load() {
 
   setGeoMode(data.geoMode || "wfo");
   setGeoAnchor(data.geoAnchor || "kalibata");
+  setGeoStyle(data.geoStyle || "ios");
+  updateGeoPlaceholder(data.geoStyle || "ios");
   $("geo-manual").value = data.geoManual || "";
   $("geo-manual-box").style.display = (getGeoMode() === "manual") ? "block" : "none";
   validateAndApplyGeoManual();
@@ -453,7 +567,7 @@ async function load() {
     }
     updateGateStatusLive();
     if (uaOn) $("ua").value = res.ua;
-    if (geoOn) $("geo-coords").textContent = `${res.geo.lat.toFixed(7)}, ${res.geo.lng.toFixed(7)}`;
+    if (geoOn) $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
 
     if (currentProxyUrl) {
       $("proxy-status").textContent = (proxyOn ? "manual (aktif): " : "manual: ") + currentProxyUrl;
@@ -552,9 +666,10 @@ async function applyAll(on) {
   if (on) {
     const mode = getGeoMode();
     const anchor = getGeoAnchor();
-    const g = pickGeo(mode, $("geo-manual").value.trim(), anchor);
+    const style = getGeoStyle();
+    const g = pickGeo(mode, $("geo-manual").value.trim(), anchor, style);
     const geoAuto = false;
-    chrome.runtime.sendMessage({ type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto });
+    chrome.runtime.sendMessage({ type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style });
   } else {
     chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id });
   }
@@ -620,14 +735,15 @@ $("geo-toggle").addEventListener("change", async (e) => {
     await chrome.storage.local.set({ geoDisabled: false });
     const mode = getGeoMode();
     const anchor = getGeoAnchor();
-    const g = pickGeo(mode, $("geo-manual").value.trim(), anchor);
+    const style = getGeoStyle();
+    const g = pickGeo(mode, $("geo-manual").value.trim(), anchor, style);
     const geoAuto = false;
     await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
     chrome.runtime.sendMessage(
-      { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto },
+      { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style },
       (res) => {
         if (res && res.geo) {
-          $("geo-coords").textContent = `${res.geo.lat.toFixed(7)}, ${res.geo.lng.toFixed(7)}`;
+          $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
         }
         render();
       }
@@ -647,13 +763,14 @@ document.querySelectorAll('input[name="geo-mode"]').forEach((r) => r.addEventLis
   if ($("geo-toggle").checked) {
     const tab = await currentTab();
     if (tab) {
-      const g = pickGeo(mode, $("geo-manual").value.trim(), getGeoAnchor());
+      const style = getGeoStyle();
+      const g = pickGeo(mode, $("geo-manual").value.trim(), getGeoAnchor(), style);
       const geoAuto = false;
       chrome.runtime.sendMessage(
-        { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto },
+        { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style },
         (res) => {
           if (res && res.geo) {
-            $("geo-coords").textContent = `${res.geo.lat.toFixed(7)}, ${res.geo.lng.toFixed(7)}`;
+            $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
           }
           render();
         }
@@ -668,14 +785,39 @@ $("geo-manual").addEventListener("input", () => {
 
 document.querySelectorAll('input[name="geo-anchor"]').forEach((r) => r.addEventListener("change", async () => {
   await chrome.storage.local.set({ geoAnchor: getGeoAnchor() });
-  renderGeoCoords(getGeoMode(), getGeoAnchor(), $("geo-manual").value.trim());
+  renderGeoCoords(getGeoMode(), getGeoAnchor(), $("geo-manual").value.trim(), getGeoStyle());
   if ($("geo-toggle").checked) {
     const tab = await currentTab();
     if (tab) {
-      const g = pickGeo(getGeoMode(), $("geo-manual").value.trim(), getGeoAnchor());
+      const style = getGeoStyle();
+      const g = pickGeo(getGeoMode(), $("geo-manual").value.trim(), getGeoAnchor(), style);
       chrome.runtime.sendMessage(
-        { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: false },
+        { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: false, geoStyle: style },
         () => { render(); }
+      );
+    }
+  }
+}));
+
+document.querySelectorAll('input[name="geo-style"]').forEach((r) => r.addEventListener("change", async (e) => {
+  const style = e.target.value;
+  await chrome.storage.local.set({ geoStyle: style });
+  updateGeoPlaceholder(style);
+  renderGeoCoords(getGeoMode(), getGeoAnchor(), $("geo-manual").value.trim(), style);
+
+  if ($("geo-toggle").checked) {
+    const tab = await currentTab();
+    if (tab) {
+      const g = pickGeo(getGeoMode(), $("geo-manual").value.trim(), getGeoAnchor(), style);
+      await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
+      chrome.runtime.sendMessage(
+        { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: false, geoStyle: style },
+        (res) => {
+          if (res && res.geo) {
+            $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+          }
+          render();
+        }
       );
     }
   }
@@ -794,12 +936,13 @@ $("btn-reload").addEventListener("click", async () => {
   const tab = await currentTab();
   if (!tab || !tab.id) return;
   if ($("geo-toggle").checked) {
-    const g = pickGeo(getGeoMode(), $("geo-manual").value.trim(), getGeoAnchor());
+    const style = getGeoStyle();
+    const g = pickGeo(getGeoMode(), $("geo-manual").value.trim(), getGeoAnchor(), style);
     chrome.runtime.sendMessage(
-      { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: true },
+      { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: true, geoStyle: style },
       (res) => {
         if (res && res.geo) {
-          $("geo-coords").textContent = `${res.geo.lat.toFixed(7)}, ${res.geo.lng.toFixed(7)}`;
+          $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
         }
       }
     );

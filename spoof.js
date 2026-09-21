@@ -257,12 +257,17 @@
     function loadGeoCfg() {
       try {
         if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
-          chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled"], function (d) {
+          chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
             var disabled = !!d.geoDisabled;
             var mode = disabled ? "off" : (d.geoMode || (window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
-            var cfg = { mode: mode, disabled: disabled };
-            if (mode === "manual" && d.geoManual) {
-              var parts = String(d.geoManual).split(",");
+            var style = d.geoStyle || (window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
+            var cfg = { mode: mode, disabled: disabled, style: style };
+            if (d.geoLat != null && d.geoLng != null) {
+              cfg.lat = parseFloat(d.geoLat);
+              cfg.lng = parseFloat(d.geoLng);
+            } else if (mode === "manual" && d.geoManual) {
+              var trimmed = String(d.geoManual).trim();
+              var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
               if (parts.length >= 2) {
                 cfg.lat = parseFloat(parts[0].trim());
                 cfg.lng = parseFloat(parts[1].trim());
@@ -281,18 +286,18 @@
 
     function pickCoord() {
       var cfg = getGeoCfg();
-      if (cfg.mode === "manual" && cfg.lat != null && cfg.lng != null) {
+      if (cfg.lat != null && cfg.lng != null) {
         var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
-        if (!isNaN(la) && !isNaN(ln)) return { latitude: Number(la.toFixed(7)), longitude: Number(ln.toFixed(7)) };
+        if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
       }
       var c = GEO_LIST[Math.floor(Math.random() * GEO_LIST.length)];
-      return { latitude: Number(c.lat.toFixed(7)), longitude: Number(c.lng.toFixed(7)) };
+      return { latitude: c.lat, longitude: c.lng };
     }
 
     function fakePos(coord) {
       var c = coord || pickCoord();
-      var lat = Number(parseFloat(c.latitude).toFixed(7));
-      var lng = Number(parseFloat(c.longitude).toFixed(7));
+      var lat = typeof c.latitude === "number" ? c.latitude : parseFloat(c.latitude);
+      var lng = typeof c.longitude === "number" ? c.longitude : parseFloat(c.longitude);
       var coordsObj = {
         latitude: lat,
         longitude: lng,
@@ -307,8 +312,8 @@
       if (typeof GeolocationCoordinates !== "undefined" && GeolocationCoordinates.prototype) {
         try {
           coordsObj = Object.create(GeolocationCoordinates.prototype, {
-            latitude: { value: c.latitude, enumerable: true },
-            longitude: { value: c.longitude, enumerable: true },
+            latitude: { value: lat, enumerable: true },
+            longitude: { value: lng, enumerable: true },
             accuracy: { value: 5, enumerable: true },
             altitude: { value: 10, enumerable: true },
             altitudeAccuracy: { value: 5, enumerable: true },
@@ -386,7 +391,7 @@
         if (typeof success !== "function") return;
         const c = pickCoord();
         setTimeout(function () { success(fakePos(c)); }, 10);
-        report("INJECT", "getCurrentPosition intercepted → " + c.latitude.toFixed(7) + ", " + c.longitude.toFixed(7));
+        report("INJECT", "getCurrentPosition intercepted → " + c.latitude + ", " + c.longitude);
       };
 
       targetProto.watchPosition = function (success, error, opts) {

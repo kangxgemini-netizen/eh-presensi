@@ -691,6 +691,13 @@
             <label class="radio-pill"><input type="radio" name="geo-mode" value="manual" /><span>Manual</span></label>
           </div>
         </fieldset>
+        <fieldset id="geo-style-box">
+          <legend>GPS Style</legend>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="geo-style" value="ios" checked /><span>iOS</span></label>
+            <label class="radio-pill"><input type="radio" name="geo-style" value="android" /><span>Android</span></label>
+          </div>
+        </fieldset>
         <fieldset id="geo-anchor-box">
           <legend>Anchor</legend>
           <div class="radio-group">
@@ -701,12 +708,12 @@
         <div class="config-item" id="geo-manual-box" style="display:none;">
           <label>Koordinat (lat, lng)</label>
           <div class="input-wrap">
-            <input type="text" id="geo-manual" placeholder="-6.2547403, 106.7249433" />
+            <input type="text" id="geo-manual" placeholder="-6.34294464805416, 106.859012539737" />
             <div id="geo-manual-check-ic" class="input-check" style="display:none;">
               <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
           </div>
-          <div class="input-hint">Format: -6.2547403, 106.7249433 (lat, lng 7 digit desimal)</div>
+          <div class="input-hint" id="geo-manual-hint">Format: lat, lng (iOS: 14 digit, Android: 6-7 digit)</div>
         </div>
       </div>
     </div>
@@ -789,7 +796,7 @@
         <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
         <span id="check-version-text">Cek Update</span>
       </button>
-      <div class="app-version" id="app-version">v2.0.5</div>
+      <div class="app-version" id="app-version">v2.1.0</div>
     </div>
   </div>
 
