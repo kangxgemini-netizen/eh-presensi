@@ -8,6 +8,15 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.2.0 (2026-09-21)
+- **Native In-App WebView Fingerprint (Reverse Engineering APK Resmi):**
+  - Mengadaptasi arsitektur asli aplikasi ePresensi Kementerian Desa (`id.go.kemendesa.presensi` v1.0.8 Apache Cordova) yang dibongkar dari bundle APK resmi.
+  - **Mode iOS (In-App WKWebView):** Menghapus token `Safari/604.1` dan `Version/...` sehingga request terbaca otentik sebagai aplikasi ePresensi iOS resmi dari App Store (`Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148`) dan tidak lagi memicu modal SweetAlert pemblokir.
+  - **Mode Android (Cordova System WebView):** Menggunakan User-Agent resmi Android WebView (`Mozilla/5.0 (Linux; U; Android 14; SM-S918B Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.88 Mobile Safari/537.36`), platform `Linux armv8l`, dan vendor `Google Inc.`.
+  - **Auto-Sync Device e-Presensi:** Memilih radio `iOS` atau `Android` pada opsi *Device e-Presensi* secara otomatis menyinkronkan User-Agent, platform navigator, dan format presisi GPS (14 desimal vs 6-7 desimal) secara bersamaan.
+  - **Migrasi Otomatis UA Usang:** Pengguna dengan cache User-Agent Safari lama otomatis dimigrasikan ke profil Native In-App WebView saat ekstensi dibuka.
+  - **Pembaruan Label:** Label card disempurnakan menjadi **Device Fingerprint** dengan deskripsi dukungan Native App (iOS/Android).
+
 ### v2.1.3 (2026-09-21)
 - **Sinkronisasi Master Bypass All & Block iOS Update:**
   - Menyelaraskan tombol CTA **Bypass All** sehingga saat diklik aktif (*Armed*), fitur **Block iOS Update** ikut aktif secara otomatis (status 4/4 modul aktif: iOS Safari Fingerprint, Security Bypass, GPS Location, dan Block iOS Update).

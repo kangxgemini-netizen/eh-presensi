@@ -15,22 +15,63 @@
 (function () {
   "use strict";
 
-  var IOS = {
-    userAgent:
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1",
-    platform: "iPhone",
-    vendor: "Apple Computer, Inc.",
-    appVersion:
-      "5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1",
-    maxTouchPoints: 5,
-    hardwareConcurrency: 6,
-    deviceMemory: 4
+  var PROFILES = {
+    ios: {
+      userAgent:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+      platform: "iPhone",
+      vendor: "Apple Computer, Inc.",
+      appVersion:
+        "5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+      maxTouchPoints: 5,
+      hardwareConcurrency: 6,
+      deviceMemory: 4,
+      devicePixelRatio: 3,
+      screen: { width: 390, height: 844 }
+    },
+    android: {
+      userAgent:
+        "Mozilla/5.0 (Linux; U; Android 14; SM-S918B Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.88 Mobile Safari/537.36",
+      platform: "Linux armv8l",
+      vendor: "Google Inc.",
+      appVersion:
+        "5.0 (Linux; U; Android 14; SM-S918B Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.88 Mobile Safari/537.36",
+      maxTouchPoints: 5,
+      hardwareConcurrency: 8,
+      deviceMemory: 8,
+      devicePixelRatio: 2.8125,
+      screen: { width: 412, height: 915 }
+    }
   };
 
-  function defineGetter(proto, key, value) {
+  function getActiveProfile() {
+    var devStyle = (typeof window !== "undefined" && window.__EH_DEVICE_STYLE__) ||
+                   (getGeoCfg() && getGeoCfg().style) ||
+                   "ios";
+    var customUa = (typeof window !== "undefined" && window.__EH_CUSTOM_UA__);
+    var p = PROFILES[devStyle] || PROFILES.ios;
+    if (customUa) {
+      var isAndroid = customUa.includes("Android") || customUa.includes("Linux");
+      var base = isAndroid ? PROFILES.android : PROFILES.ios;
+      return {
+        userAgent: customUa,
+        platform: isAndroid ? "Linux armv8l" : "iPhone",
+        vendor: isAndroid ? "Google Inc." : "Apple Computer, Inc.",
+        appVersion: "5.0 (" + (isAndroid ? "Linux; U; Android" : "iPhone; CPU iPhone OS") + ")",
+        maxTouchPoints: base.maxTouchPoints,
+        hardwareConcurrency: base.hardwareConcurrency,
+        deviceMemory: base.deviceMemory,
+        devicePixelRatio: base.devicePixelRatio,
+        screen: base.screen
+      };
+    }
+    return p;
+  }
+
+  function defineGetter(proto, key, valueOrFn) {
     try {
       Object.defineProperty(proto, key, {
-        get: function () { return value; },
+        get: typeof valueOrFn === "function" ? valueOrFn : function () { return valueOrFn; },
         configurable: true,
         enumerable: true
       });
@@ -64,26 +105,26 @@
 
   // --- navigator static fingerprint ---
   if (typeof Navigator !== "undefined" && Navigator.prototype) {
-    defineGetter(Navigator.prototype, "userAgent", IOS.userAgent);
-    defineGetter(Navigator.prototype, "platform", IOS.platform);
-    defineGetter(Navigator.prototype, "vendor", IOS.vendor);
-    defineGetter(Navigator.prototype, "appVersion", IOS.appVersion);
-    defineGetter(Navigator.prototype, "maxTouchPoints", IOS.maxTouchPoints);
-    defineGetter(Navigator.prototype, "hardwareConcurrency", IOS.hardwareConcurrency);
-    defineGetter(Navigator.prototype, "deviceMemory", IOS.deviceMemory);
+    defineGetter(Navigator.prototype, "userAgent", function () { return getActiveProfile().userAgent; });
+    defineGetter(Navigator.prototype, "platform", function () { return getActiveProfile().platform; });
+    defineGetter(Navigator.prototype, "vendor", function () { return getActiveProfile().vendor; });
+    defineGetter(Navigator.prototype, "appVersion", function () { return getActiveProfile().appVersion; });
+    defineGetter(Navigator.prototype, "maxTouchPoints", function () { return getActiveProfile().maxTouchPoints; });
+    defineGetter(Navigator.prototype, "hardwareConcurrency", function () { return getActiveProfile().hardwareConcurrency; });
+    defineGetter(Navigator.prototype, "deviceMemory", function () { return getActiveProfile().deviceMemory; });
 
     shadowUndefined(Navigator.prototype, "userAgentData");
   }
 
   // Direct instance overrides (in case page reads navigator directly)
   try {
-    defineGetter(navigator, "userAgent", IOS.userAgent);
-    defineGetter(navigator, "platform", IOS.platform);
-    defineGetter(navigator, "vendor", IOS.vendor);
-    defineGetter(navigator, "appVersion", IOS.appVersion);
-    defineGetter(navigator, "maxTouchPoints", IOS.maxTouchPoints);
-    defineGetter(navigator, "hardwareConcurrency", IOS.hardwareConcurrency);
-    defineGetter(navigator, "deviceMemory", IOS.deviceMemory);
+    defineGetter(navigator, "userAgent", function () { return getActiveProfile().userAgent; });
+    defineGetter(navigator, "platform", function () { return getActiveProfile().platform; });
+    defineGetter(navigator, "vendor", function () { return getActiveProfile().vendor; });
+    defineGetter(navigator, "appVersion", function () { return getActiveProfile().appVersion; });
+    defineGetter(navigator, "maxTouchPoints", function () { return getActiveProfile().maxTouchPoints; });
+    defineGetter(navigator, "hardwareConcurrency", function () { return getActiveProfile().hardwareConcurrency; });
+    defineGetter(navigator, "deviceMemory", function () { return getActiveProfile().deviceMemory; });
     shadowUndefined(navigator, "userAgentData");
   } catch (_) {}
 
@@ -111,19 +152,18 @@
   try {
     if (!Object.getOwnPropertyDescriptor(window, "devicePixelRatio")) {
       Object.defineProperty(window, "devicePixelRatio", {
-        get: function () { return 3; },
+        get: function () { return getActiveProfile().devicePixelRatio; },
         configurable: true
       });
     }
   } catch (_) {}
 
-  // --- screen dimensions (iPhone 12/13/14-ish) ---
+  // --- screen dimensions ---
   if (typeof Screen !== "undefined" && Screen.prototype) {
-    var W = 390, H = 844;
-    defineGetter(Screen.prototype, "width", W);
-    defineGetter(Screen.prototype, "height", H);
-    defineGetter(Screen.prototype, "availWidth", W);
-    defineGetter(Screen.prototype, "availHeight", H);
+    defineGetter(Screen.prototype, "width", function () { return getActiveProfile().screen.width; });
+    defineGetter(Screen.prototype, "height", function () { return getActiveProfile().screen.height; });
+    defineGetter(Screen.prototype, "availWidth", function () { return getActiveProfile().screen.width; });
+    defineGetter(Screen.prototype, "availHeight", function () { return getActiveProfile().screen.height; });
     defineGetter(Screen.prototype, "colorDepth", 24);
     defineGetter(Screen.prototype, "pixelDepth", 24);
     defineGetter(Screen.prototype, "orientation", {
@@ -361,7 +401,7 @@
 
 
 
-    report("INJECT", "iOS Safari fingerprint armed — navigator UA/platform/vendor, screen 390x844, touch + Chromium signals (window.chrome, userAgentData) removed");
+    report("INJECT", "Native App fingerprint armed (" + (getActiveProfile().platform) + ") — navigator UA/platform/vendor, screen/touch + Chromium signals (window.chrome, userAgentData) removed");
     report("INJECT", "GPS Location Spoof armed — Geolocation.prototype + Permissions.prototype intercepted");
 
     if (typeof Permissions !== "undefined" && Permissions.prototype && Permissions.prototype.query) {

@@ -51,8 +51,17 @@ function setProxyScope(v) {
   if (r) r.checked = true;
 }
 
-const DEFAULT_UA =
-  "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1";
+const DEVICE_PRESETS = {
+  ios: {
+    ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+    platform: "iPhone"
+  },
+  android: {
+    ua: "Mozilla/5.0 (Linux; U; Android 14; SM-S918B Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.88 Mobile Safari/537.36",
+    platform: "Linux armv8l"
+  }
+};
+const DEFAULT_UA = DEVICE_PRESETS.ios.ua;
 
 const ANCHORS = {
   ios: {
@@ -261,6 +270,14 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.2.0", date: "2026-09-21", items: [
+    "Native In-App WebView Fingerprint: Berdasarkan bedah APK resmi Kemendesa (Apache Cordova), User-Agent dan device fingerprint kini 100% meniru aplikasi mobile resmi.",
+    "Dual Profile Otomatis (Device e-Presensi):",
+    "• Mode iOS: Menggunakan Apple In-App WKWebView UA (tanpa Safari/604.1) sehingga tidak lagi memicu alert unduh App Store.",
+    "• Mode Android: Menggunakan Android System WebView UA (token '; wv)' & 'Version/4.0 Chrome/...'), platform 'Linux armv8l', dan vendor 'Google Inc.'.",
+    "Auto-Sync UA & Koordinat: Memilih switch 'Device e-Presensi' (iOS vs Android) langsung menyelaraskan User-Agent, platform navigator, dan format presisi GPS secara real-time.",
+    "Migrasi Otomatis Stale UA: Mengganti User-Agent Safari lama yang memicu SweetAlert AppStore dengan User-Agent In-App WebView resmi.",
+  ]},
   { ver: "2.1.3", date: "2026-09-21", items: [
     "Sinkronisasi Master Bypass All & Block iOS Update: Tombol Bypass All kini mengaktifkan Block iOS Update secara bersamaan (4/4 modul aktif), sementara status awal ekstensi tetap default non-aktif saat baru dipasang.",
   ]},
@@ -519,7 +536,14 @@ function initConsoleToolbar() {
 async function load() {
   const data = await chrome.storage.local.get(["pattern", "mode", "js", "ua", "proxyUrl", "proxyHost", "proxyOn", "proxyScope", "geoMode", "geoAnchor", "geoManual", "geoStyle", "logHistory", "gateBlockEnabled"]);
   $("pattern").value = data.pattern || DEFAULT_PATTERN;
-  $("ua").value = data.ua || DEFAULT_UA;
+
+  const style = data.geoStyle || "ios";
+  let currentUa = (data.ua || "").trim();
+  if (!currentUa || currentUa.includes("Version/26.4 Mobile/15E148 Safari/604.1")) {
+    currentUa = (DEVICE_PRESETS[style] || DEVICE_PRESETS.ios).ua;
+    await chrome.storage.local.set({ ua: currentUa });
+  }
+  $("ua").value = currentUa;
 
   // Clean custom proxy input (clear any stale legacy default URL if present)
   let savedProxyUrl = (data.proxyUrl || "").trim();
@@ -636,10 +660,10 @@ async function applyUaIfOn() {
   if (!$("ua-toggle").checked) return;
   const tab = await currentTab();
   if (!tab) return;
-  const ua = $("ua").value.trim();
-  if (!ua) return;
+  const style = getGeoStyle();
+  const ua = $("ua").value.trim() || (DEVICE_PRESETS[style] || DEVICE_PRESETS.ios).ua;
   await chrome.storage.local.set({ ua });
-  chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua }, render);
+  chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua, style }, render);
 }
 
 async function armJsIfOn() {
@@ -661,9 +685,10 @@ async function applyAll(on) {
   if (!tab) return;
 
   if (on) {
-    const ua = $("ua").value.trim() || DEFAULT_UA;
+    const style = getGeoStyle();
+    const ua = $("ua").value.trim() || (DEVICE_PRESETS[style] || DEVICE_PRESETS.ios).ua;
     await chrome.storage.local.set({ ua });
-    chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua });
+    chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua, style });
   } else {
     chrome.runtime.sendMessage({ type: "UA_CLEAR", tabId: tab.id });
   }
@@ -720,10 +745,11 @@ $("ua-toggle").addEventListener("change", async (e) => {
   const tab = await currentTab();
   if (!tab) return;
   if (e.target.checked) {
-    const ua = $("ua").value.trim();
-    if (!ua) { e.target.checked = false; return; }
+    const style = getGeoStyle();
+    const ua = $("ua").value.trim() || (DEVICE_PRESETS[style] || DEVICE_PRESETS.ios).ua;
+    $("ua").value = ua;
     await chrome.storage.local.set({ ua });
-    chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua }, render);
+    chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua, style }, render);
   } else {
     chrome.runtime.sendMessage({ type: "UA_CLEAR", tabId: tab.id }, render);
   }
@@ -819,6 +845,23 @@ document.querySelectorAll('input[name="geo-style"]').forEach((r) => r.addEventLi
   await chrome.storage.local.set({ geoStyle: style });
   updateGeoPlaceholder(style);
   renderGeoCoords(getGeoMode(), getGeoAnchor(), $("geo-manual").value.trim(), style);
+
+  // Auto-sync User-Agent to match selected device preset if user hasn't typed a custom one
+  const currentUa = $("ua").value.trim();
+  const isDefaultOrPreset = !currentUa ||
+    currentUa === DEVICE_PRESETS.ios.ua ||
+    currentUa === DEVICE_PRESETS.android.ua ||
+    currentUa.includes("Version/26.4 Mobile/15E148 Safari/604.1");
+  if (isDefaultOrPreset && DEVICE_PRESETS[style]) {
+    $("ua").value = DEVICE_PRESETS[style].ua;
+    await chrome.storage.local.set({ ua: DEVICE_PRESETS[style].ua });
+    if ($("ua-toggle").checked) {
+      const tab = await currentTab();
+      if (tab) {
+        chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua: DEVICE_PRESETS[style].ua, style }, render);
+      }
+    }
+  }
 
   if ($("geo-toggle").checked) {
     const tab = await currentTab();
