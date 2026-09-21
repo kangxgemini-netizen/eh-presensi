@@ -165,7 +165,7 @@ chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "JS_ENABLE")  { jsEnable(msg.tabId, msg.rule).then(sendResponse).catch(() => sendResponse({ ok: false, error: "jsEnable failed" })); return true; }
   if (msg.type === "JS_DISABLE") { jsDisable(msg.tabId).then(sendResponse).catch(() => sendResponse({ ok: false, error: "jsDisable failed" })); return true; }
-  if (msg.type === "UA_SET")     { uaSet(msg.tabId, msg.ua, msg.style).then(sendResponse).catch(() => sendResponse({ ok: false, error: "uaSet failed" })); return true; }
+  if (msg.type === "UA_SET")     { uaSet(msg.tabId, msg.ua).then(sendResponse).catch(() => sendResponse({ ok: false, error: "uaSet failed" })); return true; }
   if (msg.type === "UA_CLEAR")   { uaClear(msg.tabId).then(sendResponse).catch(() => sendResponse({ ok: false, error: "uaClear failed" })); return true; }
   if (msg.type === "STATUS")     { sendResponse(status(msg.tabId));                  return false; }
   if (msg.type === "GEO_SET")    { geoSet(msg.tabId, msg.lat, msg.lng, msg.geoAuto, msg.geoStyle).then(sendResponse).catch(() => sendResponse({ ok: false, error: "geoSet failed" })); return true; }
@@ -454,17 +454,14 @@ async function jsDisable(tabId) {
 }
 
 // ---------- UA override + strong spoof ----------
-async function uaSet(tabId, ua, style = "ios") {
+async function uaSet(tabId, ua) {
   const t = await getTab(tabId);
   t.ua = ua;
-  t.geoStyle = style;
-  const isAndroid = style === "android" || (ua && (ua.includes("Android") || ua.includes("Linux")));
-  const platform = isAndroid ? "Linux armv8l" : "iPhone";
-  addLog("UA", `UA Spoof set to [${isAndroid ? "ANDROID" : "IOS"}] ${ua}`);
-  addLog("UA", `${isAndroid ? "Android Cordova WebView" : "iOS In-App WKWebView"} fingerprint active — platform: ${platform}, Chromium signals removed`);
+  addLog("UA", `UA Spoof set to ${ua}`);
+  addLog("UA", "iOS Safari fingerprint active — navigator/vendor/screen/touch patched, Chromium signals removed");
   await attach(tabId);
   await chrome.debugger
-    .sendCommand({ tabId }, "Emulation.setUserAgentOverride", { userAgent: ua, platform })
+    .sendCommand({ tabId }, "Emulation.setUserAgentOverride", { userAgent: ua, platform: "iPhone" })
     .catch(async () => {
       await chrome.debugger.sendCommand({ tabId }, "Network.setUserAgentOverride", { userAgent: ua });
     });
@@ -567,26 +564,21 @@ async function registerSpoofOnce(tabId, url) {
 
   const t = await getTab(tabId);
   const geoCfg = (t.geoEnabled && t.geo)
-    ? { mode: t.geoAuto ? "auto" : "manual", lat: t.geo.lat, lng: t.geo.lng, style: t.geoStyle || "ios" }
-    : { mode: "off", disabled: true, style: t.geoStyle || "ios" };
+    ? { mode: t.geoAuto ? "auto" : "manual", lat: t.geo.lat, lng: t.geo.lng }
+    : { mode: "off", disabled: true };
   const gateOn = !!t.gateBlockEnabled;
-  const isAndroid = (t.geoStyle === "android") || (t.ua && (t.ua.includes("Android") || t.ua.includes("Linux")));
-  const deviceStyle = isAndroid ? "android" : "ios";
-  const customUa = t.ua || "";
   try {
     await chrome.scripting.executeScript({
       target: { tabId },
       world: "MAIN",
-      func: (cfg, gateBlock, devStyle, customUa) => {
+      func: (cfg, gateBlock) => {
         window.__EH_GEO__ = cfg;
         window.__EH_GATE_BLOCK__ = gateBlock;
-        window.__EH_DEVICE_STYLE__ = devStyle;
-        if (customUa) window.__EH_CUSTOM_UA__ = customUa;
         if (gateBlock && typeof window.__EH_APPLY_GATE_BLOCK__ === "function") {
           window.__EH_APPLY_GATE_BLOCK__();
         }
       },
-      args: [geoCfg, gateOn, deviceStyle, customUa],
+      args: [geoCfg, gateOn],
       injectImmediately: true,
     });
   } catch (_) {}

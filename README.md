@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.2.2 (2026-09-21)
+- **Restore Baseline iPhone Safari Fingerprint:**
+  - Mengembalikan User-Agent default dan instance navigator ke format Safari iPhone resmi (`Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1`).
+  - **Bypass security-guard.js:** Menghilangkan penyebab pesan blokir *"Akses Dibatasi. Akses developer tools tidak diperbolehkan pada aplikasi ini. Browser/perangkat juga tidak sesuai. Gunakan Safari di iPhone/iPad"* karena guard website Kemendesa secara ketat mewajibkan token `Safari` dan platform `iPhone`.
+  - Mempertahankan seluruh fitur GPS dual-style (14 digit float iOS vs 6-7 digit Android) dan pencegah popup SweetAlert (*Block iOS Update*).
+
 ### v2.2.1 (2026-09-21)
 - **Hotfix Scoping getGeoCfg (spoof.js:48):**
   - Mengatasi `ReferenceError: getGeoCfg is not defined` yang terjadi di `spoof.js:48` pada mode strict saat browser memuat `https://presensi.kemendesa.go.id/dashboard`.

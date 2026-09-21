@@ -15,124 +15,22 @@
 (function () {
   "use strict";
 
-  var PROFILES = {
-    ios: {
-      userAgent:
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
-      platform: "iPhone",
-      vendor: "Apple Computer, Inc.",
-      appVersion:
-        "5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
-      maxTouchPoints: 5,
-      hardwareConcurrency: 6,
-      deviceMemory: 4,
-      devicePixelRatio: 3,
-      screen: { width: 390, height: 844 }
-    },
-    android: {
-      userAgent:
-        "Mozilla/5.0 (Linux; U; Android 14; SM-S918B Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.88 Mobile Safari/537.36",
-      platform: "Linux armv8l",
-      vendor: "Google Inc.",
-      appVersion:
-        "5.0 (Linux; U; Android 14; SM-S918B Build/UP1A.231005.007; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/128.0.6613.88 Mobile Safari/537.36",
-      maxTouchPoints: 5,
-      hardwareConcurrency: 8,
-      deviceMemory: 8,
-      devicePixelRatio: 2.8125,
-      screen: { width: 412, height: 915 }
-    }
+  var IOS = {
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1",
+    platform: "iPhone",
+    vendor: "Apple Computer, Inc.",
+    appVersion:
+      "5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1",
+    maxTouchPoints: 5,
+    hardwareConcurrency: 6,
+    deviceMemory: 4
   };
 
-  var _geoCfgCache = null;
-  var _geoCfgTs = 0;
-
-  function getGeoCfg() {
-    if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
-    if (_geoCfgCache) return _geoCfgCache;
-    try {
-      if (typeof window !== "undefined" && window.__EH_GEO__) return window.__EH_GEO__;
-    } catch (_) {}
-    return { mode: "auto", style: "ios" };
-  }
-
-  function loadGeoCfg() {
-    try {
-      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
-        chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle", "ua"], function (d) {
-          if (!d) return;
-          var disabled = !!d.geoDisabled;
-          var mode = disabled ? "off" : (d.geoMode || (typeof window !== "undefined" && window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
-          var style = d.geoStyle || (typeof window !== "undefined" && window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
-          var cfg = { mode: mode, disabled: disabled, style: style };
-          if (d.geoLat != null && d.geoLng != null) {
-            cfg.lat = parseFloat(d.geoLat);
-            cfg.lng = parseFloat(d.geoLng);
-          } else if (mode === "manual" && d.geoManual) {
-            var trimmed = String(d.geoManual).trim();
-            var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
-            if (parts.length >= 2) {
-              cfg.lat = parseFloat(parts[0].trim());
-              cfg.lng = parseFloat(parts[1].trim());
-            }
-          }
-          _geoCfgCache = cfg;
-          _geoCfgTs = Date.now();
-          try {
-            if (typeof window !== "undefined") {
-              window.__EH_GEO__ = cfg;
-              window.__EH_DEVICE_STYLE__ = style;
-              if (d.ua) window.__EH_CUSTOM_UA__ = d.ua;
-            }
-          } catch (_) {}
-        });
-      }
-    } catch (_) {}
-  }
-  loadGeoCfg();
-  try { setInterval(loadGeoCfg, 1000); } catch (_) {}
-
-  function getActiveProfile() {
-    var devStyle = "ios";
-    try {
-      if (typeof window !== "undefined" && window.__EH_DEVICE_STYLE__) {
-        devStyle = window.__EH_DEVICE_STYLE__;
-      } else {
-        var cfg = getGeoCfg();
-        if (cfg && cfg.style) devStyle = cfg.style;
-      }
-    } catch (_) {}
-
-    var customUa = null;
-    try {
-      if (typeof window !== "undefined" && window.__EH_CUSTOM_UA__) {
-        customUa = window.__EH_CUSTOM_UA__;
-      }
-    } catch (_) {}
-
-    var p = PROFILES[devStyle] || PROFILES.ios;
-    if (customUa) {
-      var isAndroid = customUa.includes("Android") || customUa.includes("Linux");
-      var base = isAndroid ? PROFILES.android : PROFILES.ios;
-      return {
-        userAgent: customUa,
-        platform: isAndroid ? "Linux armv8l" : "iPhone",
-        vendor: isAndroid ? "Google Inc." : "Apple Computer, Inc.",
-        appVersion: "5.0 (" + (isAndroid ? "Linux; U; Android" : "iPhone; CPU iPhone OS") + ")",
-        maxTouchPoints: base.maxTouchPoints,
-        hardwareConcurrency: base.hardwareConcurrency,
-        deviceMemory: base.deviceMemory,
-        devicePixelRatio: base.devicePixelRatio,
-        screen: base.screen
-      };
-    }
-    return p;
-  }
-
-  function defineGetter(proto, key, valueOrFn) {
+  function defineGetter(proto, key, value) {
     try {
       Object.defineProperty(proto, key, {
-        get: typeof valueOrFn === "function" ? valueOrFn : function () { return valueOrFn; },
+        get: function () { return value; },
         configurable: true,
         enumerable: true
       });
@@ -166,26 +64,26 @@
 
   // --- navigator static fingerprint ---
   if (typeof Navigator !== "undefined" && Navigator.prototype) {
-    defineGetter(Navigator.prototype, "userAgent", function () { return getActiveProfile().userAgent; });
-    defineGetter(Navigator.prototype, "platform", function () { return getActiveProfile().platform; });
-    defineGetter(Navigator.prototype, "vendor", function () { return getActiveProfile().vendor; });
-    defineGetter(Navigator.prototype, "appVersion", function () { return getActiveProfile().appVersion; });
-    defineGetter(Navigator.prototype, "maxTouchPoints", function () { return getActiveProfile().maxTouchPoints; });
-    defineGetter(Navigator.prototype, "hardwareConcurrency", function () { return getActiveProfile().hardwareConcurrency; });
-    defineGetter(Navigator.prototype, "deviceMemory", function () { return getActiveProfile().deviceMemory; });
+    defineGetter(Navigator.prototype, "userAgent", IOS.userAgent);
+    defineGetter(Navigator.prototype, "platform", IOS.platform);
+    defineGetter(Navigator.prototype, "vendor", IOS.vendor);
+    defineGetter(Navigator.prototype, "appVersion", IOS.appVersion);
+    defineGetter(Navigator.prototype, "maxTouchPoints", IOS.maxTouchPoints);
+    defineGetter(Navigator.prototype, "hardwareConcurrency", IOS.hardwareConcurrency);
+    defineGetter(Navigator.prototype, "deviceMemory", IOS.deviceMemory);
 
     shadowUndefined(Navigator.prototype, "userAgentData");
   }
 
   // Direct instance overrides (in case page reads navigator directly)
   try {
-    defineGetter(navigator, "userAgent", function () { return getActiveProfile().userAgent; });
-    defineGetter(navigator, "platform", function () { return getActiveProfile().platform; });
-    defineGetter(navigator, "vendor", function () { return getActiveProfile().vendor; });
-    defineGetter(navigator, "appVersion", function () { return getActiveProfile().appVersion; });
-    defineGetter(navigator, "maxTouchPoints", function () { return getActiveProfile().maxTouchPoints; });
-    defineGetter(navigator, "hardwareConcurrency", function () { return getActiveProfile().hardwareConcurrency; });
-    defineGetter(navigator, "deviceMemory", function () { return getActiveProfile().deviceMemory; });
+    defineGetter(navigator, "userAgent", IOS.userAgent);
+    defineGetter(navigator, "platform", IOS.platform);
+    defineGetter(navigator, "vendor", IOS.vendor);
+    defineGetter(navigator, "appVersion", IOS.appVersion);
+    defineGetter(navigator, "maxTouchPoints", IOS.maxTouchPoints);
+    defineGetter(navigator, "hardwareConcurrency", IOS.hardwareConcurrency);
+    defineGetter(navigator, "deviceMemory", IOS.deviceMemory);
     shadowUndefined(navigator, "userAgentData");
   } catch (_) {}
 
@@ -213,18 +111,19 @@
   try {
     if (!Object.getOwnPropertyDescriptor(window, "devicePixelRatio")) {
       Object.defineProperty(window, "devicePixelRatio", {
-        get: function () { return getActiveProfile().devicePixelRatio; },
+        get: function () { return 3; },
         configurable: true
       });
     }
   } catch (_) {}
 
-  // --- screen dimensions ---
+  // --- screen dimensions (iPhone 12/13/14-ish) ---
   if (typeof Screen !== "undefined" && Screen.prototype) {
-    defineGetter(Screen.prototype, "width", function () { return getActiveProfile().screen.width; });
-    defineGetter(Screen.prototype, "height", function () { return getActiveProfile().screen.height; });
-    defineGetter(Screen.prototype, "availWidth", function () { return getActiveProfile().screen.width; });
-    defineGetter(Screen.prototype, "availHeight", function () { return getActiveProfile().screen.height; });
+    var W = 390, H = 844;
+    defineGetter(Screen.prototype, "width", W);
+    defineGetter(Screen.prototype, "height", H);
+    defineGetter(Screen.prototype, "availWidth", W);
+    defineGetter(Screen.prototype, "availHeight", H);
     defineGetter(Screen.prototype, "colorDepth", 24);
     defineGetter(Screen.prototype, "pixelDepth", 24);
     defineGetter(Screen.prototype, "orientation", {
@@ -334,6 +233,57 @@
       { lat: -6.343499, lng: 106.8588445 }
     ];
 
+    // Read config at call-time directly from chrome.storage.local.
+    // Content scripts have storage access, so this is race-free: every reload
+    // re-reads the latest config without depending on background injection timing.
+    var _geoCfgCache = null;
+    var _geoCfgTs = 0;
+    function getGeoCfg() {
+      // synchronous best-effort: use last cached value if fresh (<500ms)
+      if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
+      // try synchronous storage if available
+      try {
+        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
+          // chrome.storage.local.get is async; we attempt a sync read via the
+          // internal promise and fall back to cached/window-injected value.
+        }
+      } catch (_) {}
+      if (_geoCfgCache) return _geoCfgCache;
+      try { return (typeof window !== "undefined" && window.__EH_GEO__) || { mode: "auto" }; }
+      catch (_) { return { mode: "auto" }; }
+    }
+
+    // Async loader: warm the cache from storage at script start and whenever possible.
+    function loadGeoCfg() {
+      try {
+        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
+          chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
+            var disabled = !!d.geoDisabled;
+            var mode = disabled ? "off" : (d.geoMode || (window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
+            var style = d.geoStyle || (window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
+            var cfg = { mode: mode, disabled: disabled, style: style };
+            if (d.geoLat != null && d.geoLng != null) {
+              cfg.lat = parseFloat(d.geoLat);
+              cfg.lng = parseFloat(d.geoLng);
+            } else if (mode === "manual" && d.geoManual) {
+              var trimmed = String(d.geoManual).trim();
+              var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
+              if (parts.length >= 2) {
+                cfg.lat = parseFloat(parts[0].trim());
+                cfg.lng = parseFloat(parts[1].trim());
+              }
+            }
+            _geoCfgCache = cfg;
+            _geoCfgTs = Date.now();
+            try { window.__EH_GEO__ = cfg; } catch (_) {}
+          });
+        }
+      } catch (_) {}
+    }
+    loadGeoCfg();
+    // refresh cache periodically in case the user changes config without reload
+    try { setInterval(loadGeoCfg, 1000); } catch (_) {}
+
     function pickCoord() {
       var cfg = getGeoCfg();
       if (cfg.lat != null && cfg.lng != null) {
@@ -411,7 +361,7 @@
 
 
 
-    report("INJECT", "Native App fingerprint armed (" + (getActiveProfile().platform) + ") — navigator UA/platform/vendor, screen/touch + Chromium signals (window.chrome, userAgentData) removed");
+    report("INJECT", "iOS Safari fingerprint armed — navigator UA/platform/vendor, screen 390x844, touch + Chromium signals (window.chrome, userAgentData) removed");
     report("INJECT", "GPS Location Spoof armed — Geolocation.prototype + Permissions.prototype intercepted");
 
     if (typeof Permissions !== "undefined" && Permissions.prototype && Permissions.prototype.query) {
