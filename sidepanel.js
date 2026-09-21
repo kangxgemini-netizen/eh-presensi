@@ -261,6 +261,10 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.1.2", date: "2026-09-21", items: [
+    "Penyederhanaan Label UI: 'security-guard.js Bypass' diubah menjadi 'Security Bypass', 'Block iOS AppStore Gate' menjadi 'Block iOS Update', 'Proxy Route (IP Jakarta)' menjadi 'Proxy Route', 'Anchor' menjadi 'Lokasi Kantor', dan 'GPS Style' menjadi 'Device e-Presensi'.",
+    "Reposisi CTA Navigasi: Menukar posisi tombol aksi cepat, 'Buka Presensi Lama' kini di sebelah kiri dan 'Buka Absen-Dev' di sebelah kanan.",
+  ]},
   { ver: "2.1.1", date: "2026-09-21", items: [
     "Block iOS AppStore Gate Default Non-Aktif: Mengubah status bawaan (default) fitur Block iOS AppStore Gate menjadi non-aktif (OFF) saat ekstensi diaktifkan atau dipasang.",
     "Manual & Independent Gate Blocker: Mengeluarkan toggle Gate Blocker dari tombol master Bypass All agar tidak aktif otomatis tanpa persetujuan eksplisit pengguna.",
@@ -679,7 +683,7 @@ async function applyAll(on) {
     chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id });
   }
 
-  // Proxy Route & Block iOS AppStore Gate murni manual & independen: jangan diubah otomatis oleh Bypass All
+  // Proxy Route & Block iOS Update murni manual & independen: jangan diubah otomatis oleh Bypass All
 
   $("ua-toggle").checked = on;
   $("js-toggle").checked = on;

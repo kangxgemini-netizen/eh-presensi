@@ -606,7 +606,7 @@
             <svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
           </div>
           <div>
-            <div class="card-label">security-guard.js Bypass</div>
+            <div class="card-label">Security Bypass</div>
             <div class="card-desc">Menyisipkan patch di awal file JS untuk menetralkan pemeriksaan debugger dan anti-inspect agar halaman tetap bisa dimuat normal.</div>
           </div>
         </div>
@@ -630,7 +630,7 @@
       </details>
     </div>
 
-    <!-- Switch 3: Block iOS AppStore Gate -->
+    <!-- Switch 3: Block iOS Update -->
     <div class="card">
       <div class="card-row">
         <div class="card-left">
@@ -638,7 +638,7 @@
             <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
           </div>
           <div>
-            <div class="card-label">Block iOS AppStore Gate</div>
+            <div class="card-label">Block iOS Update</div>
             <div class="card-desc">Memblokir modal SweetAlert "ePresensi Versi Web Sudah Tidak Digunakan" dan backdrop overlay-nya agar web tetap bisa diakses saat spoof iOS.</div>
             <div class="card-sub" id="gate-status">blocker: nonaktif</div>
           </div>
@@ -692,14 +692,14 @@
           </div>
         </fieldset>
         <fieldset id="geo-style-box">
-          <legend>GPS Style</legend>
+          <legend>Device e-Presensi</legend>
           <div class="radio-group">
             <label class="radio-pill"><input type="radio" name="geo-style" value="ios" checked /><span>iOS</span></label>
             <label class="radio-pill"><input type="radio" name="geo-style" value="android" /><span>Android</span></label>
           </div>
         </fieldset>
         <fieldset id="geo-anchor-box">
-          <legend>Anchor</legend>
+          <legend>Lokasi Kantor</legend>
           <div class="radio-group">
             <label class="radio-pill"><input type="radio" name="geo-anchor" value="kalibata" checked /><span>Kalibata</span></label>
             <label class="radio-pill"><input type="radio" name="geo-anchor" value="kalisari" /><span>Kalisari</span></label>
@@ -726,7 +726,7 @@
             <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
           </div>
           <div>
-            <div class="card-label">Proxy Route (IP Jakarta)</div>
+            <div class="card-label">Proxy Route</div>
             <div class="card-desc">Mengalirkan traffic browser melalui proxy agar alamat IP terbaca berasal dari Indonesia.</div>
             <div class="card-sub" id="proxy-status">manual / off</div>
           </div>
@@ -781,13 +781,13 @@
 
     <!-- Quick Nav CTAs (2 columns) -->
     <div class="btn-row">
-      <button class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
-        <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Absen-Dev</span>
-      </button>
       <button class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
         <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Presensi Lama</span>
+      </button>
+      <button class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
+        <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Absen-Dev</span>
       </button>
     </div>
 
@@ -796,7 +796,7 @@
         <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
         <span id="check-version-text">Cek Update</span>
       </button>
-      <div class="app-version" id="app-version">v2.1.1</div>
+      <div class="app-version" id="app-version">v2.1.2</div>
     </div>
   </div>
 

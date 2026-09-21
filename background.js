@@ -240,7 +240,7 @@ async function gateBlockSet(tabId, enabled) {
   const t = await getTab(tabId);
   t.gateBlockEnabled = !!enabled;
   await chrome.storage.local.set({ gateBlockEnabled: !!enabled });
-  addLog("GATE", `Block iOS AppStore Gate ${enabled ? "armed / ON" : "disabled / OFF"}`);
+  addLog("GATE", `Block iOS Update ${enabled ? "armed / ON" : "disabled / OFF"}`);
 
   const tab = await safeGetTab(tabId);
   if (tab && isHttpUrl(tab.url)) {

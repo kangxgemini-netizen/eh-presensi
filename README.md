@@ -8,6 +8,16 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.1.2 (2026-09-21)
+- **Penyederhanaan Label UI:**
+  - `security-guard.js Bypass` → `Security Bypass`
+  - `Block iOS AppStore Gate` → `Block iOS Update`
+  - `Proxy Route (IP Jakarta)` → `Proxy Route`
+  - `Anchor` → `Lokasi Kantor`
+  - `GPS Style` → `Device e-Presensi`
+- **Reposisi Quick Nav CTA:**
+  - Menukar posisi dua tombol navigasi bawah: **Buka Presensi Lama** kini berada di sebelah kiri, dan **Buka Absen-Dev** di sebelah kanan.
+
 ### v2.1.1 (2026-09-21)
 - **Block iOS AppStore Gate Default Non-Aktif:**
   - Status awal (default) fitur Block iOS AppStore Gate diubah menjadi non-aktif (OFF) saat ekstensi baru dipasang atau diaktifkan di browser.
