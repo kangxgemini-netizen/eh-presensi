@@ -8,6 +8,11 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.1.3 (2026-09-21)
+- **Sinkronisasi Master Bypass All & Block iOS Update:**
+  - Menyelaraskan tombol CTA **Bypass All** sehingga saat diklik aktif (*Armed*), fitur **Block iOS Update** ikut aktif secara otomatis (status 4/4 modul aktif: iOS Safari Fingerprint, Security Bypass, GPS Location, dan Block iOS Update).
+  - Status default saat ekstensi pertama kali dipasang atau diaktifkan tetap terjaga **non-aktif (OFF)**.
+
 ### v2.1.2 (2026-09-21)
 - **Penyederhanaan Label UI:**
   - `security-guard.js Bypass` → `Security Bypass`

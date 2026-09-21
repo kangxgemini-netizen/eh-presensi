@@ -261,6 +261,9 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.1.3", date: "2026-09-21", items: [
+    "Sinkronisasi Master Bypass All & Block iOS Update: Tombol Bypass All kini mengaktifkan Block iOS Update secara bersamaan (4/4 modul aktif), sementara status awal ekstensi tetap default non-aktif saat baru dipasang.",
+  ]},
   { ver: "2.1.2", date: "2026-09-21", items: [
     "Penyederhanaan Label UI: 'security-guard.js Bypass' diubah menjadi 'Security Bypass', 'Block iOS AppStore Gate' menjadi 'Block iOS Update', 'Proxy Route (IP Jakarta)' menjadi 'Proxy Route', 'Anchor' menjadi 'Lokasi Kantor', dan 'GPS Style' menjadi 'Device e-Presensi'.",
     "Reposisi CTA Navigasi: Menukar posisi tombol aksi cepat, 'Buka Presensi Lama' kini di sebelah kiri dan 'Buka Absen-Dev' di sebelah kanan.",
@@ -592,19 +595,20 @@ function render() {
   const js = $("js-toggle").checked;
   const ua = $("ua-toggle").checked;
   const geo = $("geo-toggle").checked;
+  const gate = $("gate-toggle") ? $("gate-toggle").checked : false;
   const card = $("status-card");
   const title = $("status-title");
   const badge = $("status-badge");
-  const count = [js, ua, geo].filter(Boolean).length;
+  const count = [js, ua, geo, gate].filter(Boolean).length;
 
   if (card && title && badge) {
-    if (count === 3) {
+    if (count === 4) {
       card.className = "status-card active";
       title.textContent = "Fully Bypassed & Armed";
       badge.textContent = "FULL";
     } else if (count > 0) {
       card.className = "status-card active";
-      title.textContent = `${count}/3 Active`;
+      title.textContent = `${count}/4 Active`;
       badge.textContent = "PARTIAL";
     } else {
       card.className = "status-card";
@@ -613,11 +617,11 @@ function render() {
     }
   }
 
-  // Bypass All CTA state: active (all 3 on: UA, JS, Geo) -> Deactivate All, else -> Bypass All
+  // Bypass All CTA state: active (all 4 on: UA, JS, Geo, Gate) -> Deactivate All, else -> Bypass All
   const btn = $("btn-bypass-all");
   const label = $("btn-bypass-label");
   const ic = $("btn-bypass-ic");
-  if (count === 3) {
+  if (count === 4) {
     btn.className = "btn btn-deactivate";
     label.textContent = "Deactivate All";
     ic.innerHTML = '<path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/>';
@@ -683,7 +687,15 @@ async function applyAll(on) {
     chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id });
   }
 
-  // Proxy Route & Block iOS Update murni manual & independen: jangan diubah otomatis oleh Bypass All
+  // Block iOS Update ikutan aktif saat Bypass All aktif
+  if ($("gate-toggle")) {
+    $("gate-toggle").checked = on;
+    await chrome.storage.local.set({ gateBlockEnabled: on });
+    updateGateStatusLive();
+    chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on });
+  }
+
+  // Proxy Route murni manual & independen: jangan diubah otomatis oleh Bypass All
 
   $("ua-toggle").checked = on;
   $("js-toggle").checked = on;
@@ -954,7 +966,7 @@ $("btn-reload").addEventListener("click", async () => {
 });
 
 $("btn-bypass-all").addEventListener("click", async () => {
-  const allOn = $("ua-toggle").checked && $("js-toggle").checked && $("geo-toggle").checked;
+  const allOn = $("ua-toggle").checked && $("js-toggle").checked && $("geo-toggle").checked && (!$("gate-toggle") || $("gate-toggle").checked);
   await applyAll(!allOn);
   // Reload tab aktif biar seluruh config (UA/JS/Geo/Proxy) langsung jalan di halaman
   try {
