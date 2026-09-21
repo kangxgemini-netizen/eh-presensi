@@ -44,11 +44,72 @@
     }
   };
 
+  var _geoCfgCache = null;
+  var _geoCfgTs = 0;
+
+  function getGeoCfg() {
+    if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
+    if (_geoCfgCache) return _geoCfgCache;
+    try {
+      if (typeof window !== "undefined" && window.__EH_GEO__) return window.__EH_GEO__;
+    } catch (_) {}
+    return { mode: "auto", style: "ios" };
+  }
+
+  function loadGeoCfg() {
+    try {
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
+        chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle", "ua"], function (d) {
+          if (!d) return;
+          var disabled = !!d.geoDisabled;
+          var mode = disabled ? "off" : (d.geoMode || (typeof window !== "undefined" && window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
+          var style = d.geoStyle || (typeof window !== "undefined" && window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
+          var cfg = { mode: mode, disabled: disabled, style: style };
+          if (d.geoLat != null && d.geoLng != null) {
+            cfg.lat = parseFloat(d.geoLat);
+            cfg.lng = parseFloat(d.geoLng);
+          } else if (mode === "manual" && d.geoManual) {
+            var trimmed = String(d.geoManual).trim();
+            var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
+            if (parts.length >= 2) {
+              cfg.lat = parseFloat(parts[0].trim());
+              cfg.lng = parseFloat(parts[1].trim());
+            }
+          }
+          _geoCfgCache = cfg;
+          _geoCfgTs = Date.now();
+          try {
+            if (typeof window !== "undefined") {
+              window.__EH_GEO__ = cfg;
+              window.__EH_DEVICE_STYLE__ = style;
+              if (d.ua) window.__EH_CUSTOM_UA__ = d.ua;
+            }
+          } catch (_) {}
+        });
+      }
+    } catch (_) {}
+  }
+  loadGeoCfg();
+  try { setInterval(loadGeoCfg, 1000); } catch (_) {}
+
   function getActiveProfile() {
-    var devStyle = (typeof window !== "undefined" && window.__EH_DEVICE_STYLE__) ||
-                   (getGeoCfg() && getGeoCfg().style) ||
-                   "ios";
-    var customUa = (typeof window !== "undefined" && window.__EH_CUSTOM_UA__);
+    var devStyle = "ios";
+    try {
+      if (typeof window !== "undefined" && window.__EH_DEVICE_STYLE__) {
+        devStyle = window.__EH_DEVICE_STYLE__;
+      } else {
+        var cfg = getGeoCfg();
+        if (cfg && cfg.style) devStyle = cfg.style;
+      }
+    } catch (_) {}
+
+    var customUa = null;
+    try {
+      if (typeof window !== "undefined" && window.__EH_CUSTOM_UA__) {
+        customUa = window.__EH_CUSTOM_UA__;
+      }
+    } catch (_) {}
+
     var p = PROFILES[devStyle] || PROFILES.ios;
     if (customUa) {
       var isAndroid = customUa.includes("Android") || customUa.includes("Linux");
@@ -272,57 +333,6 @@
       { lat: -6.343344, lng: 106.8584066 },
       { lat: -6.343499, lng: 106.8588445 }
     ];
-
-    // Read config at call-time directly from chrome.storage.local.
-    // Content scripts have storage access, so this is race-free: every reload
-    // re-reads the latest config without depending on background injection timing.
-    var _geoCfgCache = null;
-    var _geoCfgTs = 0;
-    function getGeoCfg() {
-      // synchronous best-effort: use last cached value if fresh (<500ms)
-      if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
-      // try synchronous storage if available
-      try {
-        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
-          // chrome.storage.local.get is async; we attempt a sync read via the
-          // internal promise and fall back to cached/window-injected value.
-        }
-      } catch (_) {}
-      if (_geoCfgCache) return _geoCfgCache;
-      try { return (typeof window !== "undefined" && window.__EH_GEO__) || { mode: "auto" }; }
-      catch (_) { return { mode: "auto" }; }
-    }
-
-    // Async loader: warm the cache from storage at script start and whenever possible.
-    function loadGeoCfg() {
-      try {
-        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
-          chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
-            var disabled = !!d.geoDisabled;
-            var mode = disabled ? "off" : (d.geoMode || (window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
-            var style = d.geoStyle || (window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
-            var cfg = { mode: mode, disabled: disabled, style: style };
-            if (d.geoLat != null && d.geoLng != null) {
-              cfg.lat = parseFloat(d.geoLat);
-              cfg.lng = parseFloat(d.geoLng);
-            } else if (mode === "manual" && d.geoManual) {
-              var trimmed = String(d.geoManual).trim();
-              var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
-              if (parts.length >= 2) {
-                cfg.lat = parseFloat(parts[0].trim());
-                cfg.lng = parseFloat(parts[1].trim());
-              }
-            }
-            _geoCfgCache = cfg;
-            _geoCfgTs = Date.now();
-            try { window.__EH_GEO__ = cfg; } catch (_) {}
-          });
-        }
-      } catch (_) {}
-    }
-    loadGeoCfg();
-    // refresh cache periodically in case the user changes config without reload
-    try { setInterval(loadGeoCfg, 1000); } catch (_) {}
 
     function pickCoord() {
       var cfg = getGeoCfg();

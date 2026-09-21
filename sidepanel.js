@@ -270,6 +270,10 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.2.1", date: "2026-09-21", items: [
+    "Hotfix Scoping getGeoCfg (spoof.js:48): Memindahkan helper fungsi getGeoCfg() dan loader loadGeoCfg() ke root IIFE di spoof.js.",
+    "Eliminasi ReferenceError: Memastikan getter navigator (userAgent, platform, vendor) dan device profile initializer aman dari error scoping di strict mode.",
+  ]},
   { ver: "2.2.0", date: "2026-09-21", items: [
     "Native In-App WebView Fingerprint: Berdasarkan bedah APK resmi Kemendesa (Apache Cordova), User-Agent dan device fingerprint kini 100% meniru aplikasi mobile resmi.",
     "Dual Profile Otomatis (Device e-Presensi):",

@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.2.1 (2026-09-21)
+- **Hotfix Scoping getGeoCfg (spoof.js:48):**
+  - Mengatasi `ReferenceError: getGeoCfg is not defined` yang terjadi di `spoof.js:48` pada mode strict saat browser memuat `https://presensi.kemendesa.go.id/dashboard`.
+  - Memindahkan deklarasi fungsi `getGeoCfg()` dan `loadGeoCfg()` ke root scope IIFE `spoof.js` sehingga dapat diakses secara sinkron dan aman oleh fungsi `getActiveProfile()` maupun getter `navigator.userAgent/platform/vendor`.
+  - Menambahkan fallback *try-catch* menyeluruh pada inisialisasi profil perangkat agar tidak pernah memutus rantai eksekusi content script.
+
 ### v2.2.0 (2026-09-21)
 - **Native In-App WebView Fingerprint (Reverse Engineering APK Resmi):**
   - Mengadaptasi arsitektur asli aplikasi ePresensi Kementerian Desa (`id.go.kemendesa.presensi` v1.0.8 Apache Cordova) yang dibongkar dari bundle APK resmi.
