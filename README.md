@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.2.3 (2026-09-21)
+- **Permanent Gatekeeper Dismissal ('ePresensi Versi Web Sudah Tidak Digunakan'):**
+  - **In-Page Persistence (localStorage):** Menyimpan status `__EH_GATE_BLOCK__` di storage halaman sehingga module penutup modal aktif secara sinkron di `document_start` tanpa menunggu handshake asynchronous background service worker.
+  - **Reload & Navigation Auto-Sync:** Menambahkan injeksi status Gate Block pada event `chrome.tabs.onUpdated` (`info.status === "loading"`) di background worker agar modal tetap tertutup rapat saat halaman direfresh (F5 / Command+R / klik navigasi).
+  - **Multi-Layer Purge & Poller:** Menyertakan poller 200ms pasca-load untuk menghancurkan SweetAlert tertunda, memanggil `Swal.close()` bawaan untuk mereset state machine SweetAlert secara bersih, dan mengembalikan overflow body/html.
+  - **Awaited Bypass All:** Tombol master `Bypass All` menunggu konfirmasi penyimpanan storage sebelum memicu reload tab untuk mencegah *race condition*.
+
 ### v2.2.2 (2026-09-21)
 - **Restore Baseline iPhone Safari Fingerprint:**
   - Mengembalikan User-Agent default dan instance navigator ke format Safari iPhone resmi (`Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.4 Mobile/15E148 Safari/604.1`).

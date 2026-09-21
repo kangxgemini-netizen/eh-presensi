@@ -261,6 +261,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.2.3", date: "2026-09-21", items: [
+    "Permanent Gatekeeper Dismissal ('ePresensi Versi Web Sudah Tidak Digunakan'):",
+    "• Persistence & In-Page Cache: Menyimpan status Gate Block di localStorage sehingga langsung aktif pada document_start bahkan sebelum background worker sempat menginjeksi config.",
+    "• Navigation/Reload Auto-Sync: Memperbaiki event onUpdated background service worker agar selalu menyuntikkan ulang Gate Block pada setiap reload/F5 tab.",
+    "• Multi-Layer Purge & Poller: Menambahkan poller 200ms pasca-load untuk menghancurkan SweetAlert tertunda, menutup Swal.close() secara bersih, dan mengembalikan overflow body.",
+  ]},
   { ver: "2.2.2", date: "2026-09-21", items: [
     "Restore Baseline iPhone Safari Fingerprint: Mengembalikan User-Agent dan profil navigator ke iPhone Safari resmi (Mozilla/5.0 ... Version/26.4 Mobile/15E148 Safari/604.1).",
     "Bypass security-guard.js 'Gunakan Safari di iPhone/iPad': Memastikan website presensi.kemendesa.go.id mengenali browser sebagai Safari resmi sehingga tidak memicu blokir 'Akses Dibatasi'.",
@@ -697,7 +703,9 @@ async function applyAll(on) {
     $("gate-toggle").checked = on;
     await chrome.storage.local.set({ gateBlockEnabled: on });
     updateGateStatusLive();
-    chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on });
+    await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on }, () => resolve());
+    });
   }
 
   // Proxy Route murni manual & independen: jangan diubah otomatis oleh Bypass All

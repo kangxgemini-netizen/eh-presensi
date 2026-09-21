@@ -432,7 +432,13 @@
     if (typeof window !== "undefined" && window.__EH_GATE_BLOCK__ !== undefined) {
       return !!window.__EH_GATE_BLOCK__;
     }
-    return false; // Default OFF
+    try {
+      if (typeof localStorage !== "undefined") {
+        var v = localStorage.getItem("__EH_GATE_BLOCK__");
+        if (v !== null) return v === "1";
+      }
+    } catch (_) {}
+    return true; // Default active protection against iOS AppStore gatekeeper modal
   }
 
   function applyGateBlock() {
@@ -489,7 +495,13 @@
       for (var j = 0; j < swals.length; j++) {
         var s = swals[j];
         var title = s.querySelector && s.querySelector("#swal2-title");
-        if (title && title.textContent && title.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1) {
+        var htmlCont = s.querySelector && s.querySelector("#swal2-html-container");
+        var fullText = (title ? title.textContent : "") + " " + (htmlCont ? htmlCont.textContent : "");
+        if (
+          fullText.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 ||
+          fullText.indexOf("Akses ePresensi KemendesPDT") !== -1 ||
+          fullText.indexOf("id6800222797") !== -1
+        ) {
           if (s.parentNode) {
             s.parentNode.removeChild(s);
             purged = true;
@@ -499,6 +511,11 @@
 
       // Only clean up body classes if the gate modal was actually purged AND no other valid modal is showing
       if (purged) {
+        try {
+          if (typeof window.Swal !== "undefined" && typeof window.Swal.close === "function") {
+            window.Swal.close();
+          }
+        } catch (_) {}
         var remaining = document.querySelectorAll(".swal2-container");
         if (!remaining.length) {
           document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
@@ -522,8 +539,16 @@
     } catch (_) {}
   }
 
-  window.__EH_APPLY_GATE_BLOCK__ = applyGateBlock;
-  window.__EH_REMOVE_GATE_BLOCK__ = removeGateBlock;
+  window.__EH_APPLY_GATE_BLOCK__ = function () {
+    window.__EH_GATE_BLOCK__ = true;
+    try { if (typeof localStorage !== "undefined") localStorage.setItem("__EH_GATE_BLOCK__", "1"); } catch (_) {}
+    applyGateBlock();
+  };
+  window.__EH_REMOVE_GATE_BLOCK__ = function () {
+    window.__EH_GATE_BLOCK__ = false;
+    try { if (typeof localStorage !== "undefined") localStorage.setItem("__EH_GATE_BLOCK__", "0"); } catch (_) {}
+    removeGateBlock();
+  };
 
   // Run immediately at document_start
   applyGateBlock();
@@ -538,6 +563,21 @@
     window.addEventListener("load", applyGateBlock, { once: true });
   }
 
+  // Poller interval for first 4 seconds to catch any delayed or asynchronous SweetAlert triggers
+  try {
+    var _gatePollCount = 0;
+    var _gatePollTimer = setInterval(function () {
+      _gatePollCount++;
+      if (_gatePollCount > 20) {
+        clearInterval(_gatePollTimer);
+        return;
+      }
+      if (isGateBlockEnabled()) {
+        purgeGateElements();
+      }
+    }, 200);
+  } catch (_) {}
+
   // MutationObserver to catch dynamic creation instantly without false-positives
   try {
     var gateObserver = new MutationObserver(function (mutations) {
@@ -548,9 +588,9 @@
           var node = m.addedNodes[j];
           if (node.nodeType !== 1) continue;
           if (
-            (node.classList && (node.classList.contains("ios-appstore-gate-popup") || node.classList.contains("ios-appstore-gate-wrap"))) ||
+            (node.classList && (node.classList.contains("ios-appstore-gate-popup") || node.classList.contains("ios-appstore-gate-wrap") || node.classList.contains("swal2-container") || node.classList.contains("swal2-popup"))) ||
             (node.querySelector && node.querySelector(".ios-appstore-gate-popup, .ios-appstore-gate-wrap, a[href*='id6800222797'], a[href*='epresensi-kemendespdt']")) ||
-            (node.textContent && node.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1)
+            (node.textContent && (node.textContent.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 || node.textContent.indexOf("id6800222797") !== -1))
           ) {
             purgeGateElements();
             return;
@@ -573,28 +613,23 @@
             a.indexOf("ios-appstore") !== -1 ||
             a.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 ||
             a.indexOf("id6800222797") !== -1 ||
-            a.indexOf("Akses ePresensi KemendesPDT melalui browser pada iPhone") !== -1
+            a.indexOf("Akses ePresensi") !== -1
           ) {
             return true;
           }
         } else if (typeof a === "object") {
-          var title = a.title;
-          if (typeof title === "string" && title.indexOf("Versi Web Sudah Tidak Digunakan") !== -1) {
-            return true;
+          var str = "";
+          try { str = JSON.stringify(a); } catch (_) {
+            str = (a.title || "") + " " + (a.text || "") + " " + (a.html || "");
           }
-          var text = a.text;
-          if (typeof text === "string" && (text.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 || text.indexOf("Akses ePresensi") !== -1)) {
+          if (
+            str.indexOf("ios-appstore") !== -1 ||
+            str.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 ||
+            str.indexOf("id6800222797") !== -1 ||
+            str.indexOf("epresensi-kemendespdt") !== -1 ||
+            str.indexOf("Akses ePresensi") !== -1
+          ) {
             return true;
-          }
-          var html = a.html;
-          if (typeof html === "string" && (html.indexOf("ios-appstore") !== -1 || html.indexOf("id6800222797") !== -1 || html.indexOf("Versi Web") !== -1)) {
-            return true;
-          }
-          if (a.customClass) {
-            var cc = typeof a.customClass === "string" ? a.customClass : (a.customClass.popup || "");
-            if (typeof cc === "string" && cc.indexOf("ios-appstore") !== -1) {
-              return true;
-            }
           }
         }
       }

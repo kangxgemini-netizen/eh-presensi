@@ -124,15 +124,39 @@ chrome.debugger.onDetach.addListener((source) => {
   if (source && source.tabId) attached.delete(source.tabId);
 });
 chrome.tabs.onRemoved.addListener((tabId) => { spoofOff(tabId); maybeDetachTab(tabId); });
-chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
   if (spoofTabs.has(tabId) && info.url) registerSpoofOnce(tabId, info.url);
-  // Re-inject geo config on every navigation/reload so a fresh random coordinate
-  // is used. We only re-inject the config (not re-register the content script,
-  // which would race with the reload and drop it). pickCoord() reads the config
-  // at call-time, so the new coordinate applies on the next getCurrentPosition.
+  // Re-inject gate block and geo config on every navigation/reload
   if (info.status === "loading") {
-    const t = tabs.get(tabId);
-    if (t && t.geoEnabled) {
+    const t = await getTab(tabId);
+    if (!t) return;
+
+    // 1. Sync Gate Block state into page context
+    const gateOn = (t.gateBlockEnabled !== undefined) ? !!t.gateBlockEnabled : true;
+    try {
+      chrome.scripting.executeScript({
+        target: { tabId },
+        world: "MAIN",
+        func: (on) => {
+          window.__EH_GATE_BLOCK__ = on;
+          try {
+            if (typeof localStorage !== "undefined") {
+              localStorage.setItem("__EH_GATE_BLOCK__", on ? "1" : "0");
+            }
+          } catch (_) {}
+          if (on && typeof window.__EH_APPLY_GATE_BLOCK__ === "function") {
+            window.__EH_APPLY_GATE_BLOCK__();
+          } else if (!on && typeof window.__EH_REMOVE_GATE_BLOCK__ === "function") {
+            window.__EH_REMOVE_GATE_BLOCK__();
+          }
+        },
+        args: [gateOn],
+        injectImmediately: true,
+      }).catch(() => {});
+    } catch (_) {}
+
+    // 2. Sync Geolocation config
+    if (t.geoEnabled) {
       if (t.geoAuto) {
         const g = pickGeo("auto");
         t.geo = g;
@@ -148,7 +172,7 @@ chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
         }).catch(() => {});
       } catch (_) {}
       geoApply(tabId, t.geo).catch(() => {});
-    } else if (t && t.geoEnabled === false && t.geo === null) {
+    } else if (t.geoEnabled === false && t.geo === null) {
       // Geo explicitly disabled: make sure the page sees disabled state
       try {
         chrome.scripting.executeScript({
@@ -250,6 +274,11 @@ async function gateBlockSet(tabId, enabled) {
         world: "MAIN",
         func: (on) => {
           window.__EH_GATE_BLOCK__ = on;
+          try {
+            if (typeof localStorage !== "undefined") {
+              localStorage.setItem("__EH_GATE_BLOCK__", on ? "1" : "0");
+            }
+          } catch (_) {}
           if (on) {
             if (typeof window.__EH_APPLY_GATE_BLOCK__ === "function") {
               window.__EH_APPLY_GATE_BLOCK__();
@@ -291,7 +320,13 @@ async function gateBlockSet(tabId, enabled) {
                 for (var j = 0; j < swals.length; j++) {
                   var s = swals[j];
                   var title = s.querySelector && s.querySelector("#swal2-title");
-                  if (title && title.textContent && title.textContent.indexOf("ePresensi Versi Web Sudah Tidak Digunakan") !== -1) {
+                  var htmlCont = s.querySelector && s.querySelector("#swal2-html-container");
+                  var fullText = (title ? title.textContent : "") + " " + (htmlCont ? htmlCont.textContent : "");
+                  if (
+                    fullText.indexOf("Versi Web Sudah Tidak Digunakan") !== -1 ||
+                    fullText.indexOf("Akses ePresensi KemendesPDT") !== -1 ||
+                    fullText.indexOf("id6800222797") !== -1
+                  ) {
                     if (s.parentNode) {
                       s.parentNode.removeChild(s);
                       purged = true;
@@ -299,6 +334,11 @@ async function gateBlockSet(tabId, enabled) {
                   }
                 }
                 if (purged) {
+                  try {
+                    if (typeof window.Swal !== "undefined" && typeof window.Swal.close === "function") {
+                      window.Swal.close();
+                    }
+                  } catch (_) {}
                   var remaining = document.querySelectorAll(".swal2-container");
                   if (!remaining.length) {
                     document.documentElement.classList.remove("swal2-shown", "swal2-height-auto");
