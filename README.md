@@ -8,6 +8,20 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.5.0 (2026-10-03)
+- **Perbaikan: request WFH divalidasi ke lokasi RUMAH, bukan KANTOR.**
+  - **Root cause (terverifikasi di akun nyata, bukan dugaan):** `POST /api/absensi/cek-lokasi` (v1) membandingkan lokasi user dengan koordinat **kantor**. Pada koordinat yang sama:
+    - v1 → `distance_meter: 17787.30`, `office_latitude: -6.343319`, `allowed: false` → *Anda berada di luar radius lokasi kerja*
+    - v2 → `distance_meter: 0.57`, `office_latitude: -6.2547387`, `allowed: true` → *Anda berada di dalam radius rumah WFH*
+  - **Fix:** satu rewrite URL pada `fetch` dari `/api/absensi/cek-lokasi` → `/api/absensi/v2/cek-lokasi`. Hanya di halaman lama, hanya saat `WFH v2 Mode` aktif.
+  - **Kenapa ini cukup:** parser halaman sudah punya `ambilAbsenTokenDariResponse()` yang membaca `d.absen_token` / `d.absen_token_expired_at` — field yang **hanya dikirim v2**. Jadi begitu URL-nya diarahkan ke v2, halaman otomatis mendapat `absen_token` dan payload submit ke `/api/proxy/addpresensi-ios` ikut membawa token sesi yang valid. Tidak ada parsing yang perlu diubah.
+- **Endpoint lain tidak pernah disentuh:** `/liveness/liveness/check`, `/proxy/uploadfotoabsensi`, `/proxy/addpresensi-ios`, `/pegawai/by-enroll`, `/absensi/wfh-radius`, `/absensi/dev/check`, `/absensi/dev/submit`.
+- **UI: `Lokasi Kantor` disembunyikan saat mode WFH atau Manual.**
+  - WFH → titik acuan diambil otomatis dari lokasi rumah yang sudah didaftarkan user (`/api/pegawai/by-enroll` → `latitude_wfh`/`longitude_wfh`).
+  - Manual → koordinat ditentukan user sendiri.
+  - Hanya WFO yang masih memakai anchor Kalibata/Kalisari.
+- **Data yang dibutuhkan sudah terverifikasi:** `is_allow_presensi_wfh: 1`, `status_lokasi_wfh: 1`, radius WFH `80` meter.
+
 ### v2.4.0 (2026-10-03)
 - **Fitur baru: `WFH v2 Mode` (toggle, default OFF):**
   - Menyamakan tampilan halaman **Presensi Lama** dengan aplikasi resmi v1.0.13 saat mode ini dinyalakan — tanpa pindah halaman.

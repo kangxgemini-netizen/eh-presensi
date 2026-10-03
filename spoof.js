@@ -450,15 +450,23 @@
 
   /* =========================================================
      WFH v2 MODE  (opt-in, default OFF)
-     Official app v1.0.13 renders the WFH geofence anchor as "R" (Rumah),
-     while the still-deployed Presensi Lama build hardcodes "K" (Lokasi
-     kantor). When "WFH v2 Mode" is enabled we make the old page behave
-     like the new build.
+     Official app v1.0.13 and the /absen-dev/ build validate WFH against
+     the employee's REGISTERED HOME point, via POST /api/absensi/v2/cek-lokasi.
+     The legacy Presensi Lama page still calls POST /api/absensi/cek-lokasi,
+     whose server response validates against OFFICE coordinates instead —
+     measured on a real account: distance_meter 17787 (rejected,
+     allowed:false) on v1 vs 0.57 (allowed:true) on v2 for the same input.
 
-     Design rule: this feature must never be able to block an attendance
-     submission. Label swaps are unconditional; anything that touches data
-     (coordinates, endpoints) is conservative and falls back to the page's
-     original behaviour on ANY uncertainty.
+     So the fix is a single, surgical URL rewrite of that one fetch. The page's
+     own response parsing already understands every v2 field it needs:
+       - d.office_latitude / d.office_longitude  -> v2 returns the HOME point
+       - d.distance_meter                         -> v2 returns home-relative distance
+       - d.absen_token / d.absen_token_expired_at -> ONLY v2 returns these;
+         ambilAbsenTokenDariResponse() already reads them, v1 never sends them.
+     The submit payload then carries that token to /api/proxy/addpresensi-ios.
+
+     Design rule: never break submission. If anything is not exactly as expected
+     the rewrite stays off and the page behaves exactly as before.
      ========================================================= */
 
   // Only the legacy Presensi Lama paths need this. The /absen-dev/ build
@@ -566,6 +574,105 @@
     } catch (_) {}
     return changed;
   }
+
+  // ---- Endpoint rewrite: /api/absensi/cek-lokasi -> /api/absensi/v2/cek-lokasi ----
+  //
+  // Only that ONE endpoint. Everything else the page calls (liveness, photo
+  // upload, by-enroll, addpresensi-ios, wfh-radius) is left untouched.
+  var V1_PATH = "/api/absensi/cek-lokasi";
+  var V2_PATH = "/api/absensi/v2/cek-lokasi";
+
+  function shouldRewriteWfhFetch(input, init) {
+    if (!wfhV2Enabled()) return false;
+    if (!onLegacyWfhPage()) return false;
+
+    var url = null;
+    try {
+      url = typeof input === "string" ? input : (input && input.url) || "";
+    } catch (_) {
+      return false;
+    }
+    if (!url) return false;
+
+    // Normalise absolute URLs down to a path so we match the BASE_URL form
+    // (https://presensi.kemendesa.go.id/api/absensi/cek-lokasi).
+    var path = url;
+    var m = String(url).match(/^https?:\/\/[^/]+(\/[^?#]*)/);
+    if (m) path = m[1];
+
+    // Must be exactly the v1 endpoint — never touch v2, never touch the
+    // WFO submit endpoints (/api/absensi/dev/check, /dev/submit).
+    if (path === V1_PATH) return true;
+    return false;
+  }
+
+  function installFetchRewrite() {
+    if (typeof window.fetch !== "function") return false;
+    if (window.__EH_FETCH_REWRITE__) return true;
+
+    var origFetch = window.fetch;
+    var wrapped = function (input, init) {
+      var args = arguments;
+      var doRewrite = false;
+      try {
+        doRewrite = shouldRewriteWfhFetch(input, init);
+      } catch (_) {
+        doRewrite = false;
+      }
+
+      if (doRewrite) {
+        // Rewrite only the URL. Body, headers, method and credentials are
+        // passed through untouched — the page sends status:"WFH" already.
+        var newInput = input;
+        try {
+          if (typeof input === "string") {
+            newInput = input.replace(V1_PATH, V2_PATH);
+          } else if (input && typeof input === "object" && typeof input.url === "string") {
+            var cloned = {};
+            for (var k in input) {
+              if (Object.prototype.hasOwnProperty.call(input, k)) cloned[k] = input[k];
+            }
+            cloned.url = input.url.replace(V1_PATH, V2_PATH);
+            newInput = cloned;
+          }
+        } catch (_) {
+          newInput = input;
+        }
+
+        try {
+          if (typeof console !== "undefined" && console.info) {
+            console.info("[eh-Presensi] WFH v2: cek-lokasi -> v2/cek-lokasi");
+          }
+        } catch (_) {}
+
+        return origFetch.apply(window, [newInput].concat(Array.prototype.slice.call(args, 1)));
+      }
+
+      return origFetch.apply(window, args);
+    };
+
+    try {
+      window.fetch = wrapped;
+      window.__EH_FETCH_REWRITE__ = true;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  try {
+    installFetchRewrite();
+    // The page may install its own fetch later; re-assert defensively for a
+    // short window, then stop so we never fight the page indefinitely.
+    var _rewriteTries = 0;
+    var _rewriteTimer = setInterval(function () {
+      if (++_rewriteTries > 20 || window.__EH_FETCH_REWRITE__) {
+        clearInterval(_rewriteTimer);
+        return;
+      }
+      installFetchRewrite();
+    }, 200);
+  } catch (_) {}
 
   try {
     var _wfhRelabelCount = 0;

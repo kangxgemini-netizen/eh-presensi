@@ -261,6 +261,14 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.5.0", date: "2026-10-03", items: [
+    "Perbaikan WFH: request sekarang divalidasi ke LOKASI RUMAH (bukan kantor):",
+    "• Root cause terverifikasi di akun nyata: POST /api/absensi/cek-lokasi (v1) mengembalikan distance_meter 17787 meter dan allowed:false karena membandingkan lokasi user dengan koordinat KANTOR. Endpoint v2 pada koordinat yang sama mengembalikan 0,57 meter dan allowed:true karena memakai titik RUMAH terdaftar.",
+    "• Fix: satu rewrite URL pada fetch /api/absensi/cek-lokasi -> /api/absensi/v2/cek-lokasi, hanya di halaman lama dan hanya saat WFH v2 Mode aktif.",
+    "• Parser halaman sudah punya (d.absen_token / d.absen_token_expired_at) — field itu hanya dikirim v2, jadi submit ke /api/proxy/addpresensi-ios sekarang ikut membawa token sesi yang valid.",
+    "• Endpoint lain (liveness, upload foto, by-enroll, wfh-radius, dev/check, dev/submit) tidak pernah disentuh.",
+    "UI: Opsi 'Lokasi Kantor' disembunyikan saat mode WFH atau Manual, karena tidak relevan di kedua mode tersebut (WFH memakai lokasi rumah terdaftar, Manual memakai koordinat pilihan user).",
+  ]},
   { ver: "2.4.0", date: "2026-10-03", items: [
     "Fitur Baru: WFH v2 Mode (toggle, default OFF):",
     "• Menyamakan tampilan halaman Presensi Lama dengan aplikasi resmi v1.0.13 saat mode ini dinyalakan.",
@@ -574,6 +582,7 @@ async function load() {
   updateGeoPlaceholder(data.geoStyle || "ios");
   $("geo-manual").value = data.geoManual || "";
   $("geo-manual-box").style.display = (getGeoMode() === "manual") ? "block" : "none";
+  updateGeoAnchorVisibility(getGeoMode());
   validateAndApplyGeoManual();
   updateProxyStatusLive();
 
@@ -837,6 +846,7 @@ $("geo-toggle").addEventListener("change", async (e) => {
 document.querySelectorAll('input[name="geo-mode"]').forEach((r) => r.addEventListener("change", async (e) => {
   const mode = e.target.value;
   $("geo-manual-box").style.display = (mode === "manual") ? "block" : "none";
+  updateGeoAnchorVisibility(mode);
   await chrome.storage.local.set({ geoMode: mode });
   validateAndApplyGeoManual();
 
@@ -987,6 +997,21 @@ function updateGateStatusLive() {
   el.textContent = on ? "blocker: aktif" : "blocker: nonaktif";
 }
 
+// Anchor Kantor hanya relevan untuk mode WFO.
+// WFH: titik acuan diambil otomatis dari lokasi rumah yang sudah didaftarkan
+//      oleh user (/api/pegawai/by-enroll -> latitude_wfh/longitude_wfh).
+// Manual: user sendiri yang menentukan koordinat.
+function updateGeoAnchorVisibility(mode) {
+  const box = $("geo-anchor-box");
+  if (!box) return;
+  const show = mode === "wfo";
+  box.style.display = show ? "block" : "none";
+  // Fieldset memakai display:block; pastikan legend/isi ikut tersembunyi.
+  const kids = box.querySelectorAll(".radio-group, label, input");
+  for (let i = 0; i < kids.length; i++) {
+    kids[i].style.display = show ? "" : "none";
+  }
+}
 // Real-time status text untuk WFH v2 Mode
 function updateWfhV2Status() {
   const el = $("wfhv2-status");
