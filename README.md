@@ -8,6 +8,24 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.7.1 (2026-10-03)
+- **Fix: tombol `Buka Google Maps` benar-benar sejajar dengan kolom koordinat.**
+  - **Akar masalahnya specificity, bukan tinggi.** Aturan `.btn` dideklarasikan **setelah** `.btn-maps` di stylesheet dengan specificity yang sama (satu class), sehingga `margin-top: 6px` dan `padding: 9px` dari `.btn` menang. Kedua elemen tetap **sama-sama 38px**, tapi tombol terdorong **6px ke bawah** — dan_itulah yang bikin *"gak sama"* secara visual.
+  - Perbaikan: selector jadi `.btn.btn-maps` (dua class) sehingga menang dari `.btn` (satu class) apa pun urutan sumber.
+  - Diperbaiki juga selector ikon: `.geo-manual-grid .btn-maps .ic`.
+- **Fix kedua (ketemu saat sweep lebar):** di panel `≤320px`, media query sempat mengulang `grid-auto-rows: auto`, sehingga input kehilangan tinggi eksplisitnya dan menyusut ke **17px** sementara tombol tetap **38px**. Row height sekarang tetap `38px` di semua lebar.
+
+  Diverifikasi di browser dengan `sidepanel.html` asli pada lebar 280/300/320/340/360/400px:
+
+  | lebar | input | tombol | offset atas | hasil |
+  |---|---|---|---|---|
+  | 280px | 38px | 38px | — (stacked) | ✅ |
+  | 300px | 38px | 38px | — (stacked) | ✅ |
+  | 320px | 38px | 38px | — (stacked) | ✅ |
+  | 340px | 38px | 38px | 0px | ✅ |
+  | 360px | 38px | 38px | 0px | ✅ |
+  | 400px | 38px | 38px | 0px | ✅ |
+
 ### v2.7.0 (2026-10-03)
 - **UI: hapus 4 baris status kecil di bawah deskripsi card.**
   - Dihapus: `blocker: nonaktif`, `off` (WFH v2 Mode), baris koordinat GPS, dan `manual / off` (Proxy Route).

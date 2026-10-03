@@ -271,6 +271,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.7.1", date: "2026-10-03", items: [
+    "Fix: tombol 'Buka Google Maps' benar-benar sejajar dengan kolom koordinat.",
+    "• Penyebab: aturan .btn ada DI BELAH .btn-maps di stylesheet dengan specificity sama, jadi margin-top:6px + padding:9px dari .btn menang dan mendorong tombol 6px ke bawah — padahal tinggi keduanya sama-sama 38px.",
+    "• Perbaikan: selector jadi .btn.btn-maps (2 class) sehingga menang dari .btn (1 class) apa pun urutan sumber.",
+    "• Fix kedua: di panel <=320px, media query sempat mengulang grid-auto-rows:auto sehingga input menyusut ke 17px sementara tombol tetap 38px. Row height kini tetap 38px.",
+  ]},
   { ver: "2.7.0", date: "2026-10-03", items: [
     "UI: hapus 4 baris status di bawah deskripsi card (lebih bersih).",
     "• 'blocker: nonaktif', 'off' (WFH v2 Mode), baris koordinat GPS, dan 'manual / off' (Proxy Route) sudah dihapus.",
