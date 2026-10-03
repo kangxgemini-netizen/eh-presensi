@@ -8,6 +8,19 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.6.1 (2026-10-03)
+- **Fix: tinggi kolom koordinat dan tombol `Buka Google Maps` sekarang sama persis.**
+  - Grid memakai tinggi baris eksplisit `grid-auto-rows: 38px` dengan `align-items: stretch`, jadi input dan tombol mengikuti tinggi yang sama alih-alih menjumlahkan `font-size` + `padding` yang berbeda.
+  - `box-sizing: border-box` pada input memastikan `height: 100%` tepat 38px — tanpa itu border 1px menambah 2px dan input melewati tombol.
+  - **Font input diperbesar dari 11px ke 13px**, sesuai font tombol, supaya koordinat lebih mudah dibaca.
+  - Ikon centang koordinat valid sekarang di-center vertikal (`top: 50%` + `translateY(-50%)`) terhadap input yang lebih tinggi.
+- Terverifikasi lewat pengukuran DOM di browser, bukan perkiraan CSS:
+
+  | | input | tombol | selisih |
+  |---|---|---|---|
+  | sebelum | 26.5px | 31px | **4.5px** |
+  | sesudah | 38px | 38px | **0px** |
+
 ### v2.6.0 (2026-10-03)
 - **Tombol CTA `Buka Google Maps` di samping kolom koordinat manual.**
   - Kolom `Koordinat (lat, lng)` menjadi layout 2 kolom: input di kiri, tombol di kanan.

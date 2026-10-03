@@ -261,6 +261,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.6.1", date: "2026-10-03", items: [
+    "Fix: tinggi kolom koordinat dan tombol 'Buka Google Maps' kini sama persis.",
+    "• Input dan tombol diberi tinggi baris eksplisit 38px, jadi keduanya flush di sisi atas dan bawah.",
+    "• Font input diperbesar dari 11px ke 13px agar lebih mudah dibaca koordinatnya.",
+    "• Ikon centang koordinat valid sekarang di-center vertikal terhadap input yang lebih tinggi (sebelumnya menempel di atas).",
+  ]},
   { ver: "2.6.0", date: "2026-10-03", items: [
     "Fitur Baru: tombol CTA 'Buka Google Maps' di samping kolom koordinat manual.",
     "• Kolom Koordinat (lat, lng) kini jadi 2 kolom: input di kiri, tombol 'Buka Google Maps' di kanan.",
