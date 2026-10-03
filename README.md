@@ -8,6 +8,20 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.7.0 (2026-10-03)
+- **UI: hapus 4 baris status kecil di bawah deskripsi card.**
+  - Dihapus: `blocker: nonaktif`, `off` (WFH v2 Mode), baris koordinat GPS, dan `manual / off` (Proxy Route).
+  - **Deskripsi card dan toggle switch tetap utuh** — yang dihapus hanya baris status monospace kecilnya, supaya tiap card lebih bersih.
+- Semua penulisan status dipusatkan ke `setCardSub(id, text)`, yang aman terhadap node yang tidak ada:
+  ```js
+  function setCardSub(id, text) {
+    const el = $(id);
+    if (el) el.textContent = text;
+  }
+  ```
+  Sebelumnya 12 call site menulis `$("...").textContent` tanpa guard — begitu elemennya dihapus, semuanya akan jadi `TypeError` dan mematikan `render()`.
+- Verifikasi: panel di-load headless dengan shim `chrome.*`, lalu semua toggle, radio, dan tombol Maps diklik — **0 error** baik saat load maupun saat interaksi.
+
 ### v2.6.1 (2026-10-03)
 - **Fix: tinggi kolom koordinat dan tombol `Buka Google Maps` sekarang sama persis.**
   - Grid memakai tinggi baris eksplisit `grid-auto-rows: 38px` dengan `align-items: stretch`, jadi input dan tombol mengikuti tinggi yang sama alih-alih menjumlahkan `font-size` + `padding` yang berbeda.

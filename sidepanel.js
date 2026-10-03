@@ -1,5 +1,15 @@
 const $ = (id) => document.getElementById(id);
 
+// Status line writer for .card-sub elements.
+// Those elements are OPTIONAL: the UI may not render them (cleaner cards), so
+// every write must tolerate a missing node instead of throwing. Several call
+// sites assign `.textContent` directly with no guard, which would be a
+// TypeError on null the moment the element is absent.
+function setCardSub(id, text) {
+  const el = $(id);
+  if (el) el.textContent = text;
+}
+
 function getGeoAnchor() {
   const el = document.querySelector('input[name="geo-anchor"]:checked');
   return el ? el.value : "kalibata";
@@ -205,7 +215,7 @@ async function validateAndApplyGeoManual() {
           { type: "GEO_SET", tabId: tab.id, lat: coord.lat, lng: coord.lng, geoAuto: false, geoStyle: style },
           (res) => {
             if (res && res.geo) {
-              $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+              setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
             }
             render();
           }
@@ -261,6 +271,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.7.0", date: "2026-10-03", items: [
+    "UI: hapus 4 baris status di bawah deskripsi card (lebih bersih).",
+    "• 'blocker: nonaktif', 'off' (WFH v2 Mode), baris koordinat GPS, dan 'manual / off' (Proxy Route) sudah dihapus.",
+    "• Deskripsi card dan toggle switch tetap utuh — hanya baris status kecil yang dihapus.",
+    "• Semua penulisan status dipusatkan ke setCardSub() yang aman terhadap node yang tidak ada.",
+  ]},
   { ver: "2.6.1", date: "2026-10-03", items: [
     "Fix: tinggi kolom koordinat dan tombol 'Buka Google Maps' kini sama persis.",
     "• Input dan tombol diberi tinggi baris eksplisit 38px, jadi keduanya flush di sisi atas dan bawah.",
@@ -649,12 +665,12 @@ async function load() {
     }
     updateWfhV2Status();
     if (uaOn) $("ua").value = res.ua;
-    if (geoOn) $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+    if (geoOn) setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
 
     if (currentProxyUrl) {
-      $("proxy-status").textContent = (proxyOn ? "manual (aktif): " : "manual: ") + currentProxyUrl;
+      setCardSub("proxy-status", (proxyOn ? "manual (aktif): " : "manual: ") + currentProxyUrl);
     } else {
-      $("proxy-status").textContent = "manual / off";
+      setCardSub("proxy-status", "manual / off");
     }
 
     render();
@@ -851,7 +867,7 @@ $("geo-toggle").addEventListener("change", async (e) => {
       { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style },
       (res) => {
         if (res && res.geo) {
-          $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+          setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
         }
         render();
       }
@@ -925,7 +941,7 @@ document.querySelectorAll('input[name="geo-mode"]').forEach((r) => r.addEventLis
         { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style },
         (res) => {
           if (res && res.geo) {
-            $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+            setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
           }
           render();
         }
@@ -969,7 +985,7 @@ document.querySelectorAll('input[name="geo-style"]').forEach((r) => r.addEventLi
         { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: false, geoStyle: style },
         (res) => {
           if (res && res.geo) {
-            $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+            setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
           }
           render();
         }
@@ -985,14 +1001,14 @@ async function applyProxyIfOn() {
   const scope = getProxyScope();
 
   if (!url) {
-    $("proxy-status").textContent = "manual: belum diisi";
+    setCardSub("proxy-status", "manual: belum diisi");
     return;
   }
 
   await chrome.storage.local.set({ proxyUrl: url, proxyHost: host, proxyOn: true, proxyScope: scope });
   chrome.runtime.sendMessage({ type: "PROXY_SET", proxyUrl: url, targetHost: host, scope }, (res) => {
     if (res && res.ok) {
-      $("proxy-status").textContent = `manual: ${res.proxy.scheme} ${res.proxy.host}:${res.proxy.port}`;
+      setCardSub("proxy-status", `manual: ${res.proxy.scheme} ${res.proxy.host}:${res.proxy.port}`);
     }
     render();
   });
@@ -1056,10 +1072,8 @@ $("proxy-host").addEventListener("input", () => {
 
 // Real-time status text (tanpa nunggu toggle ON)
 function updateGateStatusLive() {
-  const el = $("gate-status");
-  if (!el) return;
   const on = $("gate-toggle") ? $("gate-toggle").checked : false;
-  el.textContent = on ? "blocker: aktif" : "blocker: nonaktif";
+  setCardSub("gate-status", on ? "blocker: aktif" : "blocker: nonaktif");
 }
 
 // Anchor Kantor hanya relevan untuk mode WFO.
@@ -1079,10 +1093,8 @@ function updateGeoAnchorVisibility(mode) {
 }
 // Real-time status text untuk WFH v2 Mode
 function updateWfhV2Status() {
-  const el = $("wfhv2-status");
-  if (!el) return;
   const on = $("wfhv2-toggle") ? $("wfhv2-toggle").checked : false;
-  el.textContent = on ? "aktif — marker R di Presensi Lama" : "off";
+  setCardSub("wfhv2-status", on ? "aktif — marker R di Presensi Lama" : "off");
 }
 
 function updateProxyStatusLive() {
@@ -1092,12 +1104,12 @@ function updateProxyStatusLive() {
   const on = $("proxy-toggle") ? $("proxy-toggle").checked : false;
 
   if (!url) {
-    $("proxy-status").textContent = on ? "aktif: url kosong" : "manual / off";
+    setCardSub("proxy-status", on ? "aktif: url kosong" : "manual / off");
     return;
   }
 
   const scopeText = (scope === "target" && host) ? ` → hanya ${host}` : " → semua trafik";
-  $("proxy-status").textContent = (on ? "manual (aktif): " : "manual: ") + url + scopeText;
+  setCardSub("proxy-status", (on ? "manual (aktif): " : "manual: ") + url + scopeText);
 }
 
 $("btn-reload").addEventListener("click", async () => {
@@ -1120,7 +1132,7 @@ $("btn-reload").addEventListener("click", async () => {
       { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: true, geoStyle: style },
       (res) => {
         if (res && res.geo) {
-          $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
+          setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
         }
       }
     );
