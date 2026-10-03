@@ -8,6 +8,10 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.5.1 (2026-10-03)
+- **UI: card `WFH v2 Mode` dipindahkan ke atas card `GPS Location`.** Toggle mode WFH sekarang lebih mudah ditemukan, karena berada sebelum pengaturan GPS.
+- Deskripsi card `WFH v2 Mode` diperbarui — kini menyebut bahwa request ikut divalidasi ke lokasi rumah terdaftar, sesuai perilaku yang diperbaiki di v2.5.0.
+
 ### v2.5.0 (2026-10-03)
 - **Perbaikan: request WFH divalidasi ke lokasi RUMAH, bukan KANTOR.**
   - **Root cause (terverifikasi di akun nyata, bukan dugaan):** `POST /api/absensi/cek-lokasi` (v1) membandingkan lokasi user dengan koordinat **kantor**. Pada koordinat yang sama:

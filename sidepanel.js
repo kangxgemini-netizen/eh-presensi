@@ -261,6 +261,11 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.5.1", date: "2026-10-03", items: [
+    "UI: Card 'WFH v2 Mode' dipindahkan ke atas card 'GPS Location'.",
+    "• WFH v2 Mode kini tampil sebelum GPS Location, jadi toggle mode WFH bisa ditemukan lebih cepat.",
+    "• Deskripsi card diperbarui: kini menyebut bahwa request ikut divalidasi ke lokasi rumah terdaftar (bukan kantor), sesuai perilaku v2.5.0.",
+  ]},
   { ver: "2.5.0", date: "2026-10-03", items: [
     "Perbaikan WFH: request sekarang divalidasi ke LOKASI RUMAH (bukan kantor):",
     "• Root cause terverifikasi di akun nyata: POST /api/absensi/cek-lokasi (v1) mengembalikan distance_meter 17787 meter dan allowed:false karena membandingkan lokasi user dengan koordinat KANTOR. Endpoint v2 pada koordinat yang sama mengembalikan 0,57 meter dan allowed:true karena memakai titik RUMAH terdaftar.",
