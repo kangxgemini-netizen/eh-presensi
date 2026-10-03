@@ -261,6 +261,13 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.3.0", date: "2026-10-03", items: [
+    "WFH Marker 'R' (Rumah) — Sinkron dengan App Resmi v1.0.13:",
+    "• Relabel Marker Peta: Saat mode GPS WFH aktif, marker titik acuan di peta Leaflet otomatis diubah dari 'K' (Kantor) menjadi 'R' (Rumah), dan popup 'Lokasi kantor' menjadi 'Rumah WFH' — mengikuti tampilan di aplikasi resmi Kementerian Desa.",
+    "• Gated pada Mode WFH: Relabel hanya berlaku di halaman WFH/WFA. Mode WFO tetap menampilkan 'K' (Kantor) sesuai aslinya.",
+    "• Kosmetik murni: Tidak ada koordinat, radius, atau payload API yang diubah.",
+    "• Hoisting getGeoCfg: Fungsi getGeoCfg() dipindahkan ke root scope IIFE agar isWfhModeActive() tidak terkena ReferenceError di bawah mode strict.",
+  ]},
   { ver: "2.2.3", date: "2026-09-21", items: [
     "Permanent Gatekeeper Dismissal ('ePresensi Versi Web Sudah Tidak Digunakan'):",
     "• Persistence & In-Page Cache: Menyimpan status Gate Block di localStorage sehingga langsung aktif pada document_start bahkan sebelum background worker sempat menginjeksi config.",

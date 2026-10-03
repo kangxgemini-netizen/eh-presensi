@@ -176,6 +176,53 @@
     };
   } catch (_) {}
 
+  // Read config at call-time directly from chrome.storage.local.
+  // Content scripts have storage access, so this is race-free: every reload
+  // re-reads the latest config without depending on background injection timing.
+  // NOTE: must live in the ROOT IIFE scope — anything declared inside the
+  // `try { ... }` GPS block below is block-scoped under "use strict" and is
+  // invisible to helpers like isWfhModeActive() defined further down.
+  var _geoCfgCache = null;
+  var _geoCfgTs = 0;
+  function getGeoCfg() {
+    // synchronous best-effort: use last cached value if fresh (<500ms)
+    if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
+    if (_geoCfgCache) return _geoCfgCache;
+    try { return (typeof window !== "undefined" && window.__EH_GEO__) || { mode: "auto" }; }
+    catch (_) { return { mode: "auto" }; }
+  }
+
+  // Async loader: warm the cache from storage at script start and whenever possible.
+  function loadGeoCfg() {
+    try {
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
+        chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
+          var disabled = !!d.geoDisabled;
+          var mode = disabled ? "off" : (d.geoMode || (window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
+          var style = d.geoStyle || (window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
+          var cfg = { mode: mode, disabled: disabled, style: style };
+          if (d.geoLat != null && d.geoLng != null) {
+            cfg.lat = parseFloat(d.geoLat);
+            cfg.lng = parseFloat(d.geoLng);
+          } else if (mode === "manual" && d.geoManual) {
+            var trimmed = String(d.geoManual).trim();
+            var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
+            if (parts.length >= 2) {
+              cfg.lat = parseFloat(parts[0].trim());
+              cfg.lng = parseFloat(parts[1].trim());
+            }
+          }
+          _geoCfgCache = cfg;
+          _geoCfgTs = Date.now();
+          try { window.__EH_GEO__ = cfg; } catch (_) {}
+        });
+      }
+    } catch (_) {}
+  }
+  loadGeoCfg();
+  // refresh cache periodically in case the user changes config without reload
+  try { setInterval(loadGeoCfg, 1000); } catch (_) {}
+
   // --- GPS spoof (random from curated list) ---
   // Intercept getCurrentPosition/watchPosition and return a coordinate picked
   // from GEO_LIST (or manual override). This works regardless of CDP timing.
@@ -232,57 +279,6 @@
       { lat: -6.343344, lng: 106.8584066 },
       { lat: -6.343499, lng: 106.8588445 }
     ];
-
-    // Read config at call-time directly from chrome.storage.local.
-    // Content scripts have storage access, so this is race-free: every reload
-    // re-reads the latest config without depending on background injection timing.
-    var _geoCfgCache = null;
-    var _geoCfgTs = 0;
-    function getGeoCfg() {
-      // synchronous best-effort: use last cached value if fresh (<500ms)
-      if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
-      // try synchronous storage if available
-      try {
-        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
-          // chrome.storage.local.get is async; we attempt a sync read via the
-          // internal promise and fall back to cached/window-injected value.
-        }
-      } catch (_) {}
-      if (_geoCfgCache) return _geoCfgCache;
-      try { return (typeof window !== "undefined" && window.__EH_GEO__) || { mode: "auto" }; }
-      catch (_) { return { mode: "auto" }; }
-    }
-
-    // Async loader: warm the cache from storage at script start and whenever possible.
-    function loadGeoCfg() {
-      try {
-        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
-          chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
-            var disabled = !!d.geoDisabled;
-            var mode = disabled ? "off" : (d.geoMode || (window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
-            var style = d.geoStyle || (window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
-            var cfg = { mode: mode, disabled: disabled, style: style };
-            if (d.geoLat != null && d.geoLng != null) {
-              cfg.lat = parseFloat(d.geoLat);
-              cfg.lng = parseFloat(d.geoLng);
-            } else if (mode === "manual" && d.geoManual) {
-              var trimmed = String(d.geoManual).trim();
-              var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
-              if (parts.length >= 2) {
-                cfg.lat = parseFloat(parts[0].trim());
-                cfg.lng = parseFloat(parts[1].trim());
-              }
-            }
-            _geoCfgCache = cfg;
-            _geoCfgTs = Date.now();
-            try { window.__EH_GEO__ = cfg; } catch (_) {}
-          });
-        }
-      } catch (_) {}
-    }
-    loadGeoCfg();
-    // refresh cache periodically in case the user changes config without reload
-    try { setInterval(loadGeoCfg, 1000); } catch (_) {}
 
     function pickCoord() {
       var cfg = getGeoCfg();
@@ -427,6 +423,71 @@
   // --- SweetAlert2 iOS AppStore Gatekeeper Blocker (Hardened) ---
   // =========================================================================
   var GATE_STYLE_ID = "__eh_gate_block_style__";
+
+  /* =========================================================
+     WFH MAP MARKER RELABEL
+     Official app v1.0.13 renders the WFH geofence anchor as "R" (Rumah),
+     but the still-deployed web build hardcodes "K" (Lokasi kantor).
+     When the extension runs in WFH mode we swap that label so the map
+     matches the official app. Purely cosmetic: coordinates, radius and
+     every API payload stay exactly as the page computed them.
+     ========================================================= */
+  function isWfhModeActive() {
+    try {
+      var cfg = getGeoCfg();
+      return !!(cfg && !cfg.disabled && cfg.mode === "wfh");
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function relabelWfhMarker() {
+    if (!isWfhModeActive()) return false;
+    var changed = false;
+    try {
+      // Leaflet renders our divIcon as .leaflet-marker-icon > div (the colored badge).
+      var badges = document.querySelectorAll(".leaflet-marker-icon div");
+      for (var i = 0; i < badges.length; i++) {
+        var b = badges[i];
+        if (b.textContent === "K" && !b.dataset.ehRelabelled) {
+          b.textContent = "R";
+          b.dataset.ehRelabelled = "1";
+          changed = true;
+        }
+      }
+
+      // Popup label follows the same wording as the official app.
+      var popups = document.querySelectorAll(".leaflet-popup-content");
+      for (var j = 0; j < popups.length; j++) {
+        var p = popups[j];
+        if (p.textContent === "Lokasi kantor") {
+          p.textContent = "Rumah WFH";
+          changed = true;
+        }
+      }
+    } catch (_) {}
+    return changed;
+  }
+
+  try {
+    var _wfhRelabelCount = 0;
+    var _wfhRelabelTimer = setInterval(function () {
+      _wfhRelabelCount++;
+      if (_wfhRelabelCount > 40) {
+        clearInterval(_wfhRelabelTimer);
+        return;
+      }
+      relabelWfhMarker();
+    }, 250);
+
+    var _wfhMarkerObserver = new MutationObserver(function () {
+      relabelWfhMarker();
+    });
+    _wfhMarkerObserver.observe(document.documentElement, { childList: true, subtree: true });
+
+    document.addEventListener("DOMContentLoaded", relabelWfhMarker);
+    window.addEventListener("load", relabelWfhMarker);
+  } catch (_) {}
 
   function isGateBlockEnabled() {
     if (typeof window !== "undefined" && window.__EH_GATE_BLOCK__ !== undefined) {

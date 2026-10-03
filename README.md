@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.3.0 (2026-10-03)
+- **WFH Marker "R" (Rumah) — Sinkron dengan App Resmi v1.0.13:**
+  - Bedah XAPK `ePresensi+KemendesPDT_1.0.13_APKPure.apk` menunjukkan aplikasi resmi sudah mengganti marker peta WFH menjadi `createDivIcon("#dc2626", "R")` dengan popup `"Rumah WFH"`, sementara build web yang masih ter-deploy masih hardcode `"K"` / `"Lokasi kantor"`.
+  - **Relabel Marker Peta:** Saat mode GPS WFH aktif, ekstensi mengganti badge `.leaflet-marker-icon` dari `K` → `R` dan popup `Lokasi kantor` → `Rumah WFH`.
+  - **Gated pada Mode WFH:** Relabel hanya aktif di halaman WFH/WFA. Mode WFO dan Manual tidak tersentuh, marker tetap `K`.
+  - **Sifatnya kosmetik:** Koordinat, radius, `jarak ke kantor`, dan seluruh payload API (`/api/absensi/cek-lokasi`, `/api/proxy/addpresensi-wfh`) tetap apa adanya — tidak ada data yang dimanipulasi, hanya label visual.
+  - **Hoisting `getGeoCfg`:** Fungsi `getGeoCfg()`/`loadGeoCfg()` dipindahkan dari dalam blok `try { ... }` ke root scope IIFE. Sebelumnya blok tersebut bersifat block-scoped di bawah `"use strict"`, sehingga helper baru seperti `isWfhModeActive()` akan memicu `ReferenceError` yang sama seperti bug v2.2.1.
+
 ### v2.2.3 (2026-09-21)
 - **Permanent Gatekeeper Dismissal ('ePresensi Versi Web Sudah Tidak Digunakan'):**
   - **In-Page Persistence (localStorage):** Menyimpan status `__EH_GATE_BLOCK__` di storage halaman sehingga module penutup modal aktif secara sinkron di `document_start` tanpa menunggu handshake asynchronous background service worker.
