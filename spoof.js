@@ -176,31 +176,51 @@
     };
   } catch (_) {}
 
-  // Read config at call-time directly from chrome.storage.local.
-  // Content scripts have storage access, so this is race-free: every reload
-  // re-reads the latest config without depending on background injection timing.
-  // NOTE: must live in the ROOT IIFE scope — anything declared inside the
-  // `try { ... }` GPS block below is block-scoped under "use strict" and is
-  // invisible to helpers like isWfhModeActive() defined further down.
+  // Read config at call-time.
+  //
+  // IMPORTANT: this script is registered with world:"MAIN", so chrome.storage is
+  // NOT reachable here the way it is in an ISOLATED-world content script. The
+  // reliable channel is window.__EH_GEO__, which background.js injects on every
+  // navigation (see readGeoMode()/buildGeoCfg()). The storage read below is kept
+  // only as a best-effort path for the odd case where it does resolve.
   var _geoCfgCache = null;
   var _geoCfgTs = 0;
-  function getGeoCfg() {
-    // synchronous best-effort: use last cached value if fresh (<500ms)
-    if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
-    if (_geoCfgCache) return _geoCfgCache;
-    try { return (typeof window !== "undefined" && window.__EH_GEO__) || { mode: "auto" }; }
-    catch (_) { return { mode: "auto" }; }
+
+  function cfgFromWindow() {
+    try {
+      var w = (typeof window !== "undefined") ? window.__EH_GEO__ : null;
+      return (w && typeof w === "object") ? w : null;
+    } catch (_) {
+      return null;
+    }
   }
 
-  // Async loader: warm the cache from storage at script start and whenever possible.
+  function getGeoCfg() {
+    // Prefer the injected config: it is the only source that carries geoMode.
+    var injected = cfgFromWindow();
+    if (injected) {
+      _geoCfgCache = injected;
+      _geoCfgTs = Date.now();
+      return injected;
+    }
+    if (_geoCfgCache && (Date.now() - _geoCfgTs) < 500) return _geoCfgCache;
+    if (_geoCfgCache) return _geoCfgCache;
+    return { mode: "auto", geoMode: "wfo" };
+  }
+
+  // Async loader: warm the cache from storage when available, otherwise wait for
+  // background to inject window.__EH_GEO__. Either way getGeoCfg() above stays
+  // correct because it always re-reads the injected object first.
   function loadGeoCfg() {
     try {
       if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local && chrome.storage.local.get) {
         chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
+          if (!d) return;
           var disabled = !!d.geoDisabled;
-          var mode = disabled ? "off" : (d.geoMode || (window.__EH_GEO__ && window.__EH_GEO__.mode) || "auto");
-          var style = d.geoStyle || (window.__EH_GEO__ && window.__EH_GEO__.style) || "ios";
-          var cfg = { mode: mode, disabled: disabled, style: style };
+          var geoMode = disabled ? "off" : (d.geoMode || "wfo");
+          var style = d.geoStyle || "ios";
+          var mode = disabled ? "off" : (d.geoMode || "auto");
+          var cfg = { mode: mode, geoMode: geoMode, disabled: disabled, style: style };
           if (d.geoLat != null && d.geoLng != null) {
             cfg.lat = parseFloat(d.geoLat);
             cfg.lng = parseFloat(d.geoLng);
@@ -214,7 +234,11 @@
           }
           _geoCfgCache = cfg;
           _geoCfgTs = Date.now();
-          try { window.__EH_GEO__ = cfg; } catch (_) {}
+          // Only publish when background has not already injected a config,
+          // so we never clobber the authoritative geoMode/lat/lng.
+          if (!cfgFromWindow()) {
+            try { window.__EH_GEO__ = cfg; } catch (_) {}
+          }
         });
       }
     } catch (_) {}
@@ -435,14 +459,45 @@
   function isWfhModeActive() {
     try {
       var cfg = getGeoCfg();
-      return !!(cfg && !cfg.disabled && cfg.mode === "wfh");
+      // An explicitly disabled session never relabels, whatever the page is.
+      if (cfg && cfg.disabled) return false;
+      if (!cfg) return false;
+      // geoMode is the business mode (wfo/wfh/manual) pushed by background.js.
+      // Fall back to mode for older injected payloads.
+      var m = cfg.geoMode || cfg.mode;
+      return m === "wfh";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // Fallback for the first-paint race: background may not have injected
+  // window.__EH_GEO__ yet when Leaflet renders the marker. The page itself is a
+  // reliable secondary signal. Only consulted when no config has arrived at all,
+  // so it can never override an explicit `disabled` or an explicit wfo mode.
+  function onWfhPage() {
+    try {
+      var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
+      return /cek-lokasi-(wfh|wfa)/i.test(p);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function hasInjectedCfg() {
+    try {
+      var w = (typeof window !== "undefined") ? window.__EH_GEO__ : null;
+      return !!(w && typeof w === "object");
     } catch (_) {
       return false;
     }
   }
 
   function relabelWfhMarker() {
-    if (!isWfhModeActive()) return false;
+    // Precedence: injected config wins. Page-path fallback applies only while
+    // background has not injected anything yet.
+    var armed = isWfhModeActive() || (!hasInjectedCfg() && onWfhPage());
+    if (!armed) return false;
     var changed = false;
     try {
       // Leaflet renders our divIcon as .leaflet-marker-icon > div (the colored badge).

@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.3.1 (2026-10-03)
+- **Fix: marker "R" tidak muncul di v2.3.0:**
+  - **Root cause:** `spoof.js` didaftarkan dengan `world: "MAIN"`, di mana `chrome.storage` **tidak tersedia** — API itu hanya tersedia pada content script ber-ISOLATED world. `loadGeoCfg()` pun gagal diam-diam di dalam `try/catch`, `_geoCfgCache` tetap `null`, dan `getGeoCfg()` jatuh ke `window.__EH_GEO__` yang isinya hanya `mode: "auto" | "manual"`. Akibatnya `isWfhModeActive()` tidak pernah bernilai `true` dan relabel tidak pernah terjadi. Komentar lama di kode ("Content scripts have storage access") hanya benar untuk ISOLATED world.
+  - **Penusan `geoMode`:** `background.js` kini membaca `geoMode` dari storage lewat `readGeoMode()` dan menyuntikkannya ke `window.__EH_GEO__` melalui `buildGeoCfg()` — pada `registerSpoofOnce()`, event `chrome.tabs.onUpdated`, dan saat geo dimatikan.
+  - **Prioritas konfigurasi:** Konfigurasi yang di-inject selalu menang. Fallback berbasis path halaman (`/cek-lokasi-wfh`, `/cek-lokasi-wfa`) hanya dipakai selagi background belum menyuntikkan apa pun, sehingga tidak pernah menimpa status `disabled` maupun pilihan mode `wfo`.
+  - **`loadGeoCfg()` tidak lagi menimpa** `window.__EH_GEO__` yang sudah ada, supaya nilai otoritatif dari background tidak tertimpa.
+
 ### v2.3.0 (2026-10-03)
 - **WFH Marker "R" (Rumah) — Sinkron dengan App Resmi v1.0.13:**
   - Bedah XAPK `ePresensi+KemendesPDT_1.0.13_APKPure.apk` menunjukkan aplikasi resmi sudah mengganti marker peta WFH menjadi `createDivIcon("#dc2626", "R")` dengan popup `"Rumah WFH"`, sementara build web yang masih ter-deploy masih hardcode `"K"` / `"Lokasi kantor"`.

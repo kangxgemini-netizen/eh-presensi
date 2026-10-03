@@ -156,13 +156,23 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     } catch (_) {}
 
     // 2. Sync Geolocation config
+    // Always push geoMode too — spoof.js runs in world:"MAIN" and cannot read
+    // chrome.storage, so window.__EH_GEO__ is its only view of the mode.
+    const geoMode = await readGeoMode();
     if (t.geoEnabled) {
       if (t.geoAuto) {
         const g = pickGeo("auto");
         t.geo = g;
       }
       try {
-        const cfg = { mode: t.geoAuto ? "auto" : "manual", lat: t.geo.lat, lng: t.geo.lng };
+        const cfg = {
+          mode: t.geoAuto ? "auto" : "manual",
+          geoMode: geoMode,
+          disabled: false,
+          style: t.geoStyle || "ios",
+          lat: t.geo.lat,
+          lng: t.geo.lng
+        };
         chrome.scripting.executeScript({
           target: { tabId },
           world: "MAIN",
@@ -178,7 +188,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         chrome.scripting.executeScript({
           target: { tabId },
           world: "MAIN",
-          func: () => { window.__EH_GEO__ = { mode: "off", disabled: true }; },
+          func: (gm) => { window.__EH_GEO__ = { mode: "off", geoMode: gm, disabled: true }; },
+          args: [geoMode],
           injectImmediately: true,
         }).catch(() => {});
       } catch (_) {}
@@ -214,6 +225,37 @@ chrome.alarms.onAlarm.addListener((a) => {
 // ---------- helpers ----------
 function isHttpUrl(url) {
   return /^https?:/.test(url || "");
+}
+
+// Resolve the user's chosen geo mode (wfo / wfh / manual) from storage.
+// geoMode is the SOURCE OF TRUTH for business mode; tab state only tracks the
+// resolved coordinate. Needed because spoof.js runs in world:"MAIN" where
+// chrome.storage is unavailable, so the value must be injected into the page.
+async function readGeoMode() {
+  try {
+    const d = await chrome.storage.local.get(["geoMode", "geoDisabled"]);
+    if (d.geoDisabled) return "off";
+    return d.geoMode || "wfo";
+  } catch (_) {
+    return "wfo";
+  }
+}
+
+// Build the geo config object handed to the MAIN world. Includes geoMode so
+// page-side helpers (e.g. the WFH marker relabel) can tell wfo from wfh.
+async function buildGeoCfg(t) {
+  const geoMode = await readGeoMode();
+  if (t.geoEnabled && t.geo) {
+    return {
+      mode: t.geoAuto ? "auto" : "manual",
+      geoMode: geoMode,
+      disabled: false,
+      style: t.geoStyle || "ios",
+      lat: t.geo.lat,
+      lng: t.geo.lng
+    };
+  }
+  return { mode: "off", geoMode: geoMode, disabled: true, style: t.geoStyle || "ios" };
 }
 
 async function safeGetTab(tabId) {
@@ -603,9 +645,7 @@ async function registerSpoofOnce(tabId, url) {
   }
 
   const t = await getTab(tabId);
-  const geoCfg = (t.geoEnabled && t.geo)
-    ? { mode: t.geoAuto ? "auto" : "manual", lat: t.geo.lat, lng: t.geo.lng }
-    : { mode: "off", disabled: true };
+  const geoCfg = await buildGeoCfg(t);
   const gateOn = !!t.gateBlockEnabled;
   try {
     await chrome.scripting.executeScript({

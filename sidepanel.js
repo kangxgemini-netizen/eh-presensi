@@ -261,6 +261,13 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.3.1", date: "2026-10-03", items: [
+    "Fix Marker 'R' Tidak Muncul (revisi v2.3.0):",
+    "• Root Cause: spoof.js didaftarkan dengan world:'MAIN' sehingga chrome.storage TIDAK bisa diakses (hanya tersedia di ISOLATED world). loadGeoCfg() selalu gagal diam-diam sehingga isWfhModeActive() tidak pernah bernilai true.",
+    "• Penusan geoMode: background.js kini meneruskan geoMode (wfo/wfh/manual) ke window.__EH_GEO__ lewat readGeoMode() dan buildGeoCfg() pada setiap navigasi/reload.",
+    "• Prioritas Konfigurasi: Konfigurasi yang di-inject selalu menang. Fallback berbasis path halaman (/cek-lokasi-wfh, /cek-lokasi-wfa) hanya dipakai selagi background belum menyuntikkan apa pun — tidak pernah menimpa status disabled atau pilihan mode WFO.",
+    "• loadGeoCfg tidak lagi menimpa window.__EH_GEO__ yang sudah ada.",
+  ]},
   { ver: "2.3.0", date: "2026-10-03", items: [
     "WFH Marker 'R' (Rumah) — Sinkron dengan App Resmi v1.0.13:",
     "• Relabel Marker Peta: Saat mode GPS WFH aktif, marker titik acuan di peta Leaflet otomatis diubah dari 'K' (Kantor) menjadi 'R' (Rumah), dan popup 'Lokasi kantor' menjadi 'Rumah WFH' — mengikuti tampilan di aplikasi resmi Kementerian Desa.",
