@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.6.0 (2026-10-03)
+- **Tombol CTA `Buka Google Maps` di samping kolom koordinat manual.**
+  - Kolom `Koordinat (lat, lng)` menjadi layout 2 kolom: input di kiri, tombol di kanan.
+  - **Titik yang dibuka adalah koordinat yang benar-benar aktif.** Handler memakai `parseGeoCoord()` lalu `applyGeoStyle()` — fungsi yang sama dengan jalur validasi input — sehingga titik di Google Maps identik dengan koordinat yang dikirim ke halaman. Untuk mode iOS ini penting, karena digit trailing longitude ditambahkan oleh `applyGeoStyle()`; membuka koordinat mentah akan menunjuk tempat yang berbeda.
+  - Format `koma`, `tab`, dan `spasi` semuanya didukung.
+  - **Koordinat kosong atau tidak valid tidak membuka tab.** Muncul pesan di `input-hint` dan input ditandai `geo-invalid`, lalu state kembali normal setelah 2,6 detik.
+  - Di panel sempit (`<320px`) tombol turun ke bawah (`grid-template-columns` 1 kolom) supaya tidak terpotong.
+
 ### v2.5.1 (2026-10-03)
 - **UI: card `WFH v2 Mode` dipindahkan ke atas card `GPS Location`.** Toggle mode WFH sekarang lebih mudah ditemukan, karena berada sebelum pengaturan GPS.
 - Deskripsi card `WFH v2 Mode` diperbarui — kini menyebut bahwa request ikut divalidasi ke lokasi rumah terdaftar, sesuai perilaku yang diperbaiki di v2.5.0.

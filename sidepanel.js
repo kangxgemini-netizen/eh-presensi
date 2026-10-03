@@ -261,6 +261,14 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.6.0", date: "2026-10-03", items: [
+    "Fitur Baru: tombol CTA 'Buka Google Maps' di samping kolom koordinat manual.",
+    "• Kolom Koordinat (lat, lng) kini jadi 2 kolom: input di kiri, tombol 'Buka Google Maps' di kanan.",
+    "• Koordinat yang dibuka adalah hasil applyGeoStyle() yang sama persis dengan yang dikirim ke halaman, jadi titik di peta benar-benar sama dengan spoof yang aktif.",
+    "• Format koma, tab, dan spasi sama-sama didukung.",
+    "• Koordinat tidak valid atau kosong: tombol tidak membuka tab, hanya menampilkan pesan di hint dan menandai input sebagai tidak valid.",
+    "• Di panel sangat sempit (<320px) tombol otomatis turun ke bawah agar tidak terpotong.",
+  ]},
   { ver: "2.5.1", date: "2026-10-03", items: [
     "UI: Card 'WFH v2 Mode' dipindahkan ke atas card 'GPS Location'.",
     "• WFH v2 Mode kini tampil sebelum GPS Location, jadi toggle mode WFH bisa ditemukan lebih cepat.",
@@ -845,6 +853,52 @@ $("geo-toggle").addEventListener("change", async (e) => {
   } else {
     await chrome.storage.local.set({ geoDisabled: true });
     chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id }, render);
+  }
+});
+
+// Buka Google Maps pada koordinat yang sedang diketik di kolom manual.
+// Memakai parseGeoCoord() yang sama dengan validasi input, lalu applyGeoStyle()
+// supaya koordinat yang dibuka persis dengan yang benar-benar dikirim ke halaman
+// (untuk iOS, digit trailing longitude ditambahkan).
+$("btn-open-maps").addEventListener("click", async () => {
+  const hint = $("geo-manual-hint");
+  const inputEl = $("geo-manual");
+  const btn = $("btn-open-maps");
+  const raw = parseGeoCoord($("geo-manual").value.trim());
+  const defaultHint = "Format: lat, lng (iOS: 14 digit, Android: 6-7 digit)";
+
+  const flashHint = (msg) => {
+    if (hint) hint.textContent = msg;
+    inputEl.classList.add("geo-invalid");
+    setTimeout(() => {
+      if (hint) hint.textContent = defaultHint;
+      validateAndApplyGeoManual();
+    }, 2600);
+  };
+
+  if (!raw) {
+    flashHint($("geo-manual").value.trim()
+      ? "Koordinat tidak valid — isi dulu format lat, lng."
+      : "Isi koordinat dulu untuk membuka Google Maps.");
+    inputEl.focus();
+    return;
+  }
+
+  const style = getGeoStyle();
+  const coord = applyGeoStyle(raw, style);
+
+  const url = "https://www.google.com/maps/search/?api=1&query=" +
+    encodeURIComponent(coord.lat + "," + coord.lng);
+
+  btn.disabled = true;
+  try {
+    await chrome.tabs.create({ url, active: true });
+    if (hint) hint.textContent = "Google Maps dibuka untuk koordinat ini.";
+    setTimeout(() => { if (hint) hint.textContent = defaultHint; }, 2600);
+  } catch (e) {
+    flashHint("Gagal membuka Google Maps.");
+  } finally {
+    btn.disabled = false;
   }
 });
 
