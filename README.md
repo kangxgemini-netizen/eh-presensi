@@ -8,6 +8,16 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.4.0 (2026-10-03)
+- **Fitur baru: `WFH v2 Mode` (toggle, default OFF):**
+  - Menyamakan tampilan halaman **Presensi Lama** dengan aplikasi resmi v1.0.13 saat mode ini dinyalakan — tanpa pindah halaman.
+  - Yang berubah: badge marker peta `K` → **`R`**, popup `Lokasi kantor` → **`Lokasi rumah WFH`**, teks `Jarak ke kantor` → **`Jarak ke rumah`**.
+  - **Angka jarak tidak diubah** — hanya teks labelnya. Koordinat, radius, dan seluruh payload API tetap persis seperti yang dihitung halaman.
+  - **Cuma halaman lama.** `/cek-lokasi-wfh` dan `/cek-lokasi-wfa` saja. Halaman `/absen-dev/*` yang sudah benar dari server **tidak pernah disentuh** — di sana `R` memang output resmiKemendesa, dan menimpanya berisiko merusak tampilan yang sudah benar.
+  - **WFO tidak pernah disentuh.** Di `/cek-lokasi` (WFO), `K` memang benar.
+  - Ikut aktif otomatis saat `Bypass All` dinyalakan.
+- **Prinsip desain:** fitur ini sengaja **tidak** mengubah endpoint API maupun koordinat acuan. Kontrak `/absensi/v2/cek-lokasi` tidak terdokumentasi, dan kegagalan di sana bisa muncul sebagai `unit_kerja_id` null atau submit ditolak. Karena itu v2.4.0 hanya menangani lapisan label — bagian yang tidak mungkin membuat proses absensi gagal.
+
 ### v2.3.1 (2026-10-03)
 - **Fix: marker "R" tidak muncul di v2.3.0:**
   - **Root cause:** `spoof.js` didaftarkan dengan `world: "MAIN"`, di mana `chrome.storage` **tidak tersedia** — API itu hanya tersedia pada content script ber-ISOLATED world. `loadGeoCfg()` pun gagal diam-diam di dalam `try/catch`, `_geoCfgCache` tetap `null`, dan `getGeoCfg()` jatuh ke `window.__EH_GEO__` yang isinya hanya `mode: "auto" | "manual"`. Akibatnya `isWfhModeActive()` tidak pernah bernilai `true` dan relabel tidak pernah terjadi. Komentar lama di kode ("Content scripts have storage access") hanya benar untuk ISOLATED world.

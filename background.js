@@ -159,6 +159,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     // Always push geoMode too — spoof.js runs in world:"MAIN" and cannot read
     // chrome.storage, so window.__EH_GEO__ is its only view of the mode.
     const geoMode = await readGeoMode();
+    const wfhV2 = await readWfhV2();
     if (t.geoEnabled) {
       if (t.geoAuto) {
         const g = pickGeo("auto");
@@ -168,6 +169,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         const cfg = {
           mode: t.geoAuto ? "auto" : "manual",
           geoMode: geoMode,
+          wfhV2: wfhV2,
           disabled: false,
           style: t.geoStyle || "ios",
           lat: t.geo.lat,
@@ -176,7 +178,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         chrome.scripting.executeScript({
           target: { tabId },
           world: "MAIN",
-          func: (c) => { window.__EH_GEO__ = c; },
+          func: (c) => { window.__EH_GEO__ = c; window.__EH_WFH_V2__ = !!c.wfhV2; },
           args: [cfg],
           injectImmediately: true,
         }).catch(() => {});
@@ -188,8 +190,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
         chrome.scripting.executeScript({
           target: { tabId },
           world: "MAIN",
-          func: (gm) => { window.__EH_GEO__ = { mode: "off", geoMode: gm, disabled: true }; },
-          args: [geoMode],
+          func: (gm, v2) => {
+            window.__EH_GEO__ = { mode: "off", geoMode: gm, wfhV2: v2, disabled: true };
+            window.__EH_WFH_V2__ = !!v2;
+          },
+          args: [geoMode, wfhV2],
           injectImmediately: true,
         }).catch(() => {});
       } catch (_) {}
@@ -209,6 +214,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "PROXY_TEST") { proxyTest(msg.proxyUrl).then(sendResponse).catch((e) => sendResponse({ ok: false, error: "proxyTest failed: " + e.message })); return true; }
   if (msg.type === "PROXY_CLEAR"){ proxyClear().then(sendResponse).catch(() => sendResponse({ ok: false, error: "proxyClear failed" })); return true; }
   if (msg.type === "GATE_BLOCK_SET") { gateBlockSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "gateBlockSet failed" })); return true; }
+  if (msg.type === "WFH_V2_SET")   { wfhV2Set(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "wfhV2Set failed" })); return true; }
   if (msg.action === "INJECT_LOG") { addLog(msg.cat || "INJECT", msg.msg); return false; }
 });
 
@@ -241,21 +247,34 @@ async function readGeoMode() {
   }
 }
 
+// "WFH v2 Mode" toggle. Default OFF so the legacy page behaves exactly as
+// before unless the user opts in (or Bypass All turns it on).
+async function readWfhV2() {
+  try {
+    const d = await chrome.storage.local.get(["wfhV2Enabled"]);
+    return !!d.wfhV2Enabled;
+  } catch (_) {
+    return false;
+  }
+}
+
 // Build the geo config object handed to the MAIN world. Includes geoMode so
 // page-side helpers (e.g. the WFH marker relabel) can tell wfo from wfh.
 async function buildGeoCfg(t) {
   const geoMode = await readGeoMode();
+  const wfhV2 = await readWfhV2();
   if (t.geoEnabled && t.geo) {
     return {
       mode: t.geoAuto ? "auto" : "manual",
       geoMode: geoMode,
+      wfhV2: wfhV2,
       disabled: false,
       style: t.geoStyle || "ios",
       lat: t.geo.lat,
       lng: t.geo.lng
     };
   }
-  return { mode: "off", geoMode: geoMode, disabled: true, style: t.geoStyle || "ios" };
+  return { mode: "off", geoMode: geoMode, wfhV2: wfhV2, disabled: true, style: t.geoStyle || "ios" };
 }
 
 async function safeGetTab(tabId) {
@@ -299,6 +318,32 @@ async function getTab(tabId) {
     tabs.set(tabId, t);
   }
   return t;
+}
+
+// ---------- WFH v2 Mode (opt-in, default OFF) ----------
+async function wfhV2Set(tabId, enabled) {
+  const on = !!enabled;
+  await chrome.storage.local.set({ wfhV2Enabled: on });
+  addLog("WFH", `WFH v2 Mode ${on ? "ON — marker R aktif di Presensi Lama" : "OFF"}`);
+
+  const tab = await safeGetTab(tabId);
+  if (tab && isHttpUrl(tab.url)) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        world: "MAIN",
+        func: (v) => {
+          window.__EH_WFH_V2__ = !!v;
+          if (window.__EH_GEO__ && typeof window.__EH_GEO__ === "object") {
+            window.__EH_GEO__.wfhV2 = !!v;
+          }
+        },
+        args: [on],
+        injectImmediately: true,
+      });
+    } catch (_) {}
+  }
+  return { ok: true };
 }
 
 // ---------- Gatekeeper modal blocker ----------
@@ -653,6 +698,7 @@ async function registerSpoofOnce(tabId, url) {
       world: "MAIN",
       func: (cfg, gateBlock) => {
         window.__EH_GEO__ = cfg;
+        window.__EH_WFH_V2__ = !!cfg.wfhV2;
         window.__EH_GATE_BLOCK__ = gateBlock;
         if (gateBlock && typeof window.__EH_APPLY_GATE_BLOCK__ === "function") {
           window.__EH_APPLY_GATE_BLOCK__();

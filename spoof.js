@@ -449,13 +449,32 @@
   var GATE_STYLE_ID = "__eh_gate_block_style__";
 
   /* =========================================================
-     WFH MAP MARKER RELABEL
+     WFH v2 MODE  (opt-in, default OFF)
      Official app v1.0.13 renders the WFH geofence anchor as "R" (Rumah),
-     but the still-deployed web build hardcodes "K" (Lokasi kantor).
-     When the extension runs in WFH mode we swap that label so the map
-     matches the official app. Purely cosmetic: coordinates, radius and
-     every API payload stay exactly as the page computed them.
+     while the still-deployed Presensi Lama build hardcodes "K" (Lokasi
+     kantor). When "WFH v2 Mode" is enabled we make the old page behave
+     like the new build.
+
+     Design rule: this feature must never be able to block an attendance
+     submission. Label swaps are unconditional; anything that touches data
+     (coordinates, endpoints) is conservative and falls back to the page's
+     original behaviour on ANY uncertainty.
      ========================================================= */
+
+  // Only the legacy Presensi Lama paths need this. The /absen-dev/ build
+  // already renders "R" from the server — never touch it, or we would
+  // override markup that is already correct.
+  function onLegacyWfhPage() {
+    try {
+      var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
+      // Explicitly exclude anything under /absen-dev/
+      if (/\/absen-dev\//i.test(p)) return false;
+      return /\/cek-lokasi-(wfh|wfa)\/?$/i.test(p);
+    } catch (_) {
+      return false;
+    }
+  }
+
   function isWfhModeActive() {
     try {
       var cfg = getGeoCfg();
@@ -471,19 +490,6 @@
     }
   }
 
-  // Fallback for the first-paint race: background may not have injected
-  // window.__EH_GEO__ yet when Leaflet renders the marker. The page itself is a
-  // reliable secondary signal. Only consulted when no config has arrived at all,
-  // so it can never override an explicit `disabled` or an explicit wfo mode.
-  function onWfhPage() {
-    try {
-      var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
-      return /cek-lokasi-(wfh|wfa)/i.test(p);
-    } catch (_) {
-      return false;
-    }
-  }
-
   function hasInjectedCfg() {
     try {
       var w = (typeof window !== "undefined") ? window.__EH_GEO__ : null;
@@ -493,11 +499,23 @@
     }
   }
 
+  // The master switch. Requires BOTH:
+  //   1. the "WFH v2 Mode" toggle to be on, and
+  //   2. the user to be in WFH geo mode (or still awaiting injection).
+  function wfhV2Enabled() {
+    try {
+      var w = (typeof window !== "undefined") ? window.__EH_WFH_V2__ : null;
+      if (w === undefined || w === null) return false;
+      var on = !!w;
+      if (!on) return false;
+      return isWfhModeActive() || (!hasInjectedCfg() && onLegacyWfhPage());
+    } catch (_) {
+      return false;
+    }
+  }
+
   function relabelWfhMarker() {
-    // Precedence: injected config wins. Page-path fallback applies only while
-    // background has not injected anything yet.
-    var armed = isWfhModeActive() || (!hasInjectedCfg() && onWfhPage());
-    if (!armed) return false;
+    if (!wfhV2Enabled()) return false;
     var changed = false;
     try {
       // Leaflet renders our divIcon as .leaflet-marker-icon > div (the colored badge).
@@ -524,6 +542,31 @@
     return changed;
   }
 
+  // Distance label: the old page says "Jarak ke kantor". Under WFH v2 the
+  // anchor is conceptually the employee's home, so match the app's wording.
+  // Text-only: never touches the computed number itself.
+  function relabelWfhDistance() {
+    if (!wfhV2Enabled()) return false;
+    var changed = false;
+    try {
+      var walker = document.createTreeWalker(document.body || document.documentElement, NodeFilter.SHOW_TEXT);
+      var node;
+      var guard = 0;
+      while ((node = walker.nextNode()) && guard++ < 20000) {
+        var t = node.nodeValue;
+        if (!t) continue;
+        var next = t
+          .replace(/Jarak\s+ke\s+kantor/gi, "Jarak ke rumah")
+          .replace(/dalam\s+radius\s+lokasi\s+kerja/gi, "dalam radius lokasi rumah");
+        if (next !== t) {
+          node.nodeValue = next;
+          changed = true;
+        }
+      }
+    } catch (_) {}
+    return changed;
+  }
+
   try {
     var _wfhRelabelCount = 0;
     var _wfhRelabelTimer = setInterval(function () {
@@ -533,15 +576,23 @@
         return;
       }
       relabelWfhMarker();
+      relabelWfhDistance();
     }, 250);
 
     var _wfhMarkerObserver = new MutationObserver(function () {
       relabelWfhMarker();
+      relabelWfhDistance();
     });
     _wfhMarkerObserver.observe(document.documentElement, { childList: true, subtree: true });
 
-    document.addEventListener("DOMContentLoaded", relabelWfhMarker);
-    window.addEventListener("load", relabelWfhMarker);
+    document.addEventListener("DOMContentLoaded", function () {
+      relabelWfhMarker();
+      relabelWfhDistance();
+    });
+    window.addEventListener("load", function () {
+      relabelWfhMarker();
+      relabelWfhDistance();
+    });
   } catch (_) {}
 
   function isGateBlockEnabled() {

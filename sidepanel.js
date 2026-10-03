@@ -261,6 +261,16 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.4.0", date: "2026-10-03", items: [
+    "Fitur Baru: WFH v2 Mode (toggle, default OFF):",
+    "• Menyamakan tampilan halaman Presensi Lama dengan aplikasi resmi v1.0.13 saat mode ini dinyalakan.",
+    "• Badge marker peta 'K' menjadi 'R', popup 'Lokasi kantor' menjadi 'Lokasi rumah WFH', dan teks 'Jarak ke kantor' menjadi 'Jarak ke rumah'.",
+    "• Angka jarak TIDAK diubah — hanya teks labelnya. Koordinat, radius, dan seluruh payload API tetap seperti yang dihitung halaman.",
+    "• Hanya berlaku di halaman lama (/cek-lokasi-wfh dan /cek-lokasi-wfa). Halaman /absen-dev/ yang sudah benar dari server tidak pernah disentuh.",
+    "• WFO (/cek-lokasi) tidak pernah disentuh — di sana 'K' memang benar.",
+    "• Ikut aktif otomatis saat Bypass All dinyalakan.",
+    "Catatan: fitur ini sengaja tidak mengubah endpoint API maupun koordinat acuan, agar tidak mungkin memblokir proses absensi.",
+  ]},
   { ver: "2.3.1", date: "2026-10-03", items: [
     "Fix Marker 'R' Tidak Muncul (revisi v2.3.0):",
     "• Root Cause: spoof.js didaftarkan dengan world:'MAIN' sehingga chrome.storage TIDAK bisa diakses (hanya tersedia di ISOLATED world). loadGeoCfg() selalu gagal diam-diam sehingga isWfhModeActive() tidak pernah bernilai true.",
@@ -571,6 +581,9 @@ async function load() {
   if ($("gate-toggle")) $("gate-toggle").checked = gateOn;
   updateGateStatusLive();
 
+  if ($("wfhv2-toggle")) $("wfhv2-toggle").checked = !!data.wfhV2Enabled;
+  updateWfhV2Status();
+
   renderLogs(Array.isArray(data.logHistory) ? data.logHistory : []);
 
   // Show extension version label (read live from manifest)
@@ -603,6 +616,10 @@ async function load() {
       $("gate-toggle").checked = !!res.gateBlockEnabled;
     }
     updateGateStatusLive();
+    if ($("wfhv2-toggle") && res && res.wfhV2Enabled !== undefined) {
+      $("wfhv2-toggle").checked = !!res.wfhV2Enabled;
+    }
+    updateWfhV2Status();
     if (uaOn) $("ua").value = res.ua;
     if (geoOn) $("geo-coords").textContent = `${res.geo.lat}, ${res.geo.lng}`;
 
@@ -722,6 +739,13 @@ async function applyAll(on) {
     });
   }
 
+  // WFH v2 Mode ikutan aktif saat Bypass All aktif (default-nya tetap OFF)
+  if ($("wfhv2-toggle")) {
+    $("wfhv2-toggle").checked = on;
+    await chrome.storage.local.set({ wfhV2Enabled: on });
+    updateWfhV2Status();
+  }
+
   // Proxy Route murni manual & independen: jangan diubah otomatis oleh Bypass All
 
   $("ua-toggle").checked = on;
@@ -731,6 +755,20 @@ async function applyAll(on) {
 }
 
 // Event Listeners
+if ($("wfhv2-toggle")) {
+  $("wfhv2-toggle").addEventListener("change", async (e) => {
+    const on = e.target.checked;
+    await chrome.storage.local.set({ wfhV2Enabled: on });
+    updateWfhV2Status();
+    // Flag ini disuntik ke halaman saat navigasi/reload, jadi reload tab aktif.
+    const tab = await currentTab();
+    if (tab && /^https?:/.test(tab.url || "")) {
+      chrome.runtime.sendMessage({ type: "WFH_V2_SET", tabId: tab.id, enabled: on });
+      chrome.tabs.reload(tab.id).catch(() => {});
+    }
+  });
+}
+
 if ($("gate-toggle")) {
   $("gate-toggle").addEventListener("change", async (e) => {
     const on = e.target.checked;
@@ -947,6 +985,14 @@ function updateGateStatusLive() {
   if (!el) return;
   const on = $("gate-toggle") ? $("gate-toggle").checked : false;
   el.textContent = on ? "blocker: aktif" : "blocker: nonaktif";
+}
+
+// Real-time status text untuk WFH v2 Mode
+function updateWfhV2Status() {
+  const el = $("wfhv2-status");
+  if (!el) return;
+  const on = $("wfhv2-toggle") ? $("wfhv2-toggle").checked : false;
+  el.textContent = on ? "aktif — marker R di Presensi Lama" : "off";
 }
 
 function updateProxyStatusLive() {
