@@ -882,13 +882,27 @@
     }
 
     /* ==========================================================================
-       13. LIGHTWEIGHT FOOTER
+       13. FIXED BOTTOM DOCK (Master Action, Secondary Links, and Footer)
        ========================================================================== */
+    .app-bottom-dock {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+      width: 100%;
+      padding: 8px 0 2px;
+      z-index: 20;
+      position: relative;
+      background: linear-gradient(to bottom, rgba(244, 246, 249, 0) 0%, rgba(244, 246, 249, 0.95) 12px, rgba(244, 246, 249, 1) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
     .app-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 6px 2px;
+      padding: 2px 6px 2px;
       font-size: 10.5px;
       color: var(--text-tertiary);
       flex-shrink: 0;
@@ -1443,33 +1457,6 @@
       </details>
     </section>
 
-    <!-- ========================================================================
-         11. PRIMARY ACTION ("Deactivate All" / "Bypass All") + RELOAD BUTTON
-         ======================================================================== -->
-    <div class="master-action-row">
-      <button type="button" class="btn btn-primary btn-bypass-master" id="btn-bypass-all">
-        <svg class="ic ic-lg ic-fill" id="btn-bypass-ic" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.5 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
-        <span id="btn-bypass-label">Bypass All</span>
-      </button>
-      <button type="button" class="btn btn-icon-square" id="btn-reload" title="Reload Tab Aktif">
-        <svg class="ic ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
-      </button>
-    </div>
-
-    <!-- ========================================================================
-         12. SECONDARY ACTIONS (Presensi / Developer)
-         ======================================================================== -->
-    <div class="secondary-links-row">
-      <button type="button" class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
-        <span>Presensi</span>
-        <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h4a.75.75 0 010 1.5h-4z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.19 12.75a.75.75 0 001.06 1.06l7.5-7.5V9a.75.75 0 001.5 0V4.25a.75.75 0 00-.75-.75H10.75a.75.75 0 000 1.5h2.69l-7.25 7.5z" clip-rule="evenodd"/></svg>
-      </button>
-      <button type="button" class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
-        <span>Developer</span>
-        <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h4a.75.75 0 010 1.5h-4z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.19 12.75a.75.75 0 001.06 1.06l7.5-7.5V9a.75.75 0 001.5 0V4.25a.75.75 0 00-.75-.75H10.75a.75.75 0 000 1.5h2.69l-7.25 7.5z" clip-rule="evenodd"/></svg>
-      </button>
-    </div>
-
   </div>
 
   <!-- ========================================================================
@@ -1512,14 +1499,37 @@
 
   </div><!-- /tab-viewport -->
 
-  <!-- App Footer -->
-  <footer class="app-footer">
-    <button type="button" class="btn-check-version" id="btn-check-version">
-      <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
-      <span id="check-version-text">Cek Update</span>
-    </button>
-    <span class="app-version-badge" id="app-version">v2.9.3</span>
-  </footer>
+  <!-- Fixed Bottom Dock (Master Action, Secondary Links, and Footer in One Container) -->
+  <div class="app-bottom-dock" id="app-bottom-dock">
+    <div class="master-action-row">
+      <button type="button" class="btn btn-primary btn-bypass-master" id="btn-bypass-all">
+        <svg class="ic ic-lg ic-fill" id="btn-bypass-ic" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.5 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
+        <span id="btn-bypass-label">Bypass All</span>
+      </button>
+      <button type="button" class="btn btn-icon-square" id="btn-reload" title="Reload Tab Aktif">
+        <svg class="ic ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
+      </button>
+    </div>
+
+    <div class="secondary-links-row">
+      <button type="button" class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
+        <span>Presensi</span>
+        <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h4a.75.75 0 010 1.5h-4z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.19 12.75a.75.75 0 001.06 1.06l7.5-7.5V9a.75.75 0 001.5 0V4.25a.75.75 0 00-.75-.75H10.75a.75.75 0 000 1.5h2.69l-7.25 7.5z" clip-rule="evenodd"/></svg>
+      </button>
+      <button type="button" class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
+        <span>Developer</span>
+        <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h4a.75.75 0 010 1.5h-4z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.19 12.75a.75.75 0 001.06 1.06l7.5-7.5V9a.75.75 0 001.5 0V4.25a.75.75 0 00-.75-.75H10.75a.75.75 0 000 1.5h2.69l-7.25 7.5z" clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+
+    <footer class="app-footer">
+      <button type="button" class="btn-check-version" id="btn-check-version">
+        <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
+        <span id="check-version-text">Cek Update</span>
+      </button>
+      <span class="app-version-badge" id="app-version">v2.9.4</span>
+    </footer>
+  </div>
 
 </div><!-- /app-shell -->
 

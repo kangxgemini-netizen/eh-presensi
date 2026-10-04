@@ -358,6 +358,10 @@ class OverlayScrollbar {
   }
 
   update() {
+    if (this.target.offsetParent === null) {
+      this.track.style.display = "none";
+      return;
+    }
     const scrollHeight = this.target.scrollHeight;
     const clientHeight = this.target.clientHeight;
     if (scrollHeight <= clientHeight + 2) {
@@ -543,6 +547,13 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.4", date: "2026-10-04", items: [
+    "Fixed Bottom Action Dock (Unified Container):",
+    "Unified Bottom Container: menggabungkan Master Action Row (Bypass All & Reload), Secondary Links Row (Presensi & Developer), dan App Footer (Cek Update & Versi) ke dalam satu wadah tetap (fixed on bottom dock).",
+    "Preserved Visual Hierarchy: urutan elemen dipertahankan secara berurutan dan teratur dari atas ke bawah (Master Action -> Secondary Links -> Footer).",
+    "Frosted Glass Aesthetic: mengimplementasikan latar belakang frosted glass dengan ambient blur dan gradient halus agar kartu di baliknya bertransisi elegan saat di-scroll tanpa overlap tajam.",
+    "Seamless Viewport Height: viewport scroll secara otomatis menyesuaikan tinggi ruang yang tersedia di atas bottom dock tanpa pemotongan bayangan.",
+  ]},
   { ver: "2.9.3", date: "2026-10-04", items: [
     "Unclipped Shadows & True Floating Overlay Scrollbars (UI/UX Pro Max):",
     "Unclipped Card Shadows: mematikan container clipping pada tab viewport dan memperluas horizontal shadow gutter (padding 8px, margin -8px) sehingga seluruh bayangan kartu pada sisi kiri, kanan, atas, dan bawah tetap lembut, alami, dan tidak terpotong garis keras.",

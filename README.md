@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.4 (2026-10-04)
+- **Fixed Bottom Action Dock (Unified Container):**
+  - **Unified Bottom Container:** Menggabungkan Master Action Row (`Bypass All` dan `Reload`), Secondary Links Row (`Presensi` dan `Developer`), serta App Footer (`Cek Update` dan Versi) ke dalam satu wadah tetap (*fixed on bottom dock*) di dasar ekstensi.
+  - **Preserved Order & Symmetry:** Urutan komponen tetap teratur persis seperti sebelumnya (*Master Action* -> *Secondary Links* -> *Footer*), sejajar rapi (*grid-aligned*) dengan margin kartu-kartu di atasnya.
+  - **Frosted Glass Blur:** Dilengkapi dengan latar belakang *frosted glass* halus (`backdrop-filter: blur(12px)`) dan translusensi gradien lembut agar kartu yang di-scroll di belakangnya bertransisi secara mulus tanpa pemotongan bayangan (*unclipped diffuse shadows*).
+
 ### v2.9.3 (2026-10-04)
 - **Unclipped Shadows & True Floating Overlay Scrollbars (UI/UX Pro Max):**
   - **Unclipped Card Shadows:** Mematikan container clipping pada tab viewport (`overflow: visible`) dan memperluas horizontal shadow gutter (`padding: 6px 8px 24px 8px`, `margin: -6px -8px 0 -8px`) sehingga seluruh bayangan kartu pada sisi kiri, kanan, atas, dan bawah tetap lembut, alami, dan tidak terpotong garis keras pembatas kontainer.
