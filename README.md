@@ -8,21 +8,26 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.9 (2026-10-04)
+- **Pembersihan Deskripsi Changelog:**
+  - **Penyelarasan Catatan Rilis:** Merapikan seluruh judul dan deskripsi catatan rilis di seluruh versi agar berfokus murni pada fitur dan peningkatan sistem.
+  - **Standarisasi Bahasa Profesional:** Menyeragamkan dokumentasi changelog dengan terminologi fungsional yang lugas, rapi, dan konsisten.
+
 ### v2.9.8 (2026-10-04)
-- **Light Theme Console Log (UI/UX Pro Max):**
+- **Light Theme Console Log:**
   - **Unified Light Theme Console:** Merombak terminal log dari dark theme (`#090d16`) menjadi light card surface (putih `#ffffff` dengan soft elevation shadow), selaras 100% dengan estetika Controls dan Changelog.
   - **Categorized Soft Pill Badges:** Menghadirkan badge pil berkode warna lembut untuk tiap kategori log (*STATE* abu-abu, *UA* ungu, *GEO* hijau emerald, *PROXY* amber, *PATCH* cyan, *INJECT* biru, dan *ERROR* merah mawar).
   - **Enhanced Log Row Layout:** Setiap entri log kini dibungkus dalam kartu mikro dengan layout rapi (badge kategori dan timestamp di baris atas, pesan log monospaced di baris bawah).
   - **Light Scrollbar & Empty State:** Menyesuaikan overlay scrollbar thumb ke mode terang dan menambahkan status kosong (*empty state*) yang rapi saat tidak ada log.
 
 ### v2.9.7 (2026-10-04)
-- **Clean Minimalist Proxy Route Drawer (UI/UX Pro Max):**
+- **Clean Minimalist Proxy Route Drawer:**
   - **Complete Removal of Target Host & Test Elements:** Menghapus seluruh elemen input *Target Host*, tombol *Test Connection*, dan status text helper dari *Proxy Config* drawer.
   - **Streamlined Workflow:** Konfigurasi *Proxy Route* kini murni terdiri dari input *Proxy URL* yang bersih dan segmented control *Routing Scope* (*Target Host Only* vs *All Traffic*).
   - **Automatic Routing Binding:** Scope *Target Host Only* secara otomatis mengunci lalu lintas ke `presensi.kemendesa.go.id` di level PAC background routing tanpa memerlukan input manual.
 
 ### v2.9.6 (2026-10-04)
-- **Penyederhanaan Konfigurasi Proxy Route (UI/UX Pro Max):**
+- **Penyederhanaan Konfigurasi Proxy Route:**
   - **Eliminasi Target Host Box Redundan:** Menghapus input field dan label *Target Host* yang berlebih, karena opsi *Target Host Only* secara otomatis dan konsisten menargetkan `presensi.kemendesa.go.id`, sedangkan *All Traffic* mencakup seluruh lalu lintas browser tanpa pembatasan domain.
   - **Inline Test Connection Button:** Memindahkan tombol uji koneksi (ikon petir) langsung berdampingan secara horizontal dengan input *Proxy URL* dalam satu baris grid fleksibel yang rapi dan proporsional.
   - **Focused Scope Selector:** Segmented control *Routing Scope* (*Target Host Only* vs *All Traffic*) kini menjadi satu-satunya pengendali cakupan rute proxy yang jelas, bersih, dan intuitif.
@@ -41,13 +46,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
   - **Frosted Glass Blur:** Dilengkapi dengan latar belakang *frosted glass* halus (`backdrop-filter: blur(12px)`) dan translusensi gradien lembut agar kartu yang di-scroll di belakangnya bertransisi secara mulus tanpa pemotongan bayangan (*unclipped diffuse shadows*).
 
 ### v2.9.3 (2026-10-04)
-- **Unclipped Shadows & True Floating Overlay Scrollbars (UI/UX Pro Max):**
+- **Unclipped Shadows & True Floating Overlay Scrollbars:**
   - **Unclipped Card Shadows:** Mematikan container clipping pada tab viewport (`overflow: visible`) dan memperluas horizontal shadow gutter (`padding: 6px 8px 24px 8px`, `margin: -6px -8px 0 -8px`) sehingga seluruh bayangan kartu pada sisi kiri, kanan, atas, dan bawah tetap lembut, alami, dan tidak terpotong garis keras pembatas kontainer.
   - **Zero Layout Shift Overlay Scrollbars:** Menghapus scrollbar bawaan browser pada halaman Controls, Log, dan Changelog (`scrollbar-width: none !important`) untuk mengeliminasi penyusutan lebar layout atau pergeseran padding kartu saat konten di-scroll.
   - **Floating Overlay Scrollbar Indicators:** Menambahkan custom micro-pill scrollbar thumb mengambang (*floating overlay on top*) dengan auto-fade 1.2s dan dukungan drag mouse mulus tanpa mengganggu padding konten.
 
 ### v2.9.2 (2026-10-04)
-- **Hierarki Section & Segmented Tab Animations (UI/UX Pro Max):**
+- **Hierarki Section & Segmented Tab Animations:**
   - **Section Titles:** Menambahkan micro-header modern `Security` (mengelompokkan iOS Safari Fingerprint, Security Bypass, iOS Update Blocker, dan WFH v2 Mode) serta `Advance` (mengelompokkan Proxy Route) di bawah hero card GPS Location.
   - **Animated Sliding Gliders:** Mengimplementasikan capsule glider geser animasi pada semua segmented controls (*Mode*, *Device e-Presensi*, *Lokasi Kantor*, dan *Routing Scope*) dengan spring transition physics (`cubic-bezier(0.34, 1.35, 0.64, 1)`), setara dengan navigasi tab utama.
   - **Deactivate All Solid Icon:** Memperbarui icon tombol *Deactivate All* menjadi 100% Solid Shield dengan X Cutout yang simetris, presisi, dan setara bobot visualnya dengan icon Shield Check pada *Bypass All*.
@@ -63,13 +68,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
   - **Container Padding:** Menambah padding bawah kontainer Changelog menjadi 24px agar kartu riwayat terbawah tidak terpotong radius sudut panel.
 
 ### v2.9.0 (2026-10-04)
-- **UI/UX Consistency Overhaul (UI/UX Pro Max & Anti-Slop):**
+- **Design System & UI Consistency Overhaul:**
   - **100% Solid Fill Icon System:** Seluruh icon (navigation tabs, cards, toggles, accordions, selectors, master actions, secondary links, toolbars, dan status footer) kini 100% menggunakan solid fill vector glyphs tanpa garis stroke outline tipis yang tidak konsisten.
   - **Top Navigation Tabs:** Icon *Controls* diperbarui menjadi solid gear/cog, *Log* solid terminal prompt, dan *Changelog* solid document sheet dengan ukuran optik dan bobot visual yang serasi seimbang.
   - **Secondary Action Buttons:** Icon tautan *Presensi* dan *Developer* menggunakan Heroicons Solid `arrow-top-right-on-square` dengan ketebalan visual yang seimbang dengan teks tombol.
   - **Synchronized Accordion Motion:** Rotasi chevron 180° tersinkronisasi 1:1 dengan ekspansi tinggi WAAPI spring physics (`cubic-bezier(0.16, 1, 0.3, 1)`) tanpa snapping.
   - **Accessible Contrast Toggles:** Kontras track toggle inactive dinaikkan menggunakan warna slate-300 (`#cbd5e1`) agar lolos kriteria kontras aksesibilitas WCAG AA.
-  - **Code Hygiene (Anti-Slop):** Membersihkan banner separator berulang, komentar naratif alur langkah, dan penamaan generik di seluruh source code ekstensi.
+  - **Code Hygiene:** Membersihkan banner separator berulang, komentar naratif alur langkah, dan penamaan generik di seluruh source code ekstensi.
 
 ### v2.8.6 (2026-10-04)
 - **Iconography: standarisasi 100% Solid Fill Vector Icons di seluruh kontrol aksi.**

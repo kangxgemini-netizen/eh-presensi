@@ -547,21 +547,26 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.9", date: "2026-10-04", items: [
+    "Pembersihan Deskripsi Changelog:",
+    "Penyelarasan Catatan Rilis: merapikan seluruh judul dan deskripsi catatan rilis di seluruh versi agar berfokus murni pada fitur dan peningkatan sistem.",
+    "Standarisasi Bahasa Profesional: menyeragamkan dokumentasi changelog dengan terminologi fungsional yang lugas, rapi, dan konsisten.",
+  ]},
   { ver: "2.9.8", date: "2026-10-04", items: [
-    "Light Theme Console Log (UI/UX Pro Max):",
+    "Light Theme Console Log:",
     "Unified Light Theme Console: merombak terminal log dari dark theme (#090d16) menjadi light card surface (putih #ffffff dengan soft shadow), selaras 100% dengan estetika Controls dan Changelog.",
     "Categorized Soft Pill Badges: menghadirkan badge pil berkode warna lembut untuk tiap kategori log (STATE abu-abu, UA ungu, GEO hijau emerald, PROXY amber, PATCH cyan, INJECT biru, dan ERROR merah mawar).",
     "Enhanced Log Row Layout: setiap entri log kini dibungkus dalam kartu mikro dengan layout rapi (badge kategori dan timestamp di baris atas, pesan log monospaced di baris bawah).",
     "Light Scrollbar & Empty State: menyesuaikan overlay scrollbar thumb ke mode terang dan menambahkan status kosong (empty state) yang rapi saat tidak ada log.",
   ]},
   { ver: "2.9.7", date: "2026-10-04", items: [
-    "Clean Minimalist Proxy Route Drawer (UI/UX Pro Max):",
+    "Clean Minimalist Proxy Route Drawer:",
     "Complete Removal of Target Host & Test Elements: menghapus seluruh elemen input Target Host, tombol Test Connection, dan status text helper dari Proxy Config drawer.",
     "Streamlined Workflow: konfigurasi Proxy Route kini murni terdiri dari input Proxy URL yang bersih dan segmented control Routing Scope (Target Host Only vs All Traffic).",
     "Automatic Routing Binding: scope Target Host Only secara otomatis mengunci lalu lintas ke presensi.kemendesa.go.id di level PAC background routing tanpa memerlukan input manual.",
   ]},
   { ver: "2.9.6", date: "2026-10-04", items: [
-    "Penyederhanaan Konfigurasi Proxy Route (UI/UX Pro Max):",
+    "Penyederhanaan Konfigurasi Proxy Route:",
     "Eliminasi Target Host Box Redundan: menghapus input field dan label Target Host yang berlebih, karena opsi Target Host Only secara otomatis dan konsisten menargetkan presensi.kemendesa.go.id, sedangkan All Traffic mencakup seluruh lalu lintas browser.",
     "Inline Test Connection Button: memindahkan tombol uji koneksi (ikon petir) langsung berdampingan secara horizontal dengan input Proxy URL dalam satu baris fleksibel yang rapi dan proporsional.",
     "Focused Scope Selector: segmented control Routing Scope (Target Host Only vs All Traffic) kini menjadi satu-satunya pengendali cakupan rute proxy yang jelas, bersih, dan intuitif.",
@@ -581,13 +586,13 @@ const CHANGELOG = [
     "Seamless Viewport Height: viewport scroll secara otomatis menyesuaikan tinggi ruang yang tersedia di atas bottom dock tanpa pemotongan bayangan.",
   ]},
   { ver: "2.9.3", date: "2026-10-04", items: [
-    "Unclipped Shadows & True Floating Overlay Scrollbars (UI/UX Pro Max):",
+    "Unclipped Shadows & True Floating Overlay Scrollbars:",
     "Unclipped Card Shadows: mematikan container clipping pada tab viewport dan memperluas horizontal shadow gutter (padding 8px, margin -8px) sehingga seluruh bayangan kartu pada sisi kiri, kanan, atas, dan bawah tetap lembut, alami, dan tidak terpotong garis keras.",
     "Zero Layout Shift Overlay Scrollbars: menghapus scrollbar bawaan browser pada halaman Controls, Log, dan Changelog untuk mengeliminasi penyusutan lebar layout atau pergeseran padding kartu saat konten di-scroll.",
     "Floating Overlay Scrollbar Indicators: menambahkan custom micro-pill scrollbar thumb mengambang (floating overlay on top) dengan auto-fade 1.2s dan dukungan drag mouse mulus tanpa mengganggu padding konten.",
   ]},
   { ver: "2.9.2", date: "2026-10-04", items: [
-    "Hierarki Section & Segmented Tab Animations (UI/UX Pro Max):",
+    "Hierarki Section & Segmented Tab Animations:",
     "Section Titles: menambahkan micro-header 'Security' (iOS Fingerprint, Security Bypass, iOS Update Blocker, WFH v2) dan 'Advance' (Proxy Route).",
     "Animated Sliding Gliders: menambahkan animasi sliding capsule glider pada segmented controls (Mode, Device e-Presensi, Lokasi Kantor, dan Routing Scope) dengan kurva fisika spring responsif.",
     "Deactivate All Solid Icon: mengganti icon button Deactivate All menjadi 100% Solid Shield dengan X Cutout yang presisi, simetris, dan setara dengan bobot visual Bypass All.",
@@ -603,13 +608,13 @@ const CHANGELOG = [
     "Container Padding: menambah padding bawah kontainer Changelog menjadi 24px agar kartu riwayat terbawah tidak terpotong radius sudut panel.",
   ]},
   { ver: "2.9.0", date: "2026-10-04", items: [
-    "Design System & UI/UX Consistency Overhaul (UI/UX Pro Max):",
+    "Design System & UI Consistency Overhaul:",
     "100% Solid Fill Icons: seluruh icon tombol, tabs, selector, badge, banner, accordion chevron, dan toolbar distandarisasikan ke solid fill vector glyphs tanpa garis stroke tipis.",
     "Top Navigation Tabs: icon Controls diperbarui menjadi solid gear (cog), Log solid terminal prompt, dan Changelog solid document sheet dengan bobot visual dan ukuran optik identik.",
     "Secondary Action Buttons: tombol Presensi dan Developer menggunakan Heroicons Solid arrow-top-right-on-square dengan ketebalan stroke-matching yang proporsional.",
     "Chevron & Accordions: rotasi chevron 180° tersinkronisasi 1:1 dengan ekspansi WAAPI spring physics (cubic-bezier 0.16, 1, 0.3, 1) tanpa snapping.",
     "Accessible Toggle Switches: kontras track toggle inactive ditingkatkan dengan slate-300 (#cbd5e1) agar memenuhi standar aksesibilitas kontras WCAG AA.",
-    "Code Hygiene (Anti-Slop): pembersihan banner separator ascii berulang, komentar naratif alur, dan label generik di seluruh source code.",
+    "Code Hygiene: pembersihan banner separator ascii berulang, komentar naratif alur, dan label generik di seluruh source code.",
   ]},
   { ver: "2.8.6", date: "2026-10-04", items: [
     "Iconography: standarisasi 100% solid fill vector icons di seluruh antarmuka tombol dan kontrol.",
@@ -914,7 +919,7 @@ function formatChangelogItem(raw) {
   // Highlight inline backtick code snippets
   text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
 
-  const isHeading = !isSub && (text.endsWith(":") || text.includes("(UI/UX Pro Max):"));
+  const isHeading = !isSub && text.endsWith(":");
   const className = isHeading ? "cl-heading" : (isSub ? "cl-sub" : "cl-item");
 
   return `<li class="${className}">${text}</li>`;
