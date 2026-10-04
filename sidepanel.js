@@ -391,13 +391,13 @@ function initOverlayScrollbars() {
 
   const instances = [];
   if (tc && vp) {
-    instances.push(new OverlayScrollbar(tc, vp, { top: 6, bottom: 8, right: 3 }));
+    instances.push(new OverlayScrollbar(tc, vp, { top: 6, bottom: 180, right: 3 }));
   }
   if (lc && tConsole) {
-    instances.push(new OverlayScrollbar(lc, tConsole, { top: 52, bottom: 18, right: 10, isDark: true }));
+    instances.push(new OverlayScrollbar(lc, tConsole, { top: 52, bottom: 180, right: 10, isDark: true }));
   }
   if (cc && tChangelog) {
-    instances.push(new OverlayScrollbar(cc, tChangelog, { top: 8, bottom: 18, right: 10 }));
+    instances.push(new OverlayScrollbar(cc, tChangelog, { top: 8, bottom: 180, right: 10 }));
   }
 
   window._overlayScrollbars = instances;
@@ -547,6 +547,13 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.5", date: "2026-10-04", items: [
+    "Extended Upward Opacity Gradient Dock (100% to 0% Alpha):",
+    "Extended Vertical Gradient: mengimplementasikan transisi gradien transparan ke solid (0% opacity di puncak dock hingga 100% solid opacity di dasar dock) dengan ketinggian transisi 72px yang lembut dan bertahap.",
+    "Zero Content Bleed-Through: latar belakang di bawah tombol aksi (Bypass All, Reload, Presensi, Developer, dan Footer) dipastikan 100% solid opacity sehingga teks/kartu yang di-scroll tidak bertabrakan atau tembus pandang.",
+    "Card Fade Transition: kartu fitur yang di-scroll ke bawah memudar secara alami ke warna kanvas latar belakang sebelum meluncur di bawah tombol utama.",
+    "Trailing Clearance Spacer: menambahkan trailing spacer 180px pada kontainer scroll agar kartu terakhir (Proxy Route) dapat di-scroll sepenuhnya di atas dock tanpa tertutup gradien.",
+  ]},
   { ver: "2.9.4", date: "2026-10-04", items: [
     "Fixed Bottom Action Dock (Unified Container):",
     "Unified Bottom Container: menggabungkan Master Action Row (Bypass All & Reload), Secondary Links Row (Presensi & Developer), dan App Footer (Cek Update & Versi) ke dalam satu wadah tetap (fixed on bottom dock).",

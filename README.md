@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.5 (2026-10-04)
+- **Extended Upward Opacity Gradient Dock (100% to 0% Alpha):**
+  - **Extended Vertical Gradient:** Mengimplementasikan transisi gradien transparan ke solid (0% opacity di puncak dock hingga 100% solid opacity di dasar dock) dengan ketinggian transisi 72px yang lembut dan bertahap.
+  - **Zero Content Bleed-Through:** Latar belakang di bawah tombol aksi (`Bypass All`, `Reload`, `Presensi`, `Developer`, dan `Footer`) dipastikan 100% solid opacity (`#f4f6f9`) sehingga teks/kartu yang di-scroll tidak bertabrakan atau tembus pandang.
+  - **Card Fade Transition:** Kartu fitur yang di-scroll ke bawah memudar secara alami ke warna kanvas latar belakang sebelum meluncur di bawah tombol utama.
+  - **Trailing Clearance Spacer:** Menambahkan trailing spacer 180px pada kontainer scroll agar kartu terakhir (*Proxy Route*) dapat di-scroll sepenuhnya di atas dock tanpa tertutup gradien.
+
 ### v2.9.4 (2026-10-04)
 - **Fixed Bottom Action Dock (Unified Container):**
   - **Unified Bottom Container:** Menggabungkan Master Action Row (`Bypass All` dan `Reload`), Secondary Links Row (`Presensi` dan `Developer`), serta App Footer (`Cek Update` dan Versi) ke dalam satu wadah tetap (*fixed on bottom dock*) di dasar ekstensi.
