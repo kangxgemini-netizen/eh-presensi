@@ -8,6 +8,18 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.0 (2026-10-04)
+- **Redesign Total Modern UI (Apple / Vercel Minimalist Light):**
+  - **Zero Border-Line UI:** Menghapus semua garis tepi (*border stroke 1px*) abu-abu kaku. Kedalaman dan hirarki visual dibangun melalui *layered surfaces*, kontras latar neutral (`#F4F6F9`) vs kartu putih (`#FFFFFF`), sudut membulat organik (`20px`), dan *soft diffuse shadows*.
+  - **Native App Header:** Dilengkapi modern dark app icon, title `eh-Presensi`, subtitle `Tools & konfigurasi presensi`, serta *circular close button* (`✕`) bergaya native macOS.
+  - **Floating Capsule Segmented Tabs:** Navigasi `Controls`, `Log [0]`, dan `Changelog` mengambang di atas track neutral lembut.
+  - **GPS Location Hero Card:** Dipindah ke posisi paling atas sebagai controller utama presensi.
+  - **Device e-Presensi Control:** Dilengkapi icon siluet Apple (iOS) dan robot Android dengan label minimalis bersih (*tanpa teks kurung digit*).
+  - **Unified Icon System:** Semua kartu fitur memakai container warna *soft blue* (`#EFF6FF`) seragam dengan ikon *rich royal blue solid fill* (`#2563EB`) bergaya Phosphor / Heroicons solid.
+  - **WAAPI & CSS Spring Motion:** Transisi accordion ekspansi dinamis berbasis *Web Animations API* (zero runtime dependency), *staggered card entrance* beruntun, serta *tactile spring knob stretch* pada toggle switch saat ditekan.
+  - **Quick Action Links:** Tombol diperbarui menjadi `Presensi` dan `Developer` dengan ikon panah keluar `↗`.
+  - **Master Action Pill:** Tombol master `Bypass All` dan status destruktif `Deactivate All` berbentuk kapsul presisi 46px dengan bayangan lembut terkalibrasi.
+
 ### v2.7.1 (2026-10-03)
 - **Fix: tombol `Buka Google Maps` benar-benar sejajar dengan kolom koordinat.**
   - **Akar masalahnya specificity, bukan tinggi.** Aturan `.btn` dideklarasikan **setelah** `.btn-maps` di stylesheet dengan specificity yang sama (satu class), sehingga `margin-top: 6px` dan `padding: 9px` dari `.btn` menang. Kedua elemen tetap **sama-sama 38px**, tapi tombol terdorong **6px ke bawah** — dan_itulah yang bikin *"gak sama"* secara visual.

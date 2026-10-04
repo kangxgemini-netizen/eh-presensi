@@ -271,6 +271,17 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.0", date: "2026-10-04", items: [
+    "Redesign Total Modern UI (Apple / Vercel Minimalist Light):",
+    "• Zero Border-Line UI: menghapus semua border stroke 1px abu-abu kaku; kedalaman dibangun lewat layered surfaces, background contrast (#F4F6F9 vs #FFFFFF), dan soft diffuse shadows.",
+    "• Top App Header: dilengkapi logo gear modern, nama app, subtitle 'Tools & konfigurasi presensi', serta circular close button native macOS.",
+    "• Floating Segmented Navigation: tab Controls, Log [0], dan Changelog bergaya capsule pill melayang.",
+    "• GPS Location Hero Card: dipindah ke posisi paling atas sebagai controller utama presensi.",
+    "• Device e-Presensi Selector: dilengkapi icon Apple (iOS) dan Android bot dengan label bersih tanpa teks kurung.",
+    "• Unified Icon System: semua card fitur menggunakan icon container soft blue (#EFF6FF) dengan rich royal blue solid fill icon (#2563EB).",
+    "• WAAPI & CSS Spring Motion: transisi accordion halus berbasis Web Animations API, staggered card entrance, dan tactile iOS switch knob stretch saat ditekan.",
+    "• Quick Link Actions: tombol eksternal diperbarui menjadi 'Presensi' dan 'Developer' dengan trailing external link arrow.",
+  ]},
   { ver: "2.7.1", date: "2026-10-03", items: [
     "Fix: tombol 'Buka Google Maps' benar-benar sejajar dengan kolom koordinat.",
     "• Penyebab: aturan .btn ada DI BELAH .btn-maps di stylesheet dengan specificity sama, jadi margin-top:6px + padding:9px dari .btn menang dan mendorong tombol 6px ke bawah — padahal tinggi keduanya sama-sama 38px.",

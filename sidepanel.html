@@ -3,643 +3,1114 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>eh-Presensi • Borderless Apple/Vercel Modern UI</title>
   <style>
-    @keyframes eh-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    /* ==========================================================================
+       DESIGN TOKENS — Soft Neutral & Layered Surfaces (NO BORDER-LINE UI)
+       ========================================================================== */
     :root {
-      --background: #fefefe;
-      --foreground: #09090b;
-      --card: #ffffff;
-      --card-foreground: #09090b;
-      --primary: #2563eb;
-      --primary-foreground: #ffffff;
-      --secondary: #10b981;
-      --secondary-foreground: #ffffff;
-      --muted: #f4f4f5;
-      --muted-foreground: #71717a;
-      --border: #e4e4e7;
-      --tab-active-bg: #ffffff;
-      --radius: 0.5rem;
-      --success: #10b981;
-      --success-foreground: #ffffff;
-      --destructive: #ef4444;
-      --destructive-foreground: #ffffff;
+      /* Background Canvas & Layered Surfaces */
+      --canvas: #f4f6f9;
+      --surface-card: #ffffff;
+      --surface-subtle: #f8fafc;
+      --surface-elevated: #f1f5f9;
+      --surface-active: #e2e8f0;
 
-      /* Type scale (compact side-panel) */
-      --text-xs: 10px;    /* badges, captions, meta */
-      --text-sm: 11px;    /* descriptions, secondary */
-      --text-base: 12px;  /* body default, nav labels */
-      --text-md: 13px;    /* titles, buttons, card labels */
-      --text-lg: 14px;    /* headings if any */
-    }
+      /* Typography Colors */
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-tertiary: #94a3b8;
+      --text-inverse: #ffffff;
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --background: #09090b;
-        --foreground: #f4f4f5;
-        --card: #18181b;
-        --card-foreground: #f4f4f5;
-        --primary: #3b82f6;
-        --primary-foreground: #ffffff;
-        --secondary: #10b981;
-        --secondary-foreground: #ffffff;
-        --muted: #27272a;
-        --muted-foreground: #a1a1aa;
-        --border: #27272a;
-        --tab-active-bg: #27272a;
-        --success: #10b981;
-        --destructive: #ef4444;
-      }
-    }
+      /* Primary Brand / Accent */
+      --accent-primary: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-subtle: #eff6ff;
+      --accent-focus-ring: rgba(37, 99, 235, 0.18);
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: var(--background);
-      color: var(--foreground);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-      font-size: var(--text-base);
-      -webkit-font-smoothing: antialiased;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-      padding: 12px;
-      overflow-x: hidden;
+      /* Semantic Soft Contextual Tints for Feature Icons */
+      --tint-blue-bg: #eff6ff;   --tint-blue-fg: #2563eb;
+      --tint-green-bg: #ecfdf5;  --tint-green-fg: #059669;
+      --tint-red-bg: #fef2f2;    --tint-red-fg: #dc2626;
+      --tint-purple-bg: #f5f3ff; --tint-purple-fg: #7c3aed;
+      --tint-amber-bg: #fffbeb;  --tint-amber-fg: #d97706;
+      --tint-indigo-bg: #eef2ff; --tint-indigo-fg: #4f46e5;
+
+      /* Destructive State (Deactivate All) */
+      --danger-gradient: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+      --danger-hover: #b91c1c;
+      --danger-shadow: 0 4px 16px rgba(239, 68, 68, 0.28);
+
+      /* Radii Hierarchy */
+      --radius-panel: 28px;
+      --radius-card: 20px;
+      --radius-button: 14px;
+      --radius-control: 11px;
+      --radius-pill: 9999px;
+
+      /* Layered Surface Elevation (No 1px Borders) */
+      --shadow-soft: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+      --shadow-hover: 0 8px 30px -4px rgba(15, 23, 42, 0.07), 0 2px 6px rgba(15, 23, 42, 0.03);
+      --shadow-pill: 0 2px 8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.03);
+      --shadow-switch: 0 2px 5px rgba(0, 0, 0, 0.18), 0 0 1px rgba(0, 0, 0, 0.12);
+
+      /* Fonts */
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+      --font-mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
     }
 
-    /* OTA Update Alert Banner - Warning / Amber theme */
-    .ota-banner {
-      display: none;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      border-radius: var(--radius);
-      padding: 10px;
-      margin-bottom: 12px;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-    @media (prefers-color-scheme: dark) {
-      .ota-banner {
-        background: rgba(245, 158, 11, 0.12);
-        border: 1px solid rgba(245, 158, 11, 0.35);
-      }
-    }
-    .ota-banner-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .ota-banner-title {
-      font-size: var(--text-base);
-      font-weight: 700;
-      color: #b45309;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    @media (prefers-color-scheme: dark) {
-      .ota-banner-title {
-        color: #fbbf24;
-      }
-    }
-    .ota-banner-desc {
-      font-size: var(--text-xs);
-      color: #92400e;
-      line-height: 1.4;
-      margin-bottom: 8px;
-    }
-    @media (prefers-color-scheme: dark) {
-      .ota-banner-desc {
-        color: #fde68a;
-      }
-    }
-    .ota-banner-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .btn-ota-update {
-      width: 100%;
-      padding: 6px 10px;
-      font-size: var(--text-xs);
-      font-weight: 600;
-      background: #d97706;
-      color: #ffffff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      transition: background 0.15s ease;
-    }
-    .btn-ota-update:hover {
-      background: #b45309;
-    }
-    @media (prefers-color-scheme: dark) {
-      .btn-ota-update {
-        background: #f59e0b;
-        color: #000000;
-      }
-      .btn-ota-update:hover {
-        background: #d97706;
-      }
-    }
-    .ota-accordion {
-      border-top: 1px dashed rgba(245, 158, 11, 0.35);
-      margin-top: 6px;
-      padding-top: 4px;
-    }
-    .ota-accordion summary {
-      font-size: var(--text-xs);
-      font-weight: 600;
-      color: #b45309;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2px 0;
-      user-select: none;
-    }
-    @media (prefers-color-scheme: dark) {
-      .ota-accordion summary {
-        color: #fbbf24;
-      }
-    }
-    .ota-accordion-content {
-      margin-top: 4px;
-      font-size: var(--text-xs);
-      color: #78350f;
-      line-height: 1.35;
-      padding: 4px 6px;
-      background: rgba(245, 158, 11, 0.08);
-      border-radius: 4px;
-    }
-    @media (prefers-color-scheme: dark) {
-      .ota-accordion-content {
-        color: #fef3c7;
-        background: rgba(0, 0, 0, 0.25);
-      }
-    }
-    .ota-accordion-content ul {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding-left: 14px;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    .ota-accordion-content li {
-      margin-bottom: 2px;
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--canvas);
+      color: var(--text-main);
+      padding: 16px 14px 24px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
     }
-    .header {
+
+    .app-shell {
+      width: 100%;
+      max-width: 410px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ==========================================================================
+       3. APPLICATION HEADER
+       ========================================================================== */
+    .app-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      padding: 2px 4px;
     }
-    .brand { display: flex; align-items: center; gap: 8px; }
-    .brand-icon {
-      width: 28px; height: 28px;
-      background: var(--primary); border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff;
-    }
-    .brand-text h1 { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.01em; }
-    .brand-text p { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 1px; }
 
-    .ic { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2;
-          fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-    .ic-lg { width: 16px; height: 16px; }
-
-    /* Tab Switcher Bar */
-    .tab-bar {
+    .header-left {
       display: flex;
-      background: var(--muted);
-      padding: 3px;
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-      gap: 4px;
+      align-items: center;
+      gap: 10px;
     }
-    .tab-btn {
-      flex: 1;
+
+    .app-brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 6px 10px;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+    }
+
+    .brand-meta h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      line-height: 1.15;
+    }
+
+    .brand-meta p {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+    }
+
+    .btn-header-close {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background: var(--surface-elevated);
       border: none;
-      background: transparent;
-      color: var(--muted-foreground);
-      font-size: var(--text-base);
-      font-weight: 600;
-      border-radius: 5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: all 0.15s ease;
     }
-    .tab-btn.active {
-      background: var(--tab-active-bg);
-      color: var(--foreground);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+    .btn-header-close:hover {
+      background: var(--surface-active);
+      color: var(--text-main);
+      transform: scale(1.04);
     }
-    .tab-badge {
-      font-size: var(--text-xs);
-      padding: 1px 5px;
-      border-radius: 99px;
-      background: rgba(65, 124, 255, 0.15);
-      color: var(--primary);
+
+    /* ==========================================================================
+       4. TOP NAVIGATION / SEGMENTED TABS
+       ========================================================================== */
+    .tab-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--surface-elevated);
+      padding: 3.5px;
+      border-radius: var(--radius-control);
+      gap: 3px;
     }
-    /* OTA Footer / Check Action */
-    .footer-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      padding: 0 4px;
-    }
-    .btn-check-version {
+
+    .tab-btn {
+      border: none;
       background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: var(--text-xs);
-      font-weight: 500;
-      color: var(--muted-foreground);
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 4px;
-      transition: all 0.15s;
-    }
-    .btn-check-version:hover {
-      color: var(--foreground);
-      border-color: var(--primary);
-    }
-    .app-version {
-      font-size: var(--text-xs);
-      font-weight: 600;
-      color: var(--muted-foreground);
-      letter-spacing: 0.3px;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Tab Content Areas */
-    .tab-content { display: none; flex: 1; flex-direction: column; }
-    .tab-content.active { display: flex; }
-
-    /* Status Card */
-    .status-card {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 11px; border-radius: var(--radius);
-      margin-bottom: 10px; background: var(--card);
-      border: 1px solid var(--border); transition: all 0.2s ease;
-    }
-    .status-card.active {
-      border-color: var(--secondary);
-      background: rgba(31, 177, 65, 0.06);
-    }
-    .status-info { display: flex; align-items: center; gap: 8px; }
-    .status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--muted-foreground); transition: all 0.2s;
-    }
-    .status-card.active .status-dot { background: var(--secondary); }
-    .status-title { font-size: var(--text-md); font-weight: 600; }
-    .status-badge {
-      font-size: var(--text-xs); font-weight: 700; padding: 2px 6px;
-      border-radius: 4px; background: var(--muted); color: var(--muted-foreground);
-      text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .status-card.active .status-badge { background: rgba(31,177,65,0.15); color: var(--secondary); }
-
-    /* Cards */
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 10px; margin-bottom: 8px;
-    }
-    .card-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .card-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
-    .card-ic {
-      width: 28px; height: 28px; border-radius: 6px;
-      background: var(--muted); color: var(--foreground);
-      display: flex; align-items: center; justify-content: center; flex: none;
-    }
-    .card-label { font-size: var(--text-md); font-weight: 600; color: var(--foreground); }
-    .card-desc { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 1px;
-                 line-height: 1.3; }
-
-    /* Custom Switch */
-    .switch { position: relative; display: inline-block; width: 34px; height: 18px; flex: none; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; inset: 0; background: var(--border);
-      border-radius: 99px; transition: 0.2s; cursor: pointer;
-    }
-    .slider::before {
-      content: ""; position: absolute; height: 12px; width: 12px;
-      left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-    .switch input:checked + .slider { background: var(--primary); }
-    .switch input:checked + .slider::before { transform: translateX(16px); }
-
-    /* Collapsible */
-    details { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
-    summary {
-      font-size: var(--text-sm); color: var(--muted-foreground); font-weight: 600;
-      cursor: pointer; user-select: none;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    summary:hover { color: var(--foreground); }
-    .config-box { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
-    .config-item label { display: block; font-size: var(--text-xs); font-weight: 600;
-                         color: var(--muted-foreground); margin-bottom: 2px; }
-    input[type="text"], textarea, select {
-      width: 100%; padding: 6px 8px; background: var(--background);
-      border: 1px solid var(--border); border-radius: 6px;
-      color: var(--foreground); font-family: ui-monospace, monospace; font-size: var(--text-sm);
-    }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
-    textarea { min-height: 42px; resize: vertical; }
-
-    /* Form controls — shadcn-aligned (semantic tokens, FieldSet/legend, pill group) */
-    fieldset { border: none; padding: 0; margin: 0; }
-    fieldset legend {
-      font-size: var(--text-xs); font-weight: 600; color: var(--muted-foreground);
-      margin-bottom: 4px; padding: 0;
-    }
-    .radio-group { display: flex; gap: 6px; width: 100%; }
-    .radio-pill {
-      position: relative; flex: 1;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 32px;
-      padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius);
-      font-size: var(--text-base); font-weight: 600; color: var(--muted-foreground);
-      cursor: pointer; transition: all 0.15s ease; user-select: none;
-      text-align: center;
-    }
-    .radio-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .radio-pill:hover { border-color: var(--primary); color: var(--foreground); }
-    .radio-pill:has(input:checked) {
-      background: var(--primary); border-color: var(--primary); color: var(--primary-foreground);
-    }
-    .input-hint {
-      font-size: var(--text-xs); color: var(--muted-foreground);
-      margin-top: 3px; line-height: 1.3;
+    .tab-btn:hover {
+      color: var(--text-main);
     }
 
-    .input-wrap { position: relative; display: flex; align-items: center; }
-    .input-wrap input { width: 100%; padding-right: 26px; }
-
-    /* Koordinat manual: 2 kolom — input di kiri, CTA Maps di kanan. */
-    .geo-manual-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 6px;
-      /* Explicit row height so the input and the button are pixel-identical
-         instead of relying on their different font-size/padding sums. */
-      grid-auto-rows: 38px;
-      align-items: stretch;
+    .tab-btn.active {
+      background: var(--surface-card);
+      color: var(--text-main);
+      box-shadow: var(--shadow-pill);
     }
-    .geo-manual-grid .input-wrap { min-width: 0; }
-    .geo-manual-grid input[type="text"] {
-      /* border-box is already global, so height:100% == the 38px row exactly
-         (content-box would add 2px of border and overshoot the button). */
-      height: 100%;
-      box-sizing: border-box;
-      font-size: var(--text-md);
-      padding: 0 26px 0 10px;
+
+    .tab-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: var(--radius-pill);
+      background: var(--accent-subtle);
+      color: var(--accent-primary);
+    }
+
+    /* 5. FEATURE ROW / SETTINGS CARDS (NO BORDER LINES + SPRING ENTRANCE) */
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tab-content.active {
+      display: flex;
+      animation: tabFadeIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes tabFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes springEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .feature-card {
+      background: var(--surface-card);
+      border: none;
+      border-radius: var(--radius-card);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      animation: springEntrance 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .feature-card:nth-of-type(1) { animation-delay: 0.03s; }
+    .feature-card:nth-of-type(2) { animation-delay: 0.07s; }
+    .feature-card:nth-of-type(3) { animation-delay: 0.11s; }
+    .feature-card:nth-of-type(4) { animation-delay: 0.15s; }
+    .feature-card:nth-of-type(5) { animation-delay: 0.19s; }
+    .feature-card:nth-of-type(6) { animation-delay: 0.23s; }
+
+    .feature-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-1.5px);
+    }
+
+    .feature-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .feature-meta {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* 6. Icon System with Unified Soft Blue Surface & Rich Blue Fill Icons */
+    .feature-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
       display: flex;
       align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--tint-blue-bg);
+      color: var(--tint-blue-fg);
+      transition: transform 0.2s ease;
     }
-    /* NOTE: `.btn` is declared LATER in this stylesheet and has the same
-       specificity as `.btn-maps`, so plain `.btn-maps` loses. Its
-       `margin-top: 6px` and `padding: 9px` would win and push the button
-       6px below the input even though both boxes measure 38px tall.
-       `.btn.btn-maps` (2 classes) beats `.btn` (1 class) regardless of order. */
-    .btn.btn-maps {
-      margin-top: 0;
+
+    .feature-card:hover .feature-icon-box {
+      transform: scale(1.05);
+    }
+
+    .feature-icon-box .ic {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      stroke: none;
+    }
+
+    .feature-text-block {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .feature-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .feature-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-top: 3px;
+    }
+
+    /* ==========================================================================
+       8. MODERN TACTILE TOGGLE SWITCH (iOS HIG)
+       ========================================================================== */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 26px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--surface-active);
+      border-radius: var(--radius-pill);
+      transition: background-color 0.22s ease-out;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 2px;
+      bottom: 2px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      box-shadow: var(--shadow-switch);
+      transition: transform 0.28s cubic-bezier(0.34, 1.45, 0.64, 1),
+                  width 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-radius 0.18s ease;
+    }
+
+    /* Spring tactile squish on active hold (Framer Motion / iOS style) */
+    .switch:active .slider::before {
+      width: 26px;
+      border-radius: 12px;
+    }
+
+    .switch input:checked + .slider {
+      background-color: var(--accent-primary);
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(18px);
+    }
+
+    .switch:active input:checked + .slider::before {
+      transform: translateX(14px);
+    }
+
+    /* ==========================================================================
+       9. EXPANDABLE ACCORDIONS (No Hard Dividers or Nested Bordered Boxes)
+       ========================================================================== */
+    details.modern-accordion {
+      margin-top: 12px;
+    }
+
+    details.modern-accordion summary {
+      list-style: none;
+      background: var(--surface-subtle);
+      padding: 9px 12px;
+      border-radius: var(--radius-control);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    details.modern-accordion summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.modern-accordion summary:hover {
+      background: var(--surface-elevated);
+      color: var(--text-main);
+    }
+
+    details.modern-accordion summary .chevron-ic {
+      width: 14px;
+      height: 14px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    details.modern-accordion[open] summary .chevron-ic {
+      transform: rotate(180deg);
+    }
+
+    .accordion-body {
+      padding: 10px 4px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .modern-input, textarea.modern-input {
       width: 100%;
-      height: 100%;
+      background: var(--surface-subtle);
+      border: none;
+      border-radius: var(--radius-control);
+      padding: 9px 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-main);
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .modern-input:focus, textarea.modern-input:focus {
+      background: #ffffff;
+      box-shadow: 0 0 0 2px var(--accent-primary);
+    }
+
+    textarea.modern-input {
+      resize: vertical;
+      min-height: 56px;
+      line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       10. GPS LOCATION MODULE & MODERN SEGMENTED CONTROLS
+       ========================================================================== */
+    .gps-sub-section {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .control-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    /* Borderless Segmented Control Pills */
+    .segmented-control {
+      display: grid;
+      background: var(--surface-elevated);
+      padding: 3px;
+      border-radius: var(--radius-control);
+      gap: 3px;
+    }
+
+    .cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .segmented-pill {
+      position: relative;
+      cursor: pointer;
+      display: block;
+      margin: 0;
+    }
+
+    .segmented-pill input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+    }
+
+    .segmented-pill > span {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      padding: 0 12px;
-      font-size: var(--text-md);
-      white-space: nowrap;
-      border-radius: 6px;
+      gap: 6px;
+      width: 100%;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
     }
-    .geo-manual-grid .btn-maps .ic { width: 14px; height: 14px; flex: none; }
-    /* Di panel yang sangat sempit, tombol turun ke bawah agar tidak squeezed.
-       Row height tetap 38px (jangan `auto`) — kalau auto, input kehilangan
-       tinggi eksplisitnya dan menyusut jadi ~17px sementara tombol tetap 38px. */
-    @media (max-width: 320px) {
-      .geo-manual-grid { grid-template-columns: minmax(0, 1fr); }
-      .btn.btn-maps { height: 38px; }
+
+    .segmented-pill:hover > span {
+      color: var(--text-main);
     }
-    /* Ikon centang valid: absolute, jadi harus di-center vertikal terhadap
-       input yang sekarang lebih tinggi (38px), bukan menempel di atas. */
+
+    .segmented-pill input[type="radio"]:checked + span {
+      background: var(--accent-primary);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28);
+    }
+
+    /* Manual Coordinate 2-Column Grid (Pixel-Perfect 40px Height Match) */
+    .geo-manual-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      grid-auto-rows: 40px;
+      align-items: stretch;
+      margin-top: 6px;
+    }
+
+    .geo-manual-grid .input-wrap {
+      position: relative;
+      min-width: 0;
+      height: 100%;
+    }
+
+    .geo-manual-grid input[type="text"] {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      background: var(--surface-subtle);
+      border: none;
+      border-radius: var(--radius-control);
+      padding: 0 34px 0 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-main);
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .geo-manual-grid input[type="text"]:focus {
+      background: #ffffff;
+      box-shadow: 0 0 0 2px var(--accent-primary);
+    }
+
     .input-check {
-      position: absolute; right: 10px; top: 50%;
+      position: absolute;
+      right: 11px;
+      top: 50%;
       transform: translateY(-50%);
+      color: var(--tint-green-fg);
       display: none;
-      align-items: center; justify-content: center;
-      color: var(--success); pointer-events: none;
-    }
-    .input-check .ic { width: 13px; height: 13px; stroke: currentColor; stroke-width: 3; }
-
-    /* Buttons */
-    .btn {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      width: 100%; padding: 9px; margin-top: 6px;
-      border: none; border-radius: var(--radius);
-      font-size: var(--text-md); font-weight: 600; cursor: pointer; transition: all 0.15s;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
     }
 
-    /* Valid & Invalid Inputs */
-    input.geo-valid {
-      border-color: var(--success) !important;
-      background-color: color-mix(in srgb, var(--success) 8%, transparent) !important;
-      color: color-mix(in srgb, var(--success) 70%, #000) !important;
+    .btn.btn-maps {
+      height: 100%;
+      box-sizing: border-box;
+      background: var(--surface-elevated);
+      border: none;
+      border-radius: var(--radius-control);
+      padding: 0 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+      transition: all 0.15s ease;
     }
+
+    .btn.btn-maps:hover {
+      background: var(--surface-active);
+      transform: translateY(-1px);
+    }
+
+    .btn.btn-maps:active {
+      transform: scale(0.98);
+    }
+
+    .input-hint {
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* Valid/Invalid Coordinate Feedback */
     input.geo-invalid {
-      border-color: var(--destructive) !important;
-      background-color: color-mix(in srgb, var(--destructive) 5%, transparent) !important;
-    }
-    .btn-primary {
-      background: var(--primary); color: var(--primary-foreground);
-      box-shadow: 0 1px 3px rgba(65,124,255,0.35);
-    }
-    .btn-primary:hover { background: #356fe8; }
-    .btn-primary.off { background: var(--muted); color: var(--muted-foreground); box-shadow: none; }
-    .btn-deactivate {
-      background: var(--destructive); color: var(--destructive-foreground);
-      box-shadow: 0 1px 3px color-mix(in srgb, var(--destructive) 35%, transparent);
-    }
-    .btn-deactivate:hover { background: color-mix(in srgb, var(--destructive) 88%, #000); }
-    .btn-secondary {
-      background: var(--card); color: var(--foreground);
-      border: 1px solid var(--border); font-weight: 600;
-    }
-    .btn-secondary:hover { background: var(--muted); border-color: var(--primary); }
-    .btn-row {
-      display: flex; gap: 6px; width: 100%; margin-top: 6px;
-    }
-    .btn-row .btn {
-      flex: 1; margin-top: 0; min-width: 0; padding: 8px 6px; font-size: var(--text-sm);
-    }
-    .btn-tertiary {
-      background: transparent; color: var(--muted-foreground);
-      border: 1px solid var(--border); font-weight: 500;
-    }
-    .btn-tertiary:hover { background: var(--muted); color: var(--foreground); }
-    .btn-icon {
-      width: 38px; min-width: 38px; flex: none; padding: 0;
-      display: inline-flex; align-items: center; justify-content: center;
+      background: #fef2f2 !important;
+      box-shadow: 0 0 0 2px #ef4444 !important;
+      color: #dc2626 !important;
     }
 
-    /* Console Log Styling */
+    /* ==========================================================================
+       11. PRIMARY MASTER ACTION & 12. SECONDARY ACTIONS
+       ========================================================================== */
+    .master-action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      align-items: stretch;
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Master Action Button */
+    .btn-bypass-master {
+      flex: 1;
+      height: 46px;
+      border-radius: var(--radius-button);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* Normal armed / bypass state */
+    .btn-primary {
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.28);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.985);
+    }
+
+    /* 11. Destructive "Deactivate All" State */
+    .btn-deactivate {
+      background: var(--danger-gradient);
+      color: #ffffff;
+      box-shadow: var(--danger-shadow);
+    }
+
+    .btn-deactivate:hover {
+      background: var(--danger-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.38);
+    }
+
+    .btn-deactivate:active {
+      transform: scale(0.985);
+    }
+
+    .btn-icon-square {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-button);
+      background: var(--surface-card);
+      border: none;
+      color: var(--text-muted);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon-square:hover {
+      color: var(--text-main);
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-1px);
+    }
+
+    /* 12. Secondary Navigation Buttons */
+    .secondary-links-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: var(--surface-card);
+      border: none;
+      border-radius: var(--radius-button);
+      padding: 11px 14px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      box-shadow: var(--shadow-soft);
+      text-decoration: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-secondary:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-1px);
+      color: var(--accent-primary);
+    }
+
+    .btn-secondary:active {
+      transform: scale(0.985);
+    }
+
+    /* ==========================================================================
+       13. LIGHTWEIGHT FOOTER
+       ========================================================================== */
+    .app-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px 2px;
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+    }
+
+    .btn-check-version {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .btn-check-version:hover {
+      color: var(--accent-primary);
+    }
+
+    .app-version-badge {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      font-size: 10.5px;
+    }
+
+    /* ==========================================================================
+       TAB 2: CONSOLE LOG & TAB 3: CHANGELOG
+       ========================================================================== */
     .console-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      margin-bottom: 8px;
+      background: var(--surface-card);
+      padding: 8px 12px;
+      border-radius: var(--radius-control);
+      box-shadow: var(--shadow-soft);
     }
-    .btn-xs {
+
+    .log-filter-select {
+      background: var(--surface-subtle);
+      border: none;
       padding: 5px 8px;
-      font-size: var(--text-xs);
-      border-radius: 5px;
-      border: 1px solid var(--border);
-      background: var(--background);
-      color: var(--foreground);
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
       cursor: pointer;
-      display: flex;
+    }
+
+    .btn-xs {
+      background: var(--surface-subtle);
+      border: none;
+      padding: 5px 9px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: inline-flex;
       align-items: center;
       gap: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
     }
-    .btn-xs:hover { background: var(--muted); }
+
+    .btn-xs:hover {
+      background: var(--surface-active);
+      color: var(--text-main);
+    }
 
     .log-container {
-      flex: 1;
-      min-height: 0;
-      background: #121316;
-      color: #e1e4ea;
-      border-radius: var(--radius);
-      padding: 8px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: var(--text-sm);
+      background: #090d16;
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
+      padding: 14px;
+      border-radius: var(--radius-card);
+      min-height: 280px;
+      max-height: 440px;
       overflow-y: auto;
-      border: 1px solid #2d3139;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
-    .log-item {
+
+    .changelog-container {
+      background: var(--surface-card);
+      padding: 18px;
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+      max-height: 480px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      padding: 4px 0;
-      border-bottom: 1px solid #1f232b;
-      line-height: 1.4;
+      gap: 16px;
     }
-    .log-row1 {
+
+    .cl-entry {
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .cl-entry:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .cl-ver {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+
+    .cl-date {
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
+    .cl-list {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
+
+    .cl-list li {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* Icon Utilities */
+    .ic {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .ic-lg { width: 17px; height: 17px; }
+    .ic-sm { width: 13px; height: 13px; }
+
+    /* Optional OTA Banner (Soft Amber, Borderless) */
+    .ota-banner {
+      display: none;
+      background: #fffbeb;
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      box-shadow: 0 2px 10px rgba(217, 119, 6, 0.08);
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ota-banner-header {
       display: flex;
       align-items: center;
       gap: 6px;
-    }
-    .log-ts { color: #6b7280; flex-shrink: 0; }
-    .log-badge {
-      font-size: var(--text-xs);
+      color: #b45309;
+      font-size: 12px;
       font-weight: 700;
-      padding: 1px 4px;
-      border-radius: 3px;
-      flex-shrink: 0;
-      text-transform: uppercase;
     }
-    .badge-state { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
-    .badge-ua { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-    .badge-geo { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .badge-proxy { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
-    .badge-patch { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-    .badge-inject { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
-    .badge-error { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-    .log-msg { color: #e5e7eb; word-break: break-all; }
-    .log-desc { color: #cbd5e1; padding-left: 2px; word-break: break-word; }
 
-    /* Changelog Tab */
-    .changelog-container {
-      flex: 1;
-      min-height: 0;
-      background: var(--card);
-      color: var(--foreground);
-      border-radius: var(--radius);
-      padding: 10px;
-      overflow-y: auto;
-      border: 1px solid var(--border);
+    .ota-banner-desc {
+      font-size: 11px;
+      color: #92400e;
+      line-height: 1.4;
     }
-    .cl-entry { padding: 8px 0; border-bottom: 1px solid var(--border); }
-    .cl-entry:last-child { border-bottom: none; }
-    .cl-ver { font-size: var(--text-md); font-weight: 700; color: var(--primary); }
-    .cl-date { font-size: var(--text-xs); color: var(--muted-foreground); margin-left: 6px; font-weight: 500; }
-    .cl-list { margin: 4px 0 0; padding-left: 16px; }
-    .cl-list li { font-size: var(--text-sm); color: var(--muted-foreground); line-height: 1.5; }
+
+    .btn-ota-update {
+      background: #f59e0b;
+      color: #ffffff;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
   </style>
-  </head>
+</head>
 <body>
 
-  <!-- Tab Switcher Bar -->
-  <div class="tab-bar">
-    <button class="tab-btn active" id="tab-btn-controls">
+<div class="app-shell">
+
+  <!-- ========================================================================
+       3. APPLICATION HEADER (Apple Native Look)
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="app-brand-icon">
+        <svg class="ic ic-lg" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+      <div class="brand-meta">
+        <h1>eh-Presensi</h1>
+        <p>Tools &amp; konfigurasi presensi</p>
+      </div>
+    </div>
+    <button type="button" class="btn-header-close" id="btn-header-close" title="Tutup Panel" onclick="window.close()">
+      <svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </header>
+
+  <!-- ========================================================================
+       4. TOP NAVIGATION (Capsule Segmented Tab Bar)
+       ======================================================================== -->
+  <nav class="tab-bar">
+    <button type="button" class="tab-btn active" id="tab-btn-controls">
       <svg class="ic" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
       <span>Controls</span>
     </button>
-    <button class="tab-btn" id="tab-btn-console">
+    <button type="button" class="tab-btn" id="tab-btn-console">
       <svg class="ic" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
       <span>Log</span>
       <span class="tab-badge" id="log-count-badge">0</span>
     </button>
-    <button class="tab-btn" id="tab-btn-changelog">
+    <button type="button" class="tab-btn" id="tab-btn-changelog">
       <svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
       <span>Changelog</span>
     </button>
-  </div>
+  </nav>
 
-  <!-- TAB 1: Controls -->
+  <!-- ========================================================================
+       TAB 1: CONTROLS
+       ======================================================================== -->
   <div class="tab-content active" id="tab-controls">
-    <!-- OTA Update Alert Banner (Warning / Yellow) -->
+
+    <!-- OTA Update Alert Banner -->
     <div class="ota-banner" id="ota-banner">
       <div class="ota-banner-header">
-        <div class="ota-banner-title">
-          <svg class="ic" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span id="ota-title">Update Tersedia</span>
-        </div>
+        <svg class="ic" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="ota-title">Update Tersedia</span>
       </div>
       <div class="ota-banner-desc" id="ota-desc">Versi baru telah dirilis di GitHub repository.</div>
-      
-      <div class="ota-banner-actions">
-        <button class="btn-ota-update" id="btn-ota-open">
+      <div>
+        <button type="button" class="btn-ota-update" id="btn-ota-open">
           <span>Update latest version</span>
-          <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+          <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
         </button>
       </div>
-
-      <!-- Changelog Accordion -->
-      <details class="ota-accordion" id="ota-changelog-accordion">
+      <details class="modern-accordion" id="ota-changelog-accordion">
         <summary>
           <span>Lihat Changelog Rilis Baru</span>
-          <span>▼</span>
+          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <div class="ota-accordion-content" id="ota-changelog-content">
-          Memuat changelog...
-        </div>
+        <div class="accordion-body" id="ota-changelog-content">Memuat changelog...</div>
       </details>
     </div>
-    <!-- Switch 1: iOS UA -->
-    <div class="card">
-      <div class="card-row">
-        <div class="card-left">
-          <div class="card-ic">
-            <svg class="ic" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+
+    <!-- Feature 1: GPS Location (Paling Atas) -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
           </div>
-          <div>
-            <div class="card-label">iOS Safari Fingerprint</div>
-            <div class="card-desc">Mengubah user-agent menjadi iPhone serta melakukan purge window.chrome agar tidak terdeteksi sebagai simulator atau browser desktop.</div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">GPS Location</h2>
+            <p class="feature-desc">Mengubah koordinat GPS melalui intercept Geolocation API dan Permissions agar terbaca sebagai lokasi Jakarta yang dipilih.</p>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="geo-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- GPS Nested Segmented Controls -->
+      <div class="gps-sub-section">
+        <!-- Mode Switcher -->
+        <div>
+          <div class="control-label">Mode</div>
+          <div class="segmented-control cols-3">
+            <label class="segmented-pill"><input type="radio" name="geo-mode" value="wfo" checked /><span>WFO</span></label>
+            <label class="segmented-pill"><input type="radio" name="geo-mode" value="wfh" /><span>WFH</span></label>
+            <label class="segmented-pill"><input type="radio" name="geo-mode" value="manual" /><span>Manual</span></label>
+          </div>
+        </div>
+
+        <!-- Device e-Presensi Switcher with Apple & Android icons -->
+        <div id="geo-style-box">
+          <div class="control-label">Device e-Presensi</div>
+          <div class="segmented-control cols-2">
+            <label class="segmented-pill">
+              <input type="radio" name="geo-style" value="ios" checked />
+              <span>
+                <svg class="ic ic-sm" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.66-.8 1.11-1.92.99-3.04-1.05.04-2.31.7-3.05 1.58-.58.67-1.09 1.76-.95 2.87 1.17.09 2.35-.61 3.01-1.41z"/>
+                </svg>
+                <span>iOS</span>
+              </span>
+            </label>
+            <label class="segmented-pill">
+              <input type="radio" name="geo-style" value="android" />
+              <span>
+                <svg class="ic ic-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                  <path d="M4 10a8 8 0 0 1 16 0v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"/>
+                  <path d="M7 3l1.5 2.5"/>
+                  <path d="M17 3l-1.5 2.5"/>
+                  <circle cx="9" cy="11.5" r="1" fill="currentColor"/>
+                  <circle cx="15" cy="11.5" r="1" fill="currentColor"/>
+                </svg>
+                <span>Android</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Lokasi Kantor (Shown for WFO) -->
+        <div id="geo-anchor-box">
+          <div class="control-label">Lokasi Kantor</div>
+          <div class="segmented-control cols-2 radio-group">
+            <label class="segmented-pill"><input type="radio" name="geo-anchor" value="kalibata" checked /><span>Kalibata</span></label>
+            <label class="segmented-pill"><input type="radio" name="geo-anchor" value="kalisari" /><span>Kalisari</span></label>
+          </div>
+        </div>
+
+        <!-- Manual Coordinate Input Box (2-column layout + Buka Google Maps CTA) -->
+        <div id="geo-manual-box" style="display: none;">
+          <div class="control-label">Koordinat (lat, lng)</div>
+          <div class="geo-manual-grid">
+            <div class="input-wrap">
+              <input type="text" id="geo-manual" placeholder="-6.34294464805416, 106.859012539737" />
+              <div id="geo-manual-check-ic" class="input-check">
+                <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+            </div>
+            <button type="button" class="btn btn-maps" id="btn-open-maps" title="Buka koordinat ini di Google Maps">
+              <svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <span>Buka Google Maps</span>
+            </button>
+          </div>
+          <div class="input-hint" id="geo-manual-hint">Format: lat, lng (iOS: 14 digit, Android: 6-7 digit)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature 2: iOS Safari Fingerprint -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M17 1.5H7a2 2 0 0 0-2 2v17a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-17a2 2 0 0 0-2-2zm-5 19.25a1.25 1.25 0 1 1 1.25-1.25 1.25 1.25 0 0 1-1.25 1.25zm5-3.5H7V4.75h10v12.5z"/></svg>
+          </div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">iOS Safari Fingerprint</h2>
+            <p class="feature-desc">Mengubah user-agent menjadi iPhone serta melakukan purge window.chrome agar tidak terdeteksi sebagai simulator atau browser desktop.</p>
           </div>
         </div>
         <label class="switch">
@@ -647,18 +1118,18 @@
           <span class="slider"></span>
         </label>
       </div>
-    </div>
+    </section>
 
-    <!-- Switch 2: Guard Patch -->
-    <div class="card">
-      <div class="card-row">
-        <div class="card-left">
-          <div class="card-ic">
-            <svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+    <!-- Feature 3: Security Bypass -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
           </div>
-          <div>
-            <div class="card-label">Security Bypass</div>
-            <div class="card-desc">Menyisipkan patch di awal file JS untuk menetralkan pemeriksaan debugger dan anti-inspect agar halaman tetap bisa dimuat normal.</div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">Security Bypass</h2>
+            <p class="feature-desc">Menyisipkan patch di awal file JS untuk menetralkan pemeriksaan debugger dan anti-inspect agar halaman tetap bisa dimuat normal.</p>
           </div>
         </div>
         <label class="switch">
@@ -666,31 +1137,35 @@
           <span class="slider"></span>
         </label>
       </div>
-      <details>
-        <summary><span>Advanced</span> <span>▼</span></summary>
-        <div class="config-box">
-          <fieldset>
-            <legend>Target Pattern (CDP Glob)</legend>
-            <input type="text" id="pattern" />
-          </fieldset>
-          <fieldset>
-            <legend>Custom UA String</legend>
-            <textarea id="ua" spellcheck="false"></textarea>
-          </fieldset>
+      <!-- 9. Modern Expandable Accordion (Advanced) -->
+      <details class="modern-accordion">
+        <summary>
+          <span>Advanced</span>
+          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="accordion-body">
+          <div class="field-group">
+            <label class="field-label">Target Pattern (CDP Glob)</label>
+            <input type="text" class="modern-input" id="pattern" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Custom UA String</label>
+            <textarea class="modern-input" id="ua" spellcheck="false"></textarea>
+          </div>
         </div>
       </details>
-    </div>
+    </section>
 
-    <!-- Switch 3: Block iOS Update -->
-    <div class="card">
-      <div class="card-row">
-        <div class="card-left">
-          <div class="card-ic">
-            <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+    <!-- Feature 4: Block iOS Update -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 00-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"/></svg>
           </div>
-          <div>
-            <div class="card-label">Block iOS Update</div>
-            <div class="card-desc">Memblokir modal SweetAlert "ePresensi Versi Web Sudah Tidak Digunakan" dan backdrop overlay-nya agar web tetap bisa diakses saat spoof iOS.</div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">Block iOS Update</h2>
+            <p class="feature-desc">Memblokir modal SweetAlert "ePresensi Versi Web Sudah Tidak Digunakan" dan backdrop overlay-nya agar web tetap bisa diakses saat spoof iOS.</p>
           </div>
         </div>
         <label class="switch">
@@ -698,12 +1173,16 @@
           <span class="slider"></span>
         </label>
       </div>
-      <details>
-        <summary><span>Target Element</span> <span>▼</span></summary>
-        <div class="config-box">
-          <div class="config-item">
-            <label>Blocked Elements & Selectors</label>
-            <div class="input-hint" style="font-family: monospace; font-size: 11px; word-break: break-all; background: rgba(0,0,0,0.06); padding: 8px; border-radius: var(--radius); line-height: 1.5;">
+      <!-- 9. Modern Expandable Accordion (Target Element) -->
+      <details class="modern-accordion">
+        <summary>
+          <span>Target Element</span>
+          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="accordion-body">
+          <div class="field-group">
+            <label class="field-label">Blocked Elements &amp; Selectors</label>
+            <div class="input-hint" style="font-family: var(--font-mono); font-size: 11px; background: var(--surface-subtle); padding: 8px 10px; border-radius: var(--radius-control); line-height: 1.55;">
               • .swal2-container:has(.ios-appstore-gate-popup)<br/>
               • .swal2-container:has(.ios-appstore-gate-wrap)<br/>
               • a[href*='id6800222797'] (App Store Link)<br/>
@@ -712,18 +1191,18 @@
           </div>
         </div>
       </details>
-    </div>
+    </section>
 
-    <!-- Switch 3b: WFH v2 Mode -->
-    <div class="card">
-      <div class="card-row">
-        <div class="card-left">
-          <div class="card-ic">
-            <svg class="ic" viewBox="0 0 24 24"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+    <!-- Feature 5: WFH v2 Mode -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M12.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L4 12.414V20a2 2 0 002 2h12a2 2 0 002-2v-7.586l.293.293a1 1 0 001.414-1.414l-9-9zM14 20h-4v-5a1 1 0 011-1h2a1 1 0 011 1v5z"/></svg>
           </div>
-          <div>
-            <div class="card-label">WFH v2 Mode</div>
-            <div class="card-desc">Pada halaman Presensi Lama, samplerkan dengan aplikasi resmi v1.0.13: request divalidasi ke lokasi rumah terdaftar (bukan kantor), marker peta "R", popup "Lokasi rumah WFH", dan teks jarak ke rumah.</div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">WFH v2 Mode</h2>
+            <p class="feature-desc">Pada halaman Presensi Lama, samplerkan dengan aplikasi resmi v1.0.13: request divalidasi ke lokasi rumah terdaftar (bukan kantor), marker peta "R", popup "Lokasi rumah WFH", dan teks jarak ke rumah.</p>
           </div>
         </div>
         <label class="switch">
@@ -731,77 +1210,18 @@
           <span class="slider"></span>
         </label>
       </div>
-    </div>
+    </section>
 
-    <!-- Switch 4: Geolocation -->
-    <div class="card">
-      <div class="card-row">
-        <div class="card-left">
-          <div class="card-ic">
-            <svg class="ic" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+    <!-- Feature 6: Proxy Route -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1010 10A10.011 10.011 0 0012 2zm1 17.93V18a2 2 0 00-2-2h-1v-2a1 1 0 011-1h3a2 2 0 002-2V9.5a.5.5 0 01.5-.5h.86A8.006 8.006 0 0119.93 13H15a2 2 0 00-2 2v4.93zM6.54 6.77A8.016 8.016 0 0111 4.07v1.43a2 2 0 002 2v1a1 1 0 01-1 1h-2a2 2 0 00-2 2v.59a1 1 0 01-.29.71l-1.8 1.8A7.994 7.994 0 016.54 6.77z"/></svg>
           </div>
-          <div>
-            <div class="card-label">GPS Location</div>
-            <div class="card-desc">Mengubah koordinat GPS melalui intercept Geolocation API dan Permissions agar terbaca sebagai lokasi Jakarta yang dipilih.</div>
-          </div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="geo-toggle" />
-          <span class="slider"></span>
-        </label>
-      </div>
-      <div class="config-box">
-        <fieldset>
-          <legend>Mode</legend>
-          <div class="radio-group">
-            <label class="radio-pill"><input type="radio" name="geo-mode" value="wfo" checked /><span>WFO</span></label>
-            <label class="radio-pill"><input type="radio" name="geo-mode" value="wfh" /><span>WFH</span></label>
-            <label class="radio-pill"><input type="radio" name="geo-mode" value="manual" /><span>Manual</span></label>
-          </div>
-        </fieldset>
-        <fieldset id="geo-style-box">
-          <legend>Device e-Presensi</legend>
-          <div class="radio-group">
-            <label class="radio-pill"><input type="radio" name="geo-style" value="ios" checked /><span>iOS</span></label>
-            <label class="radio-pill"><input type="radio" name="geo-style" value="android" /><span>Android</span></label>
-          </div>
-        </fieldset>
-        <fieldset id="geo-anchor-box">
-          <legend>Lokasi Kantor</legend>
-          <div class="radio-group">
-            <label class="radio-pill"><input type="radio" name="geo-anchor" value="kalibata" checked /><span>Kalibata</span></label>
-            <label class="radio-pill"><input type="radio" name="geo-anchor" value="kalisari" /><span>Kalisari</span></label>
-          </div>
-        </fieldset>
-        <div class="config-item" id="geo-manual-box" style="display:none;">
-          <label>Koordinat (lat, lng)</label>
-          <div class="geo-manual-grid">
-            <div class="input-wrap">
-              <input type="text" id="geo-manual" placeholder="-6.34294464805416, 106.859012539737" />
-              <div id="geo-manual-check-ic" class="input-check" style="display:none;">
-                <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-            </div>
-            <button type="button" class="btn btn-secondary btn-maps" id="btn-open-maps" title="Buka koordinat ini di Google Maps">
-              <svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-              <span>Buka Google Maps</span>
-            </button>
-          </div>
-          <div class="input-hint" id="geo-manual-hint">Format: lat, lng (iOS: 14 digit, Android: 6-7 digit)</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Switch 4: Proxy Route -->
-    <div class="card">
-      <div class="card-row">
-        <div class="card-left">
-          <div class="card-ic">
-            <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-          </div>
-          <div>
-            <div class="card-label">Proxy Route</div>
-            <div class="card-desc">Mengalirkan traffic browser melalui proxy agar alamat IP terbaca berasal dari Indonesia.</div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">Proxy Route</h2>
+            <p class="feature-desc">Mengalirkan traffic browser melalui proxy agar alamat IP terbaca berasal dari Indonesia.</p>
           </div>
         </div>
         <label class="switch">
@@ -809,74 +1229,90 @@
           <span class="slider"></span>
         </label>
       </div>
-      <details>
-        <summary><span>Proxy Config</span> <span>▼</span></summary>
-        <div class="config-box">
-          <div class="config-item" id="proxy-url-box">
-            <label>Proxy URL (socks5://.. / http://..)</label>
-            <div class="input-wrap">
-              <input type="text" id="proxy-url" placeholder="socks5://ip:port atau http://ip:port" />
-            </div>
+
+      <!-- 9. Modern Expandable Accordion (Proxy Config) -->
+      <details class="modern-accordion">
+        <summary>
+          <span>Proxy Config</span>
+          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="accordion-body">
+          <div class="field-group" id="proxy-url-box">
+            <label class="field-label">Proxy URL (socks5://.. / http://..)</label>
+            <input type="text" class="modern-input" id="proxy-url" placeholder="socks5://ip:port atau http://ip:port" />
             <div class="input-hint">Contoh: socks5://103.65.237.92:1080 atau http://114.141.54.221:8080</div>
           </div>
-          <fieldset>
-            <legend>Routing Scope</legend>
-            <div class="radio-group">
-              <label class="radio-pill"><input type="radio" name="proxy-scope" value="target" checked /><span>Target Host Only</span></label>
-              <label class="radio-pill"><input type="radio" name="proxy-scope" value="all" /><span>All Traffic</span></label>
+
+          <div class="field-group">
+            <div class="field-label">Routing Scope</div>
+            <div class="segmented-control cols-2">
+              <label class="segmented-pill"><input type="radio" name="proxy-scope" value="target" checked /><span>Target Host Only</span></label>
+              <label class="segmented-pill"><input type="radio" name="proxy-scope" value="all" /><span>All Traffic</span></label>
             </div>
-          </fieldset>
-          <div class="config-item" id="proxy-host-box">
-            <label>Target Host (hanya domain ini yang diarahkan ke proxy)</label>
-            <input type="text" id="proxy-host" placeholder="presensi.kemendesa.go.id" value="presensi.kemendesa.go.id" />
           </div>
-          <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
-            <button class="btn btn-secondary" id="btn-proxy-test" style="flex: 1;">
+
+          <div class="field-group" id="proxy-host-box">
+            <label class="field-label">Target Host (hanya domain ini yang diarahkan ke proxy)</label>
+            <input type="text" class="modern-input" id="proxy-host" placeholder="presensi.kemendesa.go.id" value="presensi.kemendesa.go.id" />
+          </div>
+
+          <div style="margin-top: 4px;">
+            <button type="button" class="btn btn-secondary" id="btn-proxy-test" style="width: 100%;">
               <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
               <span>Test Connection</span>
             </button>
           </div>
-          <div id="proxy-test-status" class="input-hint" style="margin-top: 4px;"></div>
+          <div id="proxy-test-status" class="input-hint"></div>
         </div>
       </details>
-    </div>
+    </section>
 
-    <!-- Master Actions: Bypass All + Reload Tab Icon Button -->
-    <div style="display: flex; gap: 6px; margin-top: 6px; align-items: stretch;">
-      <button class="btn btn-primary" id="btn-bypass-all" style="margin-top: 0; flex: 1;">
+    <!-- ========================================================================
+         11. PRIMARY ACTION ("Deactivate All" / "Bypass All") + RELOAD BUTTON
+         ======================================================================== -->
+    <div class="master-action-row">
+      <button type="button" class="btn btn-primary btn-bypass-master" id="btn-bypass-all">
         <svg class="ic ic-lg" id="btn-bypass-ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
         <span id="btn-bypass-label">Bypass All</span>
       </button>
-      <button class="btn btn-tertiary btn-icon" id="btn-reload" title="Reload Tab" aria-label="Reload Tab" style="margin-top: 0;">
+      <button type="button" class="btn btn-icon-square" id="btn-reload" title="Reload Tab Aktif">
         <svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
       </button>
     </div>
 
-    <!-- Quick Nav CTAs (2 columns) -->
-    <div class="btn-row">
-      <button class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
-        <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Presensi Lama</span>
+    <!-- ========================================================================
+         12. SECONDARY ACTIONS (Presensi / Developer)
+         ======================================================================== -->
+    <div class="secondary-links-row">
+      <button type="button" class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
+        <span>Presensi</span>
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
       </button>
-      <button class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
-        <svg class="ic" viewBox="0 0 24 24" style="flex-shrink: 0;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Buka Absen-Dev</span>
+      <button type="button" class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
+        <span>Developer</span>
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
       </button>
     </div>
 
-    <div class="footer-bar">
-      <button class="btn-check-version" id="btn-check-version">
-        <svg class="ic" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    <!-- ========================================================================
+         13. LIGHTWEIGHT FOOTER
+         ======================================================================== -->
+    <footer class="app-footer">
+      <button type="button" class="btn-check-version" id="btn-check-version">
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
         <span id="check-version-text">Cek Update</span>
       </button>
-      <div class="app-version" id="app-version">v2.7.1</div>
-    </div>
+      <span class="app-version-badge" id="app-version">v2.8.0</span>
+    </footer>
+
   </div>
 
-  <!-- TAB 2: Console Log -->
+  <!-- ========================================================================
+       TAB 2: CONSOLE LOG
+       ======================================================================== -->
   <div class="tab-content" id="tab-console">
     <div class="console-toolbar">
-      <select id="log-filter" style="width: auto; padding: 4px 6px;">
+      <select id="log-filter" class="log-filter-select">
         <option value="ALL">ALL Categories</option>
         <option value="STATE">STATE</option>
         <option value="UA">UA</option>
@@ -886,28 +1322,57 @@
         <option value="INJECT">INJECT</option>
         <option value="ERROR">ERROR</option>
       </select>
-      <div style="display:flex; gap:4px;">
-        <button class="btn-xs" id="btn-copy-log">
-          <svg class="ic" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-          Copy
+      <div style="display:flex; gap:6px;">
+        <button type="button" class="btn-xs" id="btn-copy-log">
+          <svg class="ic ic-sm" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <span>Copy</span>
         </button>
-        <button class="btn-xs" id="btn-clear-log">
-          <svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          Clear
+        <button type="button" class="btn-xs" id="btn-clear-log">
+          <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <span>Clear</span>
         </button>
       </div>
     </div>
-
     <div class="log-container" id="log-container">
       <!-- Dynamic Log Stream -->
     </div>
   </div>
 
-  <!-- TAB 3: Changelog -->
+  <!-- ========================================================================
+       TAB 3: CHANGELOG
+       ======================================================================== -->
   <div class="tab-content" id="tab-changelog">
-    <div class="changelog-container" id="changelog-container"></div>
+    <div class="changelog-container" id="changelog-container">
+      <!-- Dynamic Changelog Rendered via sidepanel.js -->
+    </div>
   </div>
 
-  <script src="sidepanel.js"></script>
+</div>
+
+<script src="sidepanel.js"></script>
+<script>
+  // WAAPI Spring Accordions (Native Motion engine, zero-dependency, Framer Motion feel)
+  document.querySelectorAll('details.modern-accordion').forEach(el => {
+    const summary = el.querySelector('summary');
+    const body = el.querySelector('.accordion-body');
+    if (!summary || !body) return;
+    summary.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (el.open) {
+        const anim = body.animate([
+          { height: `${body.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' },
+          { height: '0px', opacity: 0, transform: 'translateY(-6px)' }
+        ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+        anim.onfinish = () => el.removeAttribute('open');
+      } else {
+        el.setAttribute('open', '');
+        body.animate([
+          { height: '0px', opacity: 0, transform: 'translateY(-6px)' },
+          { height: `${body.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' }
+        ], { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+      }
+    });
+  });
+</script>
 </body>
 </html>
