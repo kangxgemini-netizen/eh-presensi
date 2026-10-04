@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.1 (2026-10-04)
+- **Fix: tombol `Bypass All` / `Deactivate All` kebal terhadap pergantian class di runtime.**
+  - **Akar masalah:** `updateBypassAllButton()` di `sidepanel.js` menimpa `btn.className = "btn btn-primary"` (atau `"btn btn-deactivate"`), sehingga class `.btn-bypass-master` yang membawa styling `flex: 1`, `height: 46px`, dan `border-radius: 14px` terhapus seketika saat ekstensi berjalan.
+  - **Perbaikan:** Aturan CSS sekarang diikat langsung ke ID `#btn-bypass-all` dengan `box-sizing: border-box`, `flex: 1`, dan `height: 46px`, serta `sidepanel.js` tetap menyertakan `.btn-bypass-master` saat mengubah state tombol.
+- **Motion: transisi motion pada pergantian tab (Framer Motion style).**
+  - **Floating Glider Capsule (`.tab-glider`):** Kapsul putih berbayang halus meluncur fisik (*spring overshoot physics* `cubic-bezier(0.34, 1.35, 0.64, 1)`) tepat di bawah tombol tab yang aktif.
+  - **Direction-Aware Slide Content:** Konten tab meluncur masuk secara mulus mengikuti arah navigasi (`.slide-right` saat maju ke Log/Changelog, `.slide-left` saat kembali ke Controls).
+
 ### v2.8.0 (2026-10-04)
 - **Redesign Total Modern UI (Apple / Vercel Minimalist Light):**
   - **Zero Border-Line UI:** Menghapus semua garis tepi (*border stroke 1px*) abu-abu kaku. Kedalaman dan hirarki visual dibangun melalui *layered surfaces*, kontras latar neutral (`#F4F6F9`) vs kartu putih (`#FFFFFF`), sudut membulat organik (`20px`), dan *soft diffuse shadows*.

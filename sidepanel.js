@@ -250,7 +250,7 @@ async function currentTab() {
   return tab;
 }
 
-// --- TAB SWITCHER LOGIC ---
+// --- TAB SWITCHER LOGIC (With Framer Motion Physics) ---
 function initTabs() {
   const tabs = [
     { btn: "tab-btn-controls",   tab: "tab-controls" },
@@ -258,19 +258,65 @@ function initTabs() {
     { btn: "tab-btn-changelog",  tab: "tab-changelog", onShow: renderChangelog },
   ];
 
-  tabs.forEach(({ btn, tab, onShow }) => {
-    $(btn).addEventListener("click", () => {
-      tabs.forEach(t => {
-        $(t.btn).classList.toggle("active", t.btn === btn);
-        $(t.tab).classList.toggle("active", t.tab === tab);
+  let prevIndex = 0;
+
+  function updateGlider(btnEl) {
+    const glider = $("tab-glider");
+    if (!glider || !btnEl) return;
+    glider.style.width = `${btnEl.offsetWidth}px`;
+    glider.style.transform = `translateX(${btnEl.offsetLeft - 3.5}px)`;
+  }
+
+  tabs.forEach(({ btn, tab, onShow }, idx) => {
+    const btnEl = $(btn);
+    if (!btnEl) return;
+    btnEl.addEventListener("click", () => {
+      const isRight = idx >= prevIndex;
+      prevIndex = idx;
+
+      tabs.forEach((t) => {
+        const isTarget = (t.btn === btn);
+        const b = $(t.btn);
+        const targetTab = $(t.tab);
+        if (b) b.classList.toggle("active", isTarget);
+
+        if (targetTab) {
+          if (isTarget) {
+            targetTab.classList.remove("slide-right", "slide-left");
+            // Force reflow to replay fluid spring entrance
+            void targetTab.offsetWidth;
+            targetTab.classList.add(isRight ? "slide-right" : "slide-left");
+            targetTab.classList.add("active");
+          } else {
+            targetTab.classList.remove("active", "slide-right", "slide-left");
+          }
+        }
       });
+
+      updateGlider(btnEl);
       if (onShow) onShow();
     });
+  });
+
+  // Initial positioning
+  setTimeout(() => {
+    const activeBtn = document.querySelector(".tab-btn.active") || $("tab-btn-controls");
+    if (activeBtn) updateGlider(activeBtn);
+  }, 40);
+  window.addEventListener("resize", () => {
+    const activeBtn = document.querySelector(".tab-btn.active");
+    if (activeBtn) updateGlider(activeBtn);
   });
 }
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.1", date: "2026-10-04", items: [
+    "Fix: tombol 'Bypass All' / 'Deactivate All' tidak lagi collapse/rusak saat state render di ekstensi asli.",
+    "• Penyebab: updateBypassAllButton() menimpa btn.className menjadi 'btn btn-primary', sehingga class 'btn-bypass-master' hilang dan tombol kehilangan flex/height styling.",
+    "• Perbaikan: selector CSS diikat langsung ke #btn-bypass-all sehingga kebal terhadap pergantian className apa pun, dan className JS juga tetap mempertahankan btn-bypass-master.",
+    "• Motion: menambahkan transisi motion Framer Motion pada pergantian tab dengan floating capsule glider (.tab-glider) dan direction-aware slide physics (.slide-right / .slide-left).",
+  ]},
   { ver: "2.8.0", date: "2026-10-04", items: [
     "Redesign Total Modern UI (Apple / Vercel Minimalist Light):",
     "• Zero Border-Line UI: menghapus semua border stroke 1px abu-abu kaku; kedalaman dibangun lewat layered surfaces, background contrast (#F4F6F9 vs #FFFFFF), dan soft diffuse shadows.",
@@ -725,11 +771,11 @@ function render() {
   const label = $("btn-bypass-label");
   const ic = $("btn-bypass-ic");
   if (count === 4) {
-    btn.className = "btn btn-deactivate";
+    btn.className = "btn btn-deactivate btn-bypass-master";
     label.textContent = "Deactivate All";
     ic.innerHTML = '<path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/>';
   } else {
-    btn.className = "btn btn-primary";
+    btn.className = "btn btn-primary btn-bypass-master";
     label.textContent = "Bypass All";
     ic.innerHTML = '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>';
   }
@@ -1199,12 +1245,14 @@ const STAGE_KEYWORDS = [
   { key: "terapkan", re: /menerapkan proxy/i },
   { key: "verifikasi", re: /memverifikasi ip/i },
 ];
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.action === "LOG_EVENT") {
-    // Real-time checklist di-handle oleh timed animation loop (bukan log), biar muncul satu per satu 3s.
-    loadLogs();
-  }
-});
+if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.action === "LOG_EVENT") {
+      // Real-time checklist di-handle oleh timed animation loop (bukan log), biar muncul satu per satu 3s.
+      loadLogs();
+    }
+  });
+}
 
 // --- OTA UPDATE CHECKER ---
 const REPO_OWNER = "kangxgemini-netizen";
