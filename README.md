@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.6 (2026-10-04)
+- **Penyederhanaan Konfigurasi Proxy Route (UI/UX Pro Max):**
+  - **Eliminasi Target Host Box Redundan:** Menghapus input field dan label *Target Host* yang berlebih, karena opsi *Target Host Only* secara otomatis dan konsisten menargetkan `presensi.kemendesa.go.id`, sedangkan *All Traffic* mencakup seluruh lalu lintas browser tanpa pembatasan domain.
+  - **Inline Test Connection Button:** Memindahkan tombol uji koneksi (ikon petir) langsung berdampingan secara horizontal dengan input *Proxy URL* dalam satu baris grid fleksibel yang rapi dan proporsional.
+  - **Focused Scope Selector:** Segmented control *Routing Scope* (*Target Host Only* vs *All Traffic*) kini menjadi satu-satunya pengendali cakupan rute proxy yang jelas, bersih, dan intuitif.
+
 ### v2.9.5 (2026-10-04)
 - **Extended Upward Opacity Gradient Dock (100% to 0% Alpha):**
   - **Extended Vertical Gradient:** Mengimplementasikan transisi gradien transparan ke solid (0% opacity di puncak dock hingga 100% solid opacity di dasar dock) dengan ketinggian transisi 72px yang lembut dan bertahap.

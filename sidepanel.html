@@ -524,6 +524,7 @@
       line-height: 1.4;
     }
 
+    .proxy-url-row,
     .proxy-host-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -532,6 +533,7 @@
       align-items: stretch;
     }
 
+    .proxy-url-row .modern-input,
     .proxy-host-row .modern-input {
       height: 100%;
       box-sizing: border-box;
@@ -1455,7 +1457,13 @@
         <div class="accordion-body">
           <div class="field-group" id="proxy-url-box">
             <label class="field-label">Proxy URL (socks5://.. / http://..)</label>
-            <input type="text" class="modern-input" id="proxy-url" placeholder="socks5://ip:port atau http://ip:port" />
+            <div class="proxy-url-row">
+              <input type="text" class="modern-input" id="proxy-url" placeholder="socks5://ip:port atau http://ip:port" />
+              <button type="button" class="btn btn-secondary btn-proxy-test-icon" id="btn-proxy-test" title="Test Connection">
+                <svg class="ic ic-fill" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+            <div id="proxy-test-status" class="input-hint"></div>
             <div class="input-hint">Contoh: socks5://103.65.237.92:1080 atau http://114.141.54.221:8080</div>
           </div>
 
@@ -1465,17 +1473,6 @@
               <label class="segmented-pill"><input type="radio" name="proxy-scope" value="target" checked /><span>Target Host Only</span></label>
               <label class="segmented-pill"><input type="radio" name="proxy-scope" value="all" /><span>All Traffic</span></label>
             </div>
-          </div>
-
-          <div class="field-group" id="proxy-host-box">
-            <label class="field-label">Target Host (hanya domain ini yang diarahkan ke proxy)</label>
-            <div class="proxy-host-row">
-              <input type="text" class="modern-input" id="proxy-host" placeholder="presensi.kemendesa.go.id" value="presensi.kemendesa.go.id" />
-              <button type="button" class="btn btn-secondary btn-proxy-test-icon" id="btn-proxy-test" title="Test Connection">
-                <svg class="ic ic-fill" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd"/></svg>
-              </button>
-            </div>
-            <div id="proxy-test-status" class="input-hint"></div>
           </div>
         </div>
       </details>
@@ -1551,7 +1548,7 @@
         <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
         <span id="check-version-text">Cek Update</span>
       </button>
-      <span class="app-version-badge" id="app-version">v2.9.5</span>
+      <span class="app-version-badge" id="app-version">v2.9.6</span>
     </footer>
   </div>
 

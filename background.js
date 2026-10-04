@@ -741,7 +741,7 @@ async function proxySet(proxyUrl, targetHost, scope = "target") {
   const schemeMap = { http: "http", https: "https", socks4: "socks4", socks5: "socks5" };
   const scheme = schemeMap[schemeRaw] || "http";
 
-  const host_ = (targetHost || "").trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  const host_ = (targetHost || "presensi.kemendesa.go.id").trim().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
   const proxyServer = { scheme, host, port: parseInt(port, 10) };
   
   const isTargetOnly = (scope === "target") && !!host_;

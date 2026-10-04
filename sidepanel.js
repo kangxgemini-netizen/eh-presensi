@@ -547,6 +547,12 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.6", date: "2026-10-04", items: [
+    "Penyederhanaan Konfigurasi Proxy Route (UI/UX Pro Max):",
+    "Eliminasi Target Host Box Redundan: menghapus input field dan label Target Host yang berlebih, karena opsi Target Host Only secara otomatis dan konsisten menargetkan presensi.kemendesa.go.id, sedangkan All Traffic mencakup seluruh lalu lintas browser.",
+    "Inline Test Connection Button: memindahkan tombol uji koneksi (ikon petir) langsung berdampingan secara horizontal dengan input Proxy URL dalam satu baris fleksibel yang rapi dan proporsional.",
+    "Focused Scope Selector: segmented control Routing Scope (Target Host Only vs All Traffic) kini menjadi satu-satunya pengendali cakupan rute proxy yang jelas, bersih, dan intuitif.",
+  ]},
   { ver: "2.9.5", date: "2026-10-04", items: [
     "Extended Upward Opacity Gradient Dock (100% to 0% Alpha):",
     "Extended Vertical Gradient: mengimplementasikan transisi gradien transparan ke solid (0% opacity di puncak dock hingga 100% solid opacity di dasar dock) dengan ketinggian transisi 72px yang lembut dan bertahap.",
@@ -1003,7 +1009,7 @@ async function load() {
     chrome.runtime.sendMessage({ type: "PROXY_CLEAR" }).catch(() => {});
   }
   $("proxy-url").value = savedProxyUrl;
-  $("proxy-host").value = data.proxyHost || "presensi.kemendesa.go.id";
+  if ($("proxy-host")) $("proxy-host").value = data.proxyHost || "presensi.kemendesa.go.id";
   setProxyScope(data.proxyScope || "target");
 
   setGeoMode(data.geoMode || "wfo");
@@ -1392,7 +1398,7 @@ document.querySelectorAll('input[name="geo-style"]').forEach((r) => r.addEventLi
 async function applyProxyIfOn() {
   if (!$("proxy-toggle").checked) return;
   let url = $("proxy-url").value.trim();
-  const host = $("proxy-host").value.trim();
+  const host = $("proxy-host") ? $("proxy-host").value.trim() : "presensi.kemendesa.go.id";
   const scope = getProxyScope();
 
   if (!url) {
@@ -1460,10 +1466,12 @@ $("proxy-url").addEventListener("input", () => {
   applyProxyIfOn();
   updateProxyStatusLive();
 });
-$("proxy-host").addEventListener("input", () => {
-  applyProxyIfOn();
-  updateProxyStatusLive();
-});
+if ($("proxy-host")) {
+  $("proxy-host").addEventListener("input", () => {
+    applyProxyIfOn();
+    updateProxyStatusLive();
+  });
+}
 
 // Real-time status text (tanpa nunggu toggle ON)
 function updateGateStatusLive() {
@@ -1495,7 +1503,7 @@ function updateWfhV2Status() {
 function updateProxyStatusLive() {
   const scope = getProxyScope();
   let url = $("proxy-url") ? $("proxy-url").value.trim() : "";
-  const host = $("proxy-host") ? $("proxy-host").value.trim() : "";
+  const host = $("proxy-host") ? $("proxy-host").value.trim() : "presensi.kemendesa.go.id";
   const on = $("proxy-toggle") ? $("proxy-toggle").checked : false;
 
   if (!url) {
@@ -1503,7 +1511,7 @@ function updateProxyStatusLive() {
     return;
   }
 
-  const scopeText = (scope === "target" && host) ? ` → hanya ${host}` : " → semua trafik";
+  const scopeText = (scope === "target") ? ` → hanya ${host}` : " → semua trafik";
   setCardSub("proxy-status", (on ? "manual (aktif): " : "manual: ") + url + scopeText);
 }
 
