@@ -16,9 +16,11 @@ function getGeoAnchor() {
 }
 function setGeoAnchor(v) {
   const r = document.querySelector('input[name="geo-anchor"][value="' + v + '"]');
-  if (r) r.checked = true;
+  if (r) {
+    r.checked = true;
+    updateSegmentedGliders();
+  }
 }
-
 
 function getGeoMode() {
   const el = document.querySelector('input[name="geo-mode"]:checked');
@@ -26,7 +28,10 @@ function getGeoMode() {
 }
 function setGeoMode(v) {
   const r = document.querySelector('input[name="geo-mode"][value="' + v + '"]');
-  if (r) r.checked = true;
+  if (r) {
+    r.checked = true;
+    updateSegmentedGliders();
+  }
 }
 
 function getGeoStyle() {
@@ -35,7 +40,10 @@ function getGeoStyle() {
 }
 function setGeoStyle(v) {
   const r = document.querySelector('input[name="geo-style"][value="' + v + '"]');
-  if (r) r.checked = true;
+  if (r) {
+    r.checked = true;
+    updateSegmentedGliders();
+  }
 }
 
 function updateGeoPlaceholder(style) {
@@ -51,14 +59,16 @@ function updateGeoPlaceholder(style) {
   }
 }
 
-
 function getProxyScope() {
   const el = document.querySelector('input[name="proxy-scope"]:checked');
   return el ? el.value : "target";
 }
 function setProxyScope(v) {
   const r = document.querySelector('input[name="proxy-scope"][value="' + v + '"]');
-  if (r) r.checked = true;
+  if (r) {
+    r.checked = true;
+    updateSegmentedGliders();
+  }
 }
 
 const DEFAULT_UA =
@@ -348,6 +358,7 @@ function initTabs() {
         nextTabEl.classList.add("active");
         nextTabEl.style.cssText = "";
         isTransitioning = false;
+        if (tab === "tab-controls") updateSegmentedGliders();
       };
 
       if (onShow) onShow();
@@ -365,8 +376,52 @@ function initTabs() {
   });
 }
 
+// Animated sliding glider for segmented controls (Mode, Device, Office, Proxy Scope)
+function updateSegmentedGliders() {
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".segmented-control").forEach(container => {
+      let glider = container.querySelector(".segmented-glider");
+      if (!glider) {
+        glider = document.createElement("div");
+        glider.className = "segmented-glider";
+        container.insertBefore(glider, container.firstChild);
+      }
+      const checkedInput = container.querySelector("input[type='radio']:checked");
+      if (!checkedInput) return;
+      const activeLabel = checkedInput.closest(".segmented-pill");
+      if (!activeLabel) return;
+
+      const parentRect = container.getBoundingClientRect();
+      const labelRect = activeLabel.getBoundingClientRect();
+      if (labelRect.width > 0) {
+        glider.style.width = `${labelRect.width}px`;
+        glider.style.transform = `translateX(${labelRect.left - parentRect.left}px)`;
+        glider.style.opacity = "1";
+      }
+    });
+  });
+}
+
+function initSegmentedGliders() {
+  updateSegmentedGliders();
+  document.addEventListener("change", (e) => {
+    if (e.target && e.target.type === "radio" && e.target.closest(".segmented-control")) {
+      updateSegmentedGliders();
+    }
+  });
+  window.addEventListener("resize", updateSegmentedGliders);
+}
+
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.2", date: "2026-10-04", items: [
+    "Hierarki Section & Segmented Tab Animations (UI/UX Pro Max):",
+    "Section Titles: menambahkan micro-header 'Security' (iOS Fingerprint, Security Bypass, iOS Update Blocker, WFH v2) dan 'Advance' (Proxy Route).",
+    "Animated Sliding Gliders: menambahkan animasi sliding capsule glider pada segmented controls (Mode, Device e-Presensi, Lokasi Kantor, dan Routing Scope) dengan kurva fisika spring responsif.",
+    "Deactivate All Solid Icon: mengganti icon button Deactivate All menjadi 100% Solid Shield dengan X Cutout yang presisi, simetris, dan setara dengan bobot visual Bypass All.",
+    "Pembersihan Tab Log: menghapus badge angka pada tab Log agar navigasi atas terlihat konsisten, minimalis, dan bersih.",
+    "iOS Update Blocker Renaming: merapikan judul kartu fitur dari 'Block iOS Update' menjadi 'iOS Update Blocker' agar selaras dengan naming convention ekstensi.",
+  ]},
   { ver: "2.9.1", date: "2026-10-04", items: [
     "Perbaikan Format Karakter & Simbol Changelog:",
     "Eliminasi Double Bullets: menghapus simbol '•', '·', '-', dan '*' mentah di awal teks dan merapikan list dengan bullet tunggal via CSS custom bullets.",
@@ -895,7 +950,7 @@ function render() {
   if (count === 4) {
     btn.className = "btn btn-deactivate btn-bypass-master";
     label.textContent = "Deactivate All";
-    ic.innerHTML = '<path fill-rule="evenodd" d="M12 1.5a.75.75 0 01.75.75V7.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0 9 9 0 11-1.06 12.728.75.75 0 111.06-1.06 7.5 7.5 0 10.88-10.608.75.75 0 01-1.06-1.06z" clip-rule="evenodd"/>';
+    ic.innerHTML = '<path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.5 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zM9.53 9.53a.75.75 0 011.06 0L12 10.94l1.41-1.41a.75.75 0 111.06 1.06L13.06 12l1.41 1.41a.75.75 0 11-1.06 1.06L12 13.06l-1.41 1.41a.75.75 0 11-1.06-1.06L10.94 12 9.53 10.59a.75.75 0 010-1.06z" clip-rule="evenodd"/>';
   } else {
     btn.className = "btn btn-primary btn-bypass-master";
     label.textContent = "Bypass All";
@@ -1554,6 +1609,7 @@ function initOTA() {
 document.addEventListener("DOMContentLoaded", () => {
   initAutoHideScrollbars();
   initTabs();
+  initSegmentedGliders();
   initConsoleToolbar();
   initOTA();
   load();

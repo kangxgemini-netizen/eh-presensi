@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.2 (2026-10-04)
+- **Hierarki Section & Segmented Tab Animations (UI/UX Pro Max):**
+  - **Section Titles:** Menambahkan micro-header modern `Security` (mengelompokkan iOS Safari Fingerprint, Security Bypass, iOS Update Blocker, dan WFH v2 Mode) serta `Advance` (mengelompokkan Proxy Route) di bawah hero card GPS Location.
+  - **Animated Sliding Gliders:** Mengimplementasikan capsule glider geser animasi pada semua segmented controls (*Mode*, *Device e-Presensi*, *Lokasi Kantor*, dan *Routing Scope*) dengan spring transition physics (`cubic-bezier(0.34, 1.35, 0.64, 1)`), setara dengan navigasi tab utama.
+  - **Deactivate All Solid Icon:** Memperbarui icon tombol *Deactivate All* menjadi 100% Solid Shield dengan X Cutout yang simetris, presisi, dan setara bobot visualnya dengan icon Shield Check pada *Bypass All*.
+  - **Pembersihan Tab Log:** Menghilangkan badge angka counter pada tab *Log* agar navigasi tab atas lebih bersih, rapi, dan konsisten.
+  - **iOS Update Blocker Renaming:** Menyelaraskan penamaan kartu fitur dari *Block iOS Update* menjadi *iOS Update Blocker*.
+
 ### v2.9.1 (2026-10-04)
 - **Perbaikan Format Karakter & Simbol Changelog:**
   - **Eliminasi Double Bullets:** Menghapus seluruh karakter bullet mentah (`•`, `·`, `-`, `*`) di awal string dan merapikan list dengan bullet point tunggal via CSS custom bullets (`.cl-list li::before`).
