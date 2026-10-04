@@ -8,6 +8,16 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.5 (2026-10-04)
+- **Layout: terminal Log (`#log-container`) fill 100% tinggi kontainer browser.**
+  - Terminal hitam Log kini membentang penuh (*flex: 1*) mengisi seluruh ruang antara toolbar filter dan bottom footer.
+- **Floating Overlay Scrollbars (Zero Layout Shift):**
+  - Menggunakan `overflow-y: overlay` dan slim scrollbar 4px yang mengambang di atas konten UI.
+  - Scrollbar sama sekali tidak memakan lebar layout (*zero gutter width*) dan tidak menggeser atau mempengaruhi padding simetris UI di sisi kanan.
+- **Auto-Hide 3 Detik:**
+  - Scrollbar otomatis menghilang/transparan setelah 3 detik tidak digulir.
+  - Indikator thumb hanya muncul lembut saat halaman digulir (*scrolling*) atau saat kursor diarahkan ke area scrollable.
+
 ### v2.8.4 (2026-10-04)
 - **Layout: panel antarmuka kini mengisi penuh tinggi kontainer browser (*Fill Container Height*).**
   - Mengubah layout utama menjadi full-height `100vh` dengan `.tab-viewport { flex: 1; min-height: 0; }`.

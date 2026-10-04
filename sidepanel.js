@@ -250,6 +250,19 @@ async function currentTab() {
   return tab;
 }
 
+// --- AUTO-HIDE FLOATING SCROLLBAR ENGINE (Overlay + 3s Auto-Hide) ---
+function initAutoHideScrollbars() {
+  document.addEventListener("scroll", (e) => {
+    const target = e.target;
+    if (!target || !target.classList) return;
+    target.classList.add("scrollbar-active");
+    clearTimeout(target._scrollHideTimer);
+    target._scrollHideTimer = setTimeout(() => {
+      target.classList.remove("scrollbar-active");
+    }, 3000);
+  }, true);
+}
+
 // --- TAB SWITCHER LOGIC (Fluid Height & Framer Motion Transitions) ---
 function initTabs() {
   const tabs = [
@@ -354,6 +367,11 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.5", date: "2026-10-04", items: [
+    "Layout: terminal Log (#log-container) kini fill 100% container browser height, membentang penuh antara toolbar dan footer.",
+    "• Floating Overlay Scrollbars: scrollbar menggunakan overflow: overlay (mengambang di atas UI), tidak memakan space/lebar layout di sisi kanan dan tidak menggeser padding konten.",
+    "• Auto-Hide 3 Detik: scrollbar otomatis menghilang/transparan setelah 3 detik tidak ada aktivitas scroll, dan hanya muncul lembut saat digulir atau di-hover.",
+  ]},
   { ver: "2.8.4", date: "2026-10-04", items: [
     "Layout: panel diubah menjadi full-height (fill container browser) dengan flex: 1 dan height 100vh.",
     "• Tab Changelog (.changelog-container) dan Log (.log-container) kini membentang penuh mengisi tinggi jendela Chrome sidepanel tanpa batas max-height atau ruang kosong di bawah.",
@@ -1492,6 +1510,7 @@ function initOTA() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initAutoHideScrollbars();
   initTabs();
   initConsoleToolbar();
   initOTA();

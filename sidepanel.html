@@ -182,9 +182,6 @@
       height: 100%;
       min-height: 0;
       box-sizing: border-box;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 2px;
       padding-bottom: 6px;
     }
 
@@ -192,22 +189,54 @@
       display: flex;
     }
 
-    /* Modern subtle scrollbar */
-    .tab-content::-webkit-scrollbar,
-    .log-container::-webkit-scrollbar,
-    .changelog-container::-webkit-scrollbar {
-      width: 5px;
+    /* Tab-specific scroll & overflow policies */
+    #tab-controls {
+      overflow-y: auto;
+      overflow-y: overlay;
+      overflow-x: hidden;
     }
-    .tab-content::-webkit-scrollbar-thumb,
-    .log-container::-webkit-scrollbar-thumb,
-    .changelog-container::-webkit-scrollbar-thumb {
-      background: rgba(15, 23, 42, 0.12);
-      border-radius: 4px;
+
+    #tab-console {
+      overflow: hidden;
+      gap: 8px;
     }
-    .tab-content::-webkit-scrollbar-track,
-    .log-container::-webkit-scrollbar-track,
-    .changelog-container::-webkit-scrollbar-track {
+
+    #tab-changelog {
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       OVERLAY AUTO-HIDE FLOATING SCROLLBARS (Zero Layout Shift + 3s Auto-Hide)
+       ========================================================================== */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+    }
+
+    *::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    *::-webkit-scrollbar-track {
       background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 999px;
+      transition: background-color 0.28s ease;
+    }
+
+    /* Active when scrolling (within 3s timer) or when hovered */
+    .scrollbar-active::-webkit-scrollbar-thumb,
+    *:hover::-webkit-scrollbar-thumb {
+      background: rgba(15, 23, 42, 0.22);
+    }
+
+    .log-container.scrollbar-active::-webkit-scrollbar-thumb,
+    .log-container:hover::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.28);
     }
 
     #geo-anchor-box,
@@ -900,6 +929,7 @@
       min-height: 0;
       height: 100%;
       overflow-y: auto;
+      overflow-y: overlay;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
@@ -912,6 +942,7 @@
       min-height: 0;
       height: 100%;
       overflow-y: auto;
+      overflow-y: overlay;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -1394,7 +1425,7 @@
       <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
       <span id="check-version-text">Cek Update</span>
     </button>
-    <span class="app-version-badge" id="app-version">v2.8.4</span>
+    <span class="app-version-badge" id="app-version">v2.8.5</span>
   </footer>
 
 </div><!-- /app-shell -->
