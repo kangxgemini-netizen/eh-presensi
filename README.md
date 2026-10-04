@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.4 (2026-10-04)
+- **Layout: panel antarmuka kini mengisi penuh tinggi kontainer browser (*Fill Container Height*).**
+  - Mengubah layout utama menjadi full-height `100vh` dengan `.tab-viewport { flex: 1; min-height: 0; }`.
+  - Kartu **Changelog** (`.changelog-container`) dan terminal **Log** (`.log-container`) membentang penuh mengisi seluruh ketinggian jendela Chrome Sidepanel (menghilangkan batasan kaku `max-height: 480px` dan celah kosong di bawah).
+  - Ketiga tab memiliki scrolling area independen yang terisolasi dengan scrollbar halus minimalis.
+  - **Motion:** Transisi antar tab menggunakan directional slide dan crossfade simultan ala Framer Motion `<AnimatePresence>` pada 60/120 FPS tanpa efek layout shift / jump.
+
 ### v2.8.3 (2026-10-04)
 - **UI: penyatuan baris Target Host & tombol Test Connection.**
   - Input `#proxy-host` dan tombol `#btn-proxy-test` kini bersanding dalam 1 baris grid yang rapi (`.proxy-host-row`).

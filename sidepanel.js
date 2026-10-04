@@ -292,70 +292,50 @@ function initTabs() {
 
       isTransitioning = true;
 
-      // 1. Measure starting height from viewport
-      const startHeight = viewport.offsetHeight;
+      // Absolute overlay during transition inside viewport
+      currentTabEl.style.position = "absolute";
+      currentTabEl.style.top = "0";
+      currentTabEl.style.left = "0";
+      currentTabEl.style.width = "100%";
+      currentTabEl.style.height = "100%";
+      currentTabEl.style.zIndex = "1";
 
-      // 2. Measure target height: place nextTabEl temporarily in layout to measure true scrollHeight
       nextTabEl.style.position = "absolute";
       nextTabEl.style.top = "0";
       nextTabEl.style.left = "0";
       nextTabEl.style.width = "100%";
-      nextTabEl.style.visibility = "hidden";
+      nextTabEl.style.height = "100%";
+      nextTabEl.style.zIndex = "2";
       nextTabEl.style.display = "flex";
-      const targetHeight = nextTabEl.scrollHeight;
 
-      // 3. Lock viewport height & enable clip
-      viewport.style.overflow = "hidden";
-      viewport.style.height = `${startHeight}px`;
-      void viewport.offsetHeight; // force reflow
-
-      // 4. Animate viewport height smoothly
-      viewport.style.transition = "height 0.35s cubic-bezier(0.16, 1, 0.3, 1)";
-      viewport.style.height = `${targetHeight}px`;
-
-      // 5. Crossfade / slide animation:
-      // Outgoing tab fades & drifts
+      // 1. Animate outgoing tab (fade out & drift)
       currentTabEl.animate([
         { opacity: 1, transform: "translateX(0)" },
         { opacity: 0, transform: isRight ? "translateX(-24px)" : "translateX(24px)" }
       ], {
-        duration: 160,
-        easing: "ease-in",
+        duration: 180,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
         fill: "forwards"
       });
 
-      setTimeout(() => {
+      // 2. Animate incoming tab (fade in & slide from opposite side)
+      const inAnim = nextTabEl.animate([
+        { opacity: 0, transform: isRight ? "translateX(24px)" : "translateX(-24px)" },
+        { opacity: 1, transform: "translateX(0)" }
+      ], {
+        duration: 220,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        fill: "forwards"
+      });
+
+      inAnim.onfinish = () => {
         currentTabEl.classList.remove("active");
-        currentTabEl.style.display = "none";
+        currentTabEl.style.cssText = "";
 
-        // Reset and activate incoming tab
-        nextTabEl.style.position = "";
-        nextTabEl.style.top = "";
-        nextTabEl.style.left = "";
-        nextTabEl.style.width = "";
-        nextTabEl.style.visibility = "";
         nextTabEl.classList.add("active");
-
-        // Incoming tab slides in
-        nextTabEl.animate([
-          { opacity: 0, transform: isRight ? "translateX(28px)" : "translateX(-28px)" },
-          { opacity: 1, transform: "translateX(0)" }
-        ], {
-          duration: 260,
-          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
-          fill: "forwards"
-        });
-      }, 140);
-
-      // 6. When height transition completes, release fixed height to 'auto'
-      setTimeout(() => {
-        if (idx === prevIndex) {
-          viewport.style.height = "auto";
-          viewport.style.overflow = "";
-          viewport.style.transition = "";
-          isTransitioning = false;
-        }
-      }, 370);
+        nextTabEl.style.cssText = "";
+        isTransitioning = false;
+      };
 
       if (onShow) onShow();
     });
@@ -374,6 +354,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.4", date: "2026-10-04", items: [
+    "Layout: panel diubah menjadi full-height (fill container browser) dengan flex: 1 dan height 100vh.",
+    "• Tab Changelog (.changelog-container) dan Log (.log-container) kini membentang penuh mengisi tinggi jendela Chrome sidepanel tanpa batas max-height atau ruang kosong di bawah.",
+    "• Tab Controls, Log, dan Changelog memiliki area scroll independen dengan scrollbar minimalis halus.",
+    "• Motion: transisi tab menggunakan crossfade overlay dan directional spring slide (Framer Motion feel) dengan performa 60/120 FPS tanpa layout jump.",
+  ]},
   { ver: "2.8.3", date: "2026-10-04", items: [
     "UI: menggabungkan input Target Host dan tombol Test Connection menjadi 1 baris (single row grid).",
     "• Tombol Test Connection disederhanakan menjadi icon button only (pulse icon) dengan tinggi presisi 38px sejajar dengan input.",

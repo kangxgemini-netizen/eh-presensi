@@ -67,22 +67,33 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
     body {
       font-family: var(--font-sans);
       background: var(--canvas);
       color: var(--text-main);
-      padding: 16px 14px 24px;
+      padding: 14px 14px 12px;
       display: flex;
-      justify-content: center;
-      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .app-shell {
       width: 100%;
       max-width: 410px;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
+      min-height: 0;
     }
 
     /* ==========================================================================
@@ -96,6 +107,7 @@
       padding: 3.5px;
       border-radius: var(--radius-control);
       gap: 3px;
+      flex-shrink: 0;
     }
 
     .tab-glider {
@@ -152,12 +164,14 @@
       color: var(--accent-primary);
     }
 
-    /* 5. TAB VIEWPORT (Container with Fluid Height Transitions & Framer Motion feel) */
+    /* 5. TAB VIEWPORT (Fill Container Browser Height) */
     .tab-viewport {
+      flex: 1;
+      min-height: 0;
       position: relative;
       width: 100%;
-      min-height: 200px;
-      will-change: height;
+      height: 100%;
+      overflow: hidden;
     }
 
     .tab-content {
@@ -165,11 +179,35 @@
       flex-direction: column;
       gap: 12px;
       width: 100%;
+      height: 100%;
+      min-height: 0;
       box-sizing: border-box;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+      padding-bottom: 6px;
     }
 
     .tab-content.active {
       display: flex;
+    }
+
+    /* Modern subtle scrollbar */
+    .tab-content::-webkit-scrollbar,
+    .log-container::-webkit-scrollbar,
+    .changelog-container::-webkit-scrollbar {
+      width: 5px;
+    }
+    .tab-content::-webkit-scrollbar-thumb,
+    .log-container::-webkit-scrollbar-thumb,
+    .changelog-container::-webkit-scrollbar-thumb {
+      background: rgba(15, 23, 42, 0.12);
+      border-radius: 4px;
+    }
+    .tab-content::-webkit-scrollbar-track,
+    .log-container::-webkit-scrollbar-track,
+    .changelog-container::-webkit-scrollbar-track {
+      background: transparent;
     }
 
     #geo-anchor-box,
@@ -779,6 +817,7 @@
       padding: 4px 6px 2px;
       font-size: 10.5px;
       color: var(--text-tertiary);
+      flex-shrink: 0;
     }
 
     .btn-check-version {
@@ -857,8 +896,9 @@
       line-height: 1.5;
       padding: 14px;
       border-radius: var(--radius-card);
-      min-height: 280px;
-      max-height: 440px;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
       overflow-y: auto;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
@@ -868,7 +908,9 @@
       padding: 18px;
       border-radius: var(--radius-card);
       box-shadow: var(--shadow-soft);
-      max-height: 480px;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -1352,7 +1394,7 @@
       <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
       <span id="check-version-text">Cek Update</span>
     </button>
-    <span class="app-version-badge" id="app-version">v2.8.3</span>
+    <span class="app-version-badge" id="app-version">v2.8.4</span>
   </footer>
 
 </div><!-- /app-shell -->
