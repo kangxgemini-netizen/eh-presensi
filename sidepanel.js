@@ -367,6 +367,12 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.6", date: "2026-10-04", items: [
+    "Iconography: standarisasi 100% solid fill vector icons di seluruh antarmuka tombol dan kontrol.",
+    "• Device e-Presensi: selector Android kini menggunakan icon solid fill robot head yang presisi dan senada dengan Apple logo.",
+    "• Master Action: tombol Bypass All menggunakan solid shield-check icon (dan solid power icon saat Deactivate All); tombol Reload menggunakan solid rotate arrow berbobot tebal.",
+    "• Secondary Links: tombol Presensi dan Developer menggunakan solid rounded square glyphs dengan cutout launch arrow.",
+  ]},
   { ver: "2.8.5", date: "2026-10-04", items: [
     "Layout: terminal Log (#log-container) kini fill 100% container browser height, membentang penuh antara toolbar dan footer.",
     "• Floating Overlay Scrollbars: scrollbar menggunakan overflow: overlay (mengambang di atas UI), tidak memakan space/lebar layout di sisi kanan dan tidak menggeser padding konten.",
@@ -850,11 +856,11 @@ function render() {
   if (count === 4) {
     btn.className = "btn btn-deactivate btn-bypass-master";
     label.textContent = "Deactivate All";
-    ic.innerHTML = '<path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/><line x1="12" y1="2" x2="12" y2="12"/>';
+    ic.innerHTML = '<path fill-rule="evenodd" d="M12 1.5a.75.75 0 01.75.75V7.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0 9 9 0 11-1.06 12.728.75.75 0 111.06-1.06 7.5 7.5 0 10.88-10.608.75.75 0 01-1.06-1.06z" clip-rule="evenodd"/>';
   } else {
     btn.className = "btn btn-primary btn-bypass-master";
     label.textContent = "Bypass All";
-    ic.innerHTML = '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>';
+    ic.innerHTML = '<path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.5 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>';
   }
 }
 

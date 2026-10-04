@@ -8,6 +8,15 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.6 (2026-10-04)
+- **Iconography: standarisasi 100% Solid Fill Vector Icons di seluruh kontrol aksi.**
+  - **Selector Device e-Presensi:** Icon Android diganti menjadi solid fill robot dome/head yang proporsional dan selaras dengan Apple logo.
+  - **Master Action Row:**
+    - Tombol *Bypass All* menggunakan solid shield-check glyph (dan solid power switch glyph saat aktif *Deactivate All*).
+    - Tombol *Reload Tab* menggunakan solid rotate arrow yang tebal dan kontras dengan warna `var(--text-main)`.
+  - **Secondary Actions:** Tombol *Presensi* dan *Developer* menggunakan solid square glyphs dengan cutout launch arrow (`↗`).
+  - Aturan CSS `.ic-fill` dan `svg[fill="currentColor"]` dinormalkan agar tidak tertimpa oleh styling stroke default.
+
 ### v2.8.5 (2026-10-04)
 - **Layout: terminal Log (`#log-container`) fill 100% tinggi kontainer browser.**
   - Terminal hitam Log kini membentang penuh (*flex: 1*) mengisi seluruh ruang antara toolbar filter dan bottom footer.
