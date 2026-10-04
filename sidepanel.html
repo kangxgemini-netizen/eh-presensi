@@ -162,13 +162,14 @@
     }
 
     /* 5. TAB VIEWPORT (Fill Container Browser Height) */
+    /* 5. TAB VIEWPORT (Unclipped Ambient Shadows) */
     .tab-viewport {
       flex: 1;
       min-height: 0;
       position: relative;
       width: 100%;
       height: 100%;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .tab-content {
@@ -179,59 +180,71 @@
       height: 100%;
       min-height: 0;
       box-sizing: border-box;
-      padding-bottom: 6px;
+      position: relative;
     }
 
     .tab-content.active {
       display: flex;
     }
 
-    /* Tab-specific scroll & overflow policies */
+    /* Tab-specific scroll & unclipped shadow gutters */
     #tab-controls {
       overflow-y: auto;
-      overflow-y: overlay;
       overflow-x: hidden;
+      padding: 6px 8px 24px 8px;
+      margin: -6px -8px 0 -8px;
     }
 
     #tab-console {
-      overflow: hidden;
       gap: 8px;
+      padding: 6px 8px 16px 8px;
+      margin: -6px -8px 0 -8px;
+      overflow: visible;
     }
 
     #tab-changelog {
-      overflow: hidden;
+      padding: 6px 8px 16px 8px;
+      margin: -6px -8px 0 -8px;
+      overflow: visible;
     }
 
-    /* Floating overlay scrollbars with zero layout shift */
+    /* Completely hide native scrollbar to eliminate any layout shift or UI padding displacement */
     * {
-      scrollbar-width: thin;
-      scrollbar-color: transparent transparent;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
     }
 
     *::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    /* Floating Overlay Scrollbars (Renders on top without shifting padding or layout) */
+    .overlay-scrollbar-track {
+      position: absolute;
+      width: 6px;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay-scrollbar-thumb {
+      position: absolute;
+      top: 0;
+      right: 0;
       width: 4px;
-      height: 4px;
-    }
-
-    *::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    *::-webkit-scrollbar-thumb {
-      background: transparent;
+      min-height: 24px;
       border-radius: 999px;
-      transition: background-color 0.28s ease;
+      background: rgba(15, 23, 42, 0.28);
+      opacity: 0;
+      transition: opacity 0.22s ease, width 0.15s ease;
+      pointer-events: auto;
+      cursor: default;
     }
 
-    /* Active when scrolling (within 3s timer) or when hovered */
-    .scrollbar-active::-webkit-scrollbar-thumb,
-    *:hover::-webkit-scrollbar-thumb {
-      background: rgba(15, 23, 42, 0.22);
-    }
-
-    .log-container.scrollbar-active::-webkit-scrollbar-thumb,
-    .log-container:hover::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.28);
+    .overlay-scrollbar-thumb.dark-thumb {
+      background: rgba(255, 255, 255, 0.35);
     }
 
     #geo-anchor-box,
@@ -959,8 +972,8 @@
       min-height: 0;
       height: 100%;
       overflow-y: auto;
-      overflow-y: overlay;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      position: relative;
     }
 
     .changelog-container {
@@ -973,10 +986,10 @@
       min-height: 0;
       height: 100%;
       overflow-y: auto;
-      overflow-y: overlay;
       display: flex;
       flex-direction: column;
       gap: 16px;
+      position: relative;
     }
 
     .cl-entry {
@@ -1505,7 +1518,7 @@
       <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
       <span id="check-version-text">Cek Update</span>
     </button>
-    <span class="app-version-badge" id="app-version">v2.9.2</span>
+    <span class="app-version-badge" id="app-version">v2.9.3</span>
   </footer>
 
 </div><!-- /app-shell -->

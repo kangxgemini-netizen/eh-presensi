@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.3 (2026-10-04)
+- **Unclipped Shadows & True Floating Overlay Scrollbars (UI/UX Pro Max):**
+  - **Unclipped Card Shadows:** Mematikan container clipping pada tab viewport (`overflow: visible`) dan memperluas horizontal shadow gutter (`padding: 6px 8px 24px 8px`, `margin: -6px -8px 0 -8px`) sehingga seluruh bayangan kartu pada sisi kiri, kanan, atas, dan bawah tetap lembut, alami, dan tidak terpotong garis keras pembatas kontainer.
+  - **Zero Layout Shift Overlay Scrollbars:** Menghapus scrollbar bawaan browser pada halaman Controls, Log, dan Changelog (`scrollbar-width: none !important`) untuk mengeliminasi penyusutan lebar layout atau pergeseran padding kartu saat konten di-scroll.
+  - **Floating Overlay Scrollbar Indicators:** Menambahkan custom micro-pill scrollbar thumb mengambang (*floating overlay on top*) dengan auto-fade 1.2s dan dukungan drag mouse mulus tanpa mengganggu padding konten.
+
 ### v2.9.2 (2026-10-04)
 - **Hierarki Section & Segmented Tab Animations (UI/UX Pro Max):**
   - **Section Titles:** Menambahkan micro-header modern `Security` (mengelompokkan iOS Safari Fingerprint, Security Bypass, iOS Update Blocker, dan WFH v2 Mode) serta `Advance` (mengelompokkan Proxy Route) di bawah hero card GPS Location.

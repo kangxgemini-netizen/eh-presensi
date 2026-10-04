@@ -260,17 +260,144 @@ async function currentTab() {
   return tab;
 }
 
-// Floating overlay scrollbars with 3s auto-hide
-function initAutoHideScrollbars() {
-  document.addEventListener("scroll", (e) => {
-    const target = e.target;
-    if (!target || !target.classList) return;
-    target.classList.add("scrollbar-active");
-    clearTimeout(target._scrollHideTimer);
-    target._scrollHideTimer = setTimeout(() => {
-      target.classList.remove("scrollbar-active");
-    }, 3000);
-  }, true);
+// Floating Overlay Scrollbar: zero layout displacement, renders on top of UI
+class OverlayScrollbar {
+  constructor(scrollTarget, trackParent, options = {}) {
+    this.target = scrollTarget;
+    this.parent = trackParent;
+    this.isDark = options.isDark || false;
+    this.topOffset = options.top || 6;
+    this.bottomOffset = options.bottom || 8;
+    this.rightOffset = options.right || 2;
+    this.hideTimer = null;
+    this.isDragging = false;
+
+    this.createElements();
+    this.bindEvents();
+    this.update();
+  }
+
+  createElements() {
+    this.track = document.createElement("div");
+    this.track.className = "overlay-scrollbar-track";
+    this.track.style.cssText = `
+      top: ${this.topOffset}px;
+      bottom: ${this.bottomOffset}px;
+      right: ${this.rightOffset}px;
+    `;
+
+    this.thumb = document.createElement("div");
+    this.thumb.className = "overlay-scrollbar-thumb" + (this.isDark ? " dark-thumb" : "");
+
+    this.track.appendChild(this.thumb);
+    this.parent.appendChild(this.track);
+  }
+
+  bindEvents() {
+    this.target.addEventListener("scroll", () => {
+      this.show();
+      this.update();
+    }, { passive: true });
+
+    this.track.addEventListener("mouseenter", () => {
+      this.thumb.style.width = "6px";
+      this.thumb.style.opacity = "1";
+      clearTimeout(this.hideTimer);
+    });
+
+    this.track.addEventListener("mouseleave", () => {
+      if (!this.isDragging) {
+        this.thumb.style.width = "4px";
+        this.scheduleHide();
+      }
+    });
+
+    this.thumb.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      this.isDragging = true;
+      this.thumb.style.opacity = "1";
+      const startY = e.clientY;
+      const startScrollTop = this.target.scrollTop;
+      const trackHeight = this.track.clientHeight;
+      const thumbHeight = this.thumb.clientHeight;
+      const scrollRange = this.target.scrollHeight - this.target.clientHeight;
+      const trackRange = trackHeight - thumbHeight;
+
+      const onMouseMove = (moveEvent) => {
+        const deltaY = moveEvent.clientY - startY;
+        if (trackRange > 0) {
+          this.target.scrollTop = startScrollTop + (deltaY / trackRange) * scrollRange;
+        }
+      };
+
+      const onMouseUp = () => {
+        this.isDragging = false;
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+        this.thumb.style.width = "4px";
+        this.scheduleHide();
+      };
+
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+    });
+  }
+
+  show() {
+    this.thumb.style.opacity = "1";
+    this.scheduleHide();
+  }
+
+  scheduleHide() {
+    clearTimeout(this.hideTimer);
+    this.hideTimer = setTimeout(() => {
+      if (!this.isDragging) {
+        this.thumb.style.opacity = "0";
+      }
+    }, 1200);
+  }
+
+  update() {
+    const scrollHeight = this.target.scrollHeight;
+    const clientHeight = this.target.clientHeight;
+    if (scrollHeight <= clientHeight + 2) {
+      this.track.style.display = "none";
+      return;
+    }
+    this.track.style.display = "block";
+
+    const trackHeight = this.track.clientHeight || clientHeight;
+    const thumbHeight = Math.max(24, (clientHeight / scrollHeight) * trackHeight);
+    const maxScroll = scrollHeight - clientHeight;
+    const maxThumbTop = trackHeight - thumbHeight;
+    const thumbTop = maxScroll > 0 ? (this.target.scrollTop / maxScroll) * maxThumbTop : 0;
+
+    this.thumb.style.height = `${thumbHeight}px`;
+    this.thumb.style.transform = `translateY(${thumbTop}px)`;
+  }
+}
+
+function initOverlayScrollbars() {
+  const tc = $("tab-controls");
+  const vp = document.querySelector(".tab-viewport");
+  const lc = $("log-container");
+  const tConsole = $("tab-console");
+  const cc = $("changelog-container");
+  const tChangelog = $("tab-changelog");
+
+  const instances = [];
+  if (tc && vp) {
+    instances.push(new OverlayScrollbar(tc, vp, { top: 6, bottom: 8, right: 3 }));
+  }
+  if (lc && tConsole) {
+    instances.push(new OverlayScrollbar(lc, tConsole, { top: 52, bottom: 18, right: 10, isDark: true }));
+  }
+  if (cc && tChangelog) {
+    instances.push(new OverlayScrollbar(cc, tChangelog, { top: 8, bottom: 18, right: 10 }));
+  }
+
+  window._overlayScrollbars = instances;
+  window.addEventListener("resize", () => instances.forEach(i => i.update()));
 }
 
 // Tab navigation with directional cross-slide transitions
@@ -359,9 +486,11 @@ function initTabs() {
         nextTabEl.style.cssText = "";
         isTransitioning = false;
         if (tab === "tab-controls") updateSegmentedGliders();
+        if (window._overlayScrollbars) window._overlayScrollbars.forEach(s => s.update());
       };
 
       if (onShow) onShow();
+      if (window._overlayScrollbars) window._overlayScrollbars.forEach(s => s.update());
     });
   });
 
@@ -414,6 +543,12 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.3", date: "2026-10-04", items: [
+    "Unclipped Shadows & True Floating Overlay Scrollbars (UI/UX Pro Max):",
+    "Unclipped Card Shadows: mematikan container clipping pada tab viewport dan memperluas horizontal shadow gutter (padding 8px, margin -8px) sehingga seluruh bayangan kartu pada sisi kiri, kanan, atas, dan bawah tetap lembut, alami, dan tidak terpotong garis keras.",
+    "Zero Layout Shift Overlay Scrollbars: menghapus scrollbar bawaan browser pada halaman Controls, Log, dan Changelog untuk mengeliminasi penyusutan lebar layout atau pergeseran padding kartu saat konten di-scroll.",
+    "Floating Overlay Scrollbar Indicators: menambahkan custom micro-pill scrollbar thumb mengambang (floating overlay on top) dengan auto-fade 1.2s dan dukungan drag mouse mulus tanpa mengganggu padding konten.",
+  ]},
   { ver: "2.9.2", date: "2026-10-04", items: [
     "Hierarki Section & Segmented Tab Animations (UI/UX Pro Max):",
     "Section Titles: menambahkan micro-header 'Security' (iOS Fingerprint, Security Bypass, iOS Update Blocker, WFH v2) dan 'Advance' (Proxy Route).",
@@ -761,6 +896,7 @@ function renderChangelog() {
       <ul class="cl-list">${e.items.map(it => formatChangelogItem(it)).join("")}</ul>
     </div>
   `).join("");
+  window._overlayScrollbars?.forEach(s => s.update());
 }
 
 // Console log filtering and rendering
@@ -803,6 +939,7 @@ function renderLogs(logs) {
     container.appendChild(el);
   });
   container.scrollTop = container.scrollHeight;
+  window._overlayScrollbars?.forEach(s => s.update());
 }
 
 async function loadLogs() {
@@ -1607,7 +1744,7 @@ function initOTA() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initAutoHideScrollbars();
+  initOverlayScrollbars();
   initTabs();
   initSegmentedGliders();
   initConsoleToolbar();
