@@ -311,6 +311,11 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.2", date: "2026-10-04", items: [
+    "UI: menghapus elemen header (.app-header) di bagian paling atas panel.",
+    "• Menghilangkan header duplikat di dalam halaman karena Chrome sidepanel sudah memiliki header dan tombol close bawaan.",
+    "• Tab bar navigasi (.tab-bar) kini menempati posisi teratas, memberikan lebih banyak ruang vertikal untuk konten kartu.",
+  ]},
   { ver: "2.8.1", date: "2026-10-04", items: [
     "Fix: tombol 'Bypass All' / 'Deactivate All' tidak lagi collapse/rusak saat state render di ekstensi asli.",
     "• Penyebab: updateBypassAllButton() menimpa btn.className menjadi 'btn btn-primary', sehingga class 'btn-bypass-master' hilang dan tombol kehilangan flex/height styling.",

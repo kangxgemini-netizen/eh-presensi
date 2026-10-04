@@ -8,6 +8,11 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.2 (2026-10-04)
+- **UI: menghapus header aplikasi (`.app-header`) di bagian atas sidepanel.**
+  - Menghilangkan header duplikat (icon, title, dan close button `✕`) karena Chrome sidepanel window sudah memiliki header dan tombol close bawaan dari browser.
+  - Tab bar segmented navigation (`Controls`, `Log`, `Changelog`) kini langsung berada di bagian paling atas, menghemat ruang vertikal dan membuat tampilan lebih bersih serta efisien.
+
 ### v2.8.1 (2026-10-04)
 - **Fix: tombol `Bypass All` / `Deactivate All` kebal terhadap pergantian class di runtime.**
   - **Akar masalah:** `updateBypassAllButton()` di `sidepanel.js` menimpa `btn.className = "btn btn-primary"` (atau `"btn btn-deactivate"`), sehingga class `.btn-bypass-master` yang membawa styling `flex: 1`, `height: 46px`, dan `border-radius: 14px` terhapus seketika saat ekstensi berjalan.
