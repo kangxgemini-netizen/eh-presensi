@@ -1001,19 +1001,82 @@
     }
 
     .log-container {
-      background: #090d16;
-      color: #94a3b8;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      line-height: 1.5;
-      padding: 14px;
+      background: var(--surface-card);
+      color: var(--text-main);
+      padding: 14px 14px 24px;
+      box-sizing: border-box;
       border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
       flex: 1;
       min-height: 0;
       height: 100%;
       overflow-y: auto;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       position: relative;
+    }
+
+    .log-item {
+      padding: 8px 10px;
+      border-radius: var(--radius-control);
+      background: var(--surface-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: background-color 0.15s ease;
+    }
+
+    .log-item:hover {
+      background: var(--surface-elevated);
+    }
+
+    .log-row1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .log-ts {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .log-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-family: var(--font-sans);
+    }
+
+    .badge-state  { background: #f1f5f9; color: #475569; }
+    .badge-ua     { background: #f5f3ff; color: #7c3aed; }
+    .badge-geo    { background: #ecfdf5; color: #059669; }
+    .badge-proxy  { background: #fffbeb; color: #d97706; }
+    .badge-patch  { background: #e0f2fe; color: #0284c7; }
+    .badge-inject { background: #eff6ff; color: #2563eb; }
+    .badge-error  { background: #fef2f2; color: #dc2626; }
+
+    .log-desc {
+      font-size: 11px;
+      color: var(--text-main);
+      line-height: 1.45;
+      word-break: break-word;
+      font-family: var(--font-mono);
+    }
+
+    .log-empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 40px 16px;
+      margin: auto 0;
     }
 
     .changelog-container {
@@ -1542,7 +1605,7 @@
         <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
         <span id="check-version-text">Cek Update</span>
       </button>
-      <span class="app-version-badge" id="app-version">v2.9.7</span>
+      <span class="app-version-badge" id="app-version">v2.9.8</span>
     </footer>
   </div>
 

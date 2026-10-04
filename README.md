@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.8 (2026-10-04)
+- **Light Theme Console Log (UI/UX Pro Max):**
+  - **Unified Light Theme Console:** Merombak terminal log dari dark theme (`#090d16`) menjadi light card surface (putih `#ffffff` dengan soft elevation shadow), selaras 100% dengan estetika Controls dan Changelog.
+  - **Categorized Soft Pill Badges:** Menghadirkan badge pil berkode warna lembut untuk tiap kategori log (*STATE* abu-abu, *UA* ungu, *GEO* hijau emerald, *PROXY* amber, *PATCH* cyan, *INJECT* biru, dan *ERROR* merah mawar).
+  - **Enhanced Log Row Layout:** Setiap entri log kini dibungkus dalam kartu mikro dengan layout rapi (badge kategori dan timestamp di baris atas, pesan log monospaced di baris bawah).
+  - **Light Scrollbar & Empty State:** Menyesuaikan overlay scrollbar thumb ke mode terang dan menambahkan status kosong (*empty state*) yang rapi saat tidak ada log.
+
 ### v2.9.7 (2026-10-04)
 - **Clean Minimalist Proxy Route Drawer (UI/UX Pro Max):**
   - **Complete Removal of Target Host & Test Elements:** Menghapus seluruh elemen input *Target Host*, tombol *Test Connection*, dan status text helper dari *Proxy Config* drawer.

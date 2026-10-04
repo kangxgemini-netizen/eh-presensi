@@ -394,7 +394,7 @@ function initOverlayScrollbars() {
     instances.push(new OverlayScrollbar(tc, vp, { top: 6, bottom: 180, right: 3 }));
   }
   if (lc && tConsole) {
-    instances.push(new OverlayScrollbar(lc, tConsole, { top: 52, bottom: 180, right: 10, isDark: true }));
+    instances.push(new OverlayScrollbar(lc, tConsole, { top: 52, bottom: 180, right: 10, isDark: false }));
   }
   if (cc && tChangelog) {
     instances.push(new OverlayScrollbar(cc, tChangelog, { top: 8, bottom: 180, right: 10 }));
@@ -547,6 +547,13 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.8", date: "2026-10-04", items: [
+    "Light Theme Console Log (UI/UX Pro Max):",
+    "Unified Light Theme Console: merombak terminal log dari dark theme (#090d16) menjadi light card surface (putih #ffffff dengan soft shadow), selaras 100% dengan estetika Controls dan Changelog.",
+    "Categorized Soft Pill Badges: menghadirkan badge pil berkode warna lembut untuk tiap kategori log (STATE abu-abu, UA ungu, GEO hijau emerald, PROXY amber, PATCH cyan, INJECT biru, dan ERROR merah mawar).",
+    "Enhanced Log Row Layout: setiap entri log kini dibungkus dalam kartu mikro dengan layout rapi (badge kategori dan timestamp di baris atas, pesan log monospaced di baris bawah).",
+    "Light Scrollbar & Empty State: menyesuaikan overlay scrollbar thumb ke mode terang dan menambahkan status kosong (empty state) yang rapi saat tidak ada log.",
+  ]},
   { ver: "2.9.7", date: "2026-10-04", items: [
     "Clean Minimalist Proxy Route Drawer (UI/UX Pro Max):",
     "Complete Removal of Target Host & Test Elements: menghapus seluruh elemen input Target Host, tombol Test Connection, dan status text helper dari Proxy Config drawer.",
@@ -942,7 +949,7 @@ function renderLogs(logs) {
 
   const filtered = logs.filter(l => currentLogFilter === "ALL" || l.category === currentLogFilter);
   if (filtered.length === 0) {
-    container.innerHTML = `<div style="padding:16px;text-align:center;color:#6b7280;font-size:11px;">Belum ada log (${currentLogFilter})</div>`;
+    container.innerHTML = `<div class="log-empty">Belum ada log ${currentLogFilter !== "ALL" ? `(${currentLogFilter})` : ""}</div>`;
     return;
   }
 
@@ -961,8 +968,8 @@ function renderLogs(logs) {
 
     el.innerHTML = `
       <div class="log-row1">
-        <span class="log-ts">[${log.timestamp}]</span>
         <span class="log-badge ${badgeClass}">${log.category}</span>
+        <span class="log-ts">${log.timestamp}</span>
       </div>
       <div class="log-desc">${log.message}</div>
     `;
