@@ -250,7 +250,7 @@ async function currentTab() {
   return tab;
 }
 
-// --- TAB SWITCHER LOGIC (With Framer Motion Physics) ---
+// --- TAB SWITCHER LOGIC (Fluid Height & Framer Motion Transitions) ---
 function initTabs() {
   const tabs = [
     { btn: "tab-btn-controls",   tab: "tab-controls" },
@@ -259,6 +259,7 @@ function initTabs() {
   ];
 
   let prevIndex = 0;
+  let isTransitioning = false;
 
   function updateGlider(btnEl) {
     const glider = $("tab-glider");
@@ -271,29 +272,91 @@ function initTabs() {
     const btnEl = $(btn);
     if (!btnEl) return;
     btnEl.addEventListener("click", () => {
-      const isRight = idx >= prevIndex;
+      if (idx === prevIndex || isTransitioning) return;
+
+      const viewport = $("tab-viewport");
+      const currentTabEl = $(tabs[prevIndex].tab);
+      const nextTabEl = $(tab);
+      const isRight = idx > prevIndex;
       prevIndex = idx;
 
-      tabs.forEach((t) => {
-        const isTarget = (t.btn === btn);
-        const b = $(t.btn);
-        const targetTab = $(t.tab);
-        if (b) b.classList.toggle("active", isTarget);
+      // Update tab buttons & glider immediately
+      tabs.forEach(t => $(t.btn)?.classList.toggle("active", t.btn === btn));
+      updateGlider(btnEl);
 
-        if (targetTab) {
-          if (isTarget) {
-            targetTab.classList.remove("slide-right", "slide-left");
-            // Force reflow to replay fluid spring entrance
-            void targetTab.offsetWidth;
-            targetTab.classList.add(isRight ? "slide-right" : "slide-left");
-            targetTab.classList.add("active");
-          } else {
-            targetTab.classList.remove("active", "slide-right", "slide-left");
-          }
-        }
+      if (!viewport || !currentTabEl || !nextTabEl) {
+        tabs.forEach(t => $(t.tab)?.classList.toggle("active", t.tab === tab));
+        if (onShow) onShow();
+        return;
+      }
+
+      isTransitioning = true;
+
+      // 1. Measure starting height from viewport
+      const startHeight = viewport.offsetHeight;
+
+      // 2. Measure target height: place nextTabEl temporarily in layout to measure true scrollHeight
+      nextTabEl.style.position = "absolute";
+      nextTabEl.style.top = "0";
+      nextTabEl.style.left = "0";
+      nextTabEl.style.width = "100%";
+      nextTabEl.style.visibility = "hidden";
+      nextTabEl.style.display = "flex";
+      const targetHeight = nextTabEl.scrollHeight;
+
+      // 3. Lock viewport height & enable clip
+      viewport.style.overflow = "hidden";
+      viewport.style.height = `${startHeight}px`;
+      void viewport.offsetHeight; // force reflow
+
+      // 4. Animate viewport height smoothly
+      viewport.style.transition = "height 0.35s cubic-bezier(0.16, 1, 0.3, 1)";
+      viewport.style.height = `${targetHeight}px`;
+
+      // 5. Crossfade / slide animation:
+      // Outgoing tab fades & drifts
+      currentTabEl.animate([
+        { opacity: 1, transform: "translateX(0)" },
+        { opacity: 0, transform: isRight ? "translateX(-24px)" : "translateX(24px)" }
+      ], {
+        duration: 160,
+        easing: "ease-in",
+        fill: "forwards"
       });
 
-      updateGlider(btnEl);
+      setTimeout(() => {
+        currentTabEl.classList.remove("active");
+        currentTabEl.style.display = "none";
+
+        // Reset and activate incoming tab
+        nextTabEl.style.position = "";
+        nextTabEl.style.top = "";
+        nextTabEl.style.left = "";
+        nextTabEl.style.width = "";
+        nextTabEl.style.visibility = "";
+        nextTabEl.classList.add("active");
+
+        // Incoming tab slides in
+        nextTabEl.animate([
+          { opacity: 0, transform: isRight ? "translateX(28px)" : "translateX(-28px)" },
+          { opacity: 1, transform: "translateX(0)" }
+        ], {
+          duration: 260,
+          easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+          fill: "forwards"
+        });
+      }, 140);
+
+      // 6. When height transition completes, release fixed height to 'auto'
+      setTimeout(() => {
+        if (idx === prevIndex) {
+          viewport.style.height = "auto";
+          viewport.style.overflow = "";
+          viewport.style.transition = "";
+          isTransitioning = false;
+        }
+      }, 370);
+
       if (onShow) onShow();
     });
   });
@@ -311,6 +374,11 @@ function initTabs() {
 
 // --- CHANGELOG VIEWER ---
 const CHANGELOG = [
+  { ver: "2.8.3", date: "2026-10-04", items: [
+    "UI: menggabungkan input Target Host dan tombol Test Connection menjadi 1 baris (single row grid).",
+    "• Tombol Test Connection disederhanakan menjadi icon button only (pulse icon) dengan tinggi presisi 38px sejajar dengan input.",
+    "• Motion: menambahkan container tab-viewport dengan animasi transisi ketinggian mulus (height fluid motion auto-resize) dan crossfade/slide Framer Motion pada pergantian tab.",
+  ]},
   { ver: "2.8.2", date: "2026-10-04", items: [
     "UI: menghapus elemen header (.app-header) di bagian paling atas panel.",
     "• Menghilangkan header duplikat di dalam halaman karena Chrome sidepanel sudah memiliki header dan tombol close bawaan.",

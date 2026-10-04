@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.8.3 (2026-10-04)
+- **UI: penyatuan baris Target Host & tombol Test Connection.**
+  - Input `#proxy-host` dan tombol `#btn-proxy-test` kini bersanding dalam 1 baris grid yang rapi (`.proxy-host-row`).
+  - Tombol `#btn-proxy-test` diubah menjadi *icon button only* (pulse/heartbeat SVG) dengan dimensi presisi 38px matching tinggi field input.
+- **Motion: transisi fluid container height pada pergantian tab.**
+  - Konten tab dibungkus dalam container `#tab-viewport` yang secara otomatis menganimasikan ketinggiannya (*height auto-resize*) dari 1360px ke 330px menggunakan kurva pegas `cubic-bezier(0.16, 1, 0.3, 1)` tanpa loncatan visual (zero height jerk).
+  - Dilengkapi transisi crossfade dan directional slide masuk/keluar ala Framer Motion `<AnimatePresence>`.
+
 ### v2.8.2 (2026-10-04)
 - **UI: menghapus header aplikasi (`.app-header`) di bagian atas sidepanel.**
   - Menghilangkan header duplikat (icon, title, dan close button `✕`) karena Chrome sidepanel window sudah memiliki header dan tombol close bawaan dari browser.
