@@ -367,127 +367,135 @@ function initTabs() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.1", date: "2026-10-04", items: [
+    "Perbaikan Format Karakter & Simbol Changelog:",
+    "Eliminasi Double Bullets: menghapus simbol '•', '·', '-', dan '*' mentah di awal teks dan merapikan list dengan bullet tunggal via CSS custom bullets.",
+    "Hierarki Judul Rilis: baris judul kategori diubah menjadi bold header tanpa bullet point, terpisah rapi dari item-item rilis di bawahnya.",
+    "Normalisasi Simbol Tipografi: simbol panah '->' diubah menjadi tanda panah elegan '→', dan perbandingan perataan '<320px' / '<=100km' diubah menjadi simbol matematis '≤' yang valid dan aman dari parsing HTML.",
+    "Sanitasi Entitas HTML: menerapkan escape &lt;, &gt;, dan &amp; serta styling inline <code> untuk nama file, fungsi, dan kode warna.",
+    "Container Padding: menambah padding bawah kontainer Changelog menjadi 24px agar kartu riwayat terbawah tidak terpotong radius sudut panel.",
+  ]},
   { ver: "2.9.0", date: "2026-10-04", items: [
     "Design System & UI/UX Consistency Overhaul (UI/UX Pro Max):",
-    "• 100% Solid Fill Icons: seluruh icon tombol, tabs, selector, badge, banner, accordion chevron, dan toolbar distandarisasikan ke solid fill vector glyphs tanpa garis stroke tipis.",
-    "• Top Navigation Tabs: icon Controls diperbarui menjadi solid gear (cog), Log solid terminal prompt, dan Changelog solid document sheet dengan bobot visual dan ukuran optik identik.",
-    "• Secondary Action Buttons: tombol Presensi dan Developer menggunakan Heroicons Solid arrow-top-right-on-square dengan ketebalan stroke-matching yang proporsional.",
-    "• Chevron & Accordions: rotasi chevron 180° tersinkronisasi 1:1 dengan ekspansi WAAPI spring physics (cubic-bezier 0.16, 1, 0.3, 1) tanpa snapping.",
-    "• Accessible Toggle Switches: kontras track toggle inactive ditingkatkan dengan slate-300 (#cbd5e1) agar memenuhi standar aksesibilitas kontras WCAG AA.",
-    "• Code Hygiene (Anti-Slop): pembersihan banner separator ascii berulang, komentar naratif alur, dan label generik di seluruh source code.",
+    "100% Solid Fill Icons: seluruh icon tombol, tabs, selector, badge, banner, accordion chevron, dan toolbar distandarisasikan ke solid fill vector glyphs tanpa garis stroke tipis.",
+    "Top Navigation Tabs: icon Controls diperbarui menjadi solid gear (cog), Log solid terminal prompt, dan Changelog solid document sheet dengan bobot visual dan ukuran optik identik.",
+    "Secondary Action Buttons: tombol Presensi dan Developer menggunakan Heroicons Solid arrow-top-right-on-square dengan ketebalan stroke-matching yang proporsional.",
+    "Chevron & Accordions: rotasi chevron 180° tersinkronisasi 1:1 dengan ekspansi WAAPI spring physics (cubic-bezier 0.16, 1, 0.3, 1) tanpa snapping.",
+    "Accessible Toggle Switches: kontras track toggle inactive ditingkatkan dengan slate-300 (#cbd5e1) agar memenuhi standar aksesibilitas kontras WCAG AA.",
+    "Code Hygiene (Anti-Slop): pembersihan banner separator ascii berulang, komentar naratif alur, dan label generik di seluruh source code.",
   ]},
   { ver: "2.8.6", date: "2026-10-04", items: [
     "Iconography: standarisasi 100% solid fill vector icons di seluruh antarmuka tombol dan kontrol.",
-    "• Device e-Presensi: selector Android kini menggunakan icon solid fill robot head yang presisi dan senada dengan Apple logo.",
-    "• Master Action: tombol Bypass All menggunakan solid shield-check icon (dan solid power icon saat Deactivate All); tombol Reload menggunakan solid rotate arrow berbobot tebal.",
-    "• Secondary Links: tombol Presensi dan Developer menggunakan solid rounded square glyphs dengan cutout launch arrow.",
+    "Device e-Presensi: selector Android kini menggunakan icon solid fill robot head yang presisi dan senada dengan Apple logo.",
+    "Master Action: tombol Bypass All menggunakan solid shield-check icon (dan solid power icon saat Deactivate All); tombol Reload menggunakan solid rotate arrow berbobot tebal.",
+    "Secondary Links: tombol Presensi dan Developer menggunakan solid rounded square glyphs dengan cutout launch arrow.",
   ]},
   { ver: "2.8.5", date: "2026-10-04", items: [
     "Layout: terminal Log (#log-container) kini fill 100% container browser height, membentang penuh antara toolbar dan footer.",
-    "• Floating Overlay Scrollbars: scrollbar menggunakan overflow: overlay (mengambang di atas UI), tidak memakan space/lebar layout di sisi kanan dan tidak menggeser padding konten.",
-    "• Auto-Hide 3 Detik: scrollbar otomatis menghilang/transparan setelah 3 detik tidak ada aktivitas scroll, dan hanya muncul lembut saat digulir atau di-hover.",
+    "Floating Overlay Scrollbars: scrollbar menggunakan overflow: overlay (mengambang di atas UI), tidak memakan space/lebar layout di sisi kanan dan tidak menggeser padding konten.",
+    "Auto-Hide 3 Detik: scrollbar otomatis menghilang/transparan setelah 3 detik tidak ada aktivitas scroll, dan hanya muncul lembut saat digulir atau di-hover.",
   ]},
   { ver: "2.8.4", date: "2026-10-04", items: [
     "Layout: panel diubah menjadi full-height (fill container browser) dengan flex: 1 dan height 100vh.",
-    "• Tab Changelog (.changelog-container) dan Log (.log-container) kini membentang penuh mengisi tinggi jendela Chrome sidepanel tanpa batas max-height atau ruang kosong di bawah.",
-    "• Tab Controls, Log, dan Changelog memiliki area scroll independen dengan scrollbar minimalis halus.",
-    "• Motion: transisi tab menggunakan crossfade overlay dan directional spring slide (Framer Motion feel) dengan performa 60/120 FPS tanpa layout jump.",
+    "Tab Changelog (.changelog-container) dan Log (.log-container) kini membentang penuh mengisi tinggi jendela Chrome sidepanel tanpa batas max-height atau ruang kosong di bawah.",
+    "Tab Controls, Log, dan Changelog memiliki area scroll independen dengan scrollbar minimalis halus.",
+    "Motion: transisi tab menggunakan crossfade overlay dan directional spring slide (Framer Motion feel) dengan performa 60/120 FPS tanpa layout jump.",
   ]},
   { ver: "2.8.3", date: "2026-10-04", items: [
     "UI: menggabungkan input Target Host dan tombol Test Connection menjadi 1 baris (single row grid).",
-    "• Tombol Test Connection disederhanakan menjadi icon button only (pulse icon) dengan tinggi presisi 38px sejajar dengan input.",
-    "• Motion: menambahkan container tab-viewport dengan animasi transisi ketinggian mulus (height fluid motion auto-resize) dan crossfade/slide Framer Motion pada pergantian tab.",
+    "Tombol Test Connection disederhanakan menjadi icon button only (pulse icon) dengan tinggi presisi 38px sejajar dengan input.",
+    "Motion: menambahkan container tab-viewport dengan animasi transisi ketinggian mulus (height fluid motion auto-resize) dan crossfade/slide Framer Motion pada pergantian tab.",
   ]},
   { ver: "2.8.2", date: "2026-10-04", items: [
     "UI: menghapus elemen header (.app-header) di bagian paling atas panel.",
-    "• Menghilangkan header duplikat di dalam halaman karena Chrome sidepanel sudah memiliki header dan tombol close bawaan.",
-    "• Tab bar navigasi (.tab-bar) kini menempati posisi teratas, memberikan lebih banyak ruang vertikal untuk konten kartu.",
+    "Menghilangkan header duplikat di dalam halaman karena Chrome sidepanel sudah memiliki header dan tombol close bawaan.",
+    "Tab bar navigasi (.tab-bar) kini menempati posisi teratas, memberikan lebih banyak ruang vertikal untuk konten kartu.",
   ]},
   { ver: "2.8.1", date: "2026-10-04", items: [
     "Fix: tombol 'Bypass All' / 'Deactivate All' tidak lagi collapse/rusak saat state render di ekstensi asli.",
-    "• Penyebab: updateBypassAllButton() menimpa btn.className menjadi 'btn btn-primary', sehingga class 'btn-bypass-master' hilang dan tombol kehilangan flex/height styling.",
-    "• Perbaikan: selector CSS diikat langsung ke #btn-bypass-all sehingga kebal terhadap pergantian className apa pun, dan className JS juga tetap mempertahankan btn-bypass-master.",
-    "• Motion: menambahkan transisi motion Framer Motion pada pergantian tab dengan floating capsule glider (.tab-glider) dan direction-aware slide physics (.slide-right / .slide-left).",
+    "Penyebab: updateBypassAllButton() menimpa btn.className menjadi 'btn btn-primary', sehingga class 'btn-bypass-master' hilang dan tombol kehilangan flex/height styling.",
+    "Perbaikan: selector CSS diikat langsung ke #btn-bypass-all sehingga kebal terhadap pergantian className apa pun, dan className JS juga tetap mempertahankan btn-bypass-master.",
+    "Motion: menambahkan transisi motion Framer Motion pada pergantian tab dengan floating capsule glider (.tab-glider) dan direction-aware slide physics (.slide-right / .slide-left).",
   ]},
   { ver: "2.8.0", date: "2026-10-04", items: [
     "Redesign Total Modern UI (Apple / Vercel Minimalist Light):",
-    "• Zero Border-Line UI: menghapus semua border stroke 1px abu-abu kaku; kedalaman dibangun lewat layered surfaces, background contrast (#F4F6F9 vs #FFFFFF), dan soft diffuse shadows.",
-    "• Top App Header: dilengkapi logo gear modern, nama app, subtitle 'Tools & konfigurasi presensi', serta circular close button native macOS.",
-    "• Floating Segmented Navigation: tab Controls, Log [0], dan Changelog bergaya capsule pill melayang.",
-    "• GPS Location Hero Card: dipindah ke posisi paling atas sebagai controller utama presensi.",
-    "• Device e-Presensi Selector: dilengkapi icon Apple (iOS) dan Android bot dengan label bersih tanpa teks kurung.",
-    "• Unified Icon System: semua card fitur menggunakan icon container soft blue (#EFF6FF) dengan rich royal blue solid fill icon (#2563EB).",
-    "• WAAPI & CSS Spring Motion: transisi accordion halus berbasis Web Animations API, staggered card entrance, dan tactile iOS switch knob stretch saat ditekan.",
-    "• Quick Link Actions: tombol eksternal diperbarui menjadi 'Presensi' dan 'Developer' dengan trailing external link arrow.",
+    "Zero Border-Line UI: menghapus semua border stroke 1px abu-abu kaku; kedalaman dibangun lewat layered surfaces, background contrast (#F4F6F9 vs #FFFFFF), dan soft diffuse shadows.",
+    "Top App Header: dilengkapi logo gear modern, nama app, subtitle 'Tools & konfigurasi presensi', serta circular close button native macOS.",
+    "Floating Segmented Navigation: tab Controls, Log [0], dan Changelog bergaya capsule pill melayang.",
+    "GPS Location Hero Card: dipindah ke posisi paling atas sebagai controller utama presensi.",
+    "Device e-Presensi Selector: dilengkapi icon Apple (iOS) dan Android bot dengan label bersih tanpa teks kurung.",
+    "Unified Icon System: semua card fitur menggunakan icon container soft blue (#EFF6FF) dengan rich royal blue solid fill icon (#2563EB).",
+    "WAAPI & CSS Spring Motion: transisi accordion halus berbasis Web Animations API, staggered card entrance, dan tactile iOS switch knob stretch saat ditekan.",
+    "Quick Link Actions: tombol eksternal diperbarui menjadi 'Presensi' dan 'Developer' dengan trailing external link arrow.",
   ]},
   { ver: "2.7.1", date: "2026-10-03", items: [
     "Fix: tombol 'Buka Google Maps' benar-benar sejajar dengan kolom koordinat.",
-    "• Penyebab: aturan .btn ada DI BELAH .btn-maps di stylesheet dengan specificity sama, jadi margin-top:6px + padding:9px dari .btn menang dan mendorong tombol 6px ke bawah — padahal tinggi keduanya sama-sama 38px.",
-    "• Perbaikan: selector jadi .btn.btn-maps (2 class) sehingga menang dari .btn (1 class) apa pun urutan sumber.",
-    "• Fix kedua: di panel <=320px, media query sempat mengulang grid-auto-rows:auto sehingga input menyusut ke 17px sementara tombol tetap 38px. Row height kini tetap 38px.",
+    "Penyebab: aturan .btn ada DI BELAH .btn-maps di stylesheet dengan specificity sama, jadi margin-top:6px + padding:9px dari .btn menang dan mendorong tombol 6px ke bawah — padahal tinggi keduanya sama-sama 38px.",
+    "Perbaikan: selector jadi .btn.btn-maps (2 class) sehingga menang dari .btn (1 class) apa pun urutan sumber.",
+    "Fix kedua: di panel ≤ 320px, media query sempat mengulang grid-auto-rows:auto sehingga input menyusut ke 17px sementara tombol tetap 38px. Row height kini tetap 38px.",
   ]},
   { ver: "2.7.0", date: "2026-10-03", items: [
     "UI: hapus 4 baris status di bawah deskripsi card (lebih bersih).",
-    "• 'blocker: nonaktif', 'off' (WFH v2 Mode), baris koordinat GPS, dan 'manual / off' (Proxy Route) sudah dihapus.",
-    "• Deskripsi card dan toggle switch tetap utuh — hanya baris status kecil yang dihapus.",
-    "• Semua penulisan status dipusatkan ke setCardSub() yang aman terhadap node yang tidak ada.",
+    "'blocker: nonaktif', 'off' (WFH v2 Mode), baris koordinat GPS, dan 'manual / off' (Proxy Route) sudah dihapus.",
+    "Deskripsi card dan toggle switch tetap utuh — hanya baris status kecil yang dihapus.",
+    "Semua penulisan status dipusatkan ke setCardSub() yang aman terhadap node yang tidak ada.",
   ]},
   { ver: "2.6.1", date: "2026-10-03", items: [
     "Fix: tinggi kolom koordinat dan tombol 'Buka Google Maps' kini sama persis.",
-    "• Input dan tombol diberi tinggi baris eksplisit 38px, jadi keduanya flush di sisi atas dan bawah.",
-    "• Font input diperbesar dari 11px ke 13px agar lebih mudah dibaca koordinatnya.",
-    "• Ikon centang koordinat valid sekarang di-center vertikal terhadap input yang lebih tinggi (sebelumnya menempel di atas).",
+    "Input dan tombol diberi tinggi baris eksplisit 38px, jadi keduanya flush di sisi atas dan bawah.",
+    "Font input diperbesar dari 11px ke 13px agar lebih mudah dibaca koordinatnya.",
+    "Ikon centang koordinat valid sekarang di-center vertikal terhadap input yang lebih tinggi (sebelumnya menempel di atas).",
   ]},
   { ver: "2.6.0", date: "2026-10-03", items: [
     "Fitur Baru: tombol CTA 'Buka Google Maps' di samping kolom koordinat manual.",
-    "• Kolom Koordinat (lat, lng) kini jadi 2 kolom: input di kiri, tombol 'Buka Google Maps' di kanan.",
-    "• Koordinat yang dibuka adalah hasil applyGeoStyle() yang sama persis dengan yang dikirim ke halaman, jadi titik di peta benar-benar sama dengan spoof yang aktif.",
-    "• Format koma, tab, dan spasi sama-sama didukung.",
-    "• Koordinat tidak valid atau kosong: tombol tidak membuka tab, hanya menampilkan pesan di hint dan menandai input sebagai tidak valid.",
-    "• Di panel sangat sempit (<320px) tombol otomatis turun ke bawah agar tidak terpotong.",
+    "Kolom Koordinat (lat, lng) kini jadi 2 kolom: input di kiri, tombol 'Buka Google Maps' di kanan.",
+    "Koordinat yang dibuka adalah hasil applyGeoStyle() yang sama persis dengan yang dikirim ke halaman, jadi titik di peta benar-benar sama dengan spoof yang aktif.",
+    "Format koma, tab, dan spasi sama-sama didukung.",
+    "Koordinat tidak valid atau kosong: tombol tidak membuka tab, hanya menampilkan pesan di hint dan menandai input sebagai tidak valid.",
+    "Di panel sangat sempit (<320px) tombol otomatis turun ke bawah agar tidak terpotong.",
   ]},
   { ver: "2.5.1", date: "2026-10-03", items: [
     "UI: Card 'WFH v2 Mode' dipindahkan ke atas card 'GPS Location'.",
-    "• WFH v2 Mode kini tampil sebelum GPS Location, jadi toggle mode WFH bisa ditemukan lebih cepat.",
-    "• Deskripsi card diperbarui: kini menyebut bahwa request ikut divalidasi ke lokasi rumah terdaftar (bukan kantor), sesuai perilaku v2.5.0.",
+    "WFH v2 Mode kini tampil sebelum GPS Location, jadi toggle mode WFH bisa ditemukan lebih cepat.",
+    "Deskripsi card diperbarui: kini menyebut bahwa request ikut divalidasi ke lokasi rumah terdaftar (bukan kantor), sesuai perilaku v2.5.0.",
   ]},
   { ver: "2.5.0", date: "2026-10-03", items: [
     "Perbaikan WFH: request sekarang divalidasi ke LOKASI RUMAH (bukan kantor):",
-    "• Root cause terverifikasi di akun nyata: POST /api/absensi/cek-lokasi (v1) mengembalikan distance_meter 17787 meter dan allowed:false karena membandingkan lokasi user dengan koordinat KANTOR. Endpoint v2 pada koordinat yang sama mengembalikan 0,57 meter dan allowed:true karena memakai titik RUMAH terdaftar.",
-    "• Fix: satu rewrite URL pada fetch /api/absensi/cek-lokasi -> /api/absensi/v2/cek-lokasi, hanya di halaman lama dan hanya saat WFH v2 Mode aktif.",
-    "• Parser halaman sudah punya (d.absen_token / d.absen_token_expired_at) — field itu hanya dikirim v2, jadi submit ke /api/proxy/addpresensi-ios sekarang ikut membawa token sesi yang valid.",
-    "• Endpoint lain (liveness, upload foto, by-enroll, wfh-radius, dev/check, dev/submit) tidak pernah disentuh.",
+    "Root cause terverifikasi di akun nyata: POST /api/absensi/cek-lokasi (v1) mengembalikan distance_meter 17787 meter dan allowed:false karena membandingkan lokasi user dengan koordinat KANTOR. Endpoint v2 pada koordinat yang sama mengembalikan 0,57 meter dan allowed:true karena memakai titik RUMAH terdaftar.",
+    "Fix: satu rewrite URL pada fetch /api/absensi/cek-lokasi → /api/absensi/v2/cek-lokasi, hanya di halaman lama dan hanya saat WFH v2 Mode aktif.",
+    "Parser halaman sudah punya (d.absen_token / d.absen_token_expired_at) — field itu hanya dikirim v2, jadi submit ke /api/proxy/addpresensi-ios sekarang ikut membawa token sesi yang valid.",
+    "Endpoint lain (liveness, upload foto, by-enroll, wfh-radius, dev/check, dev/submit) tidak pernah disentuh.",
     "UI: Opsi 'Lokasi Kantor' disembunyikan saat mode WFH atau Manual, karena tidak relevan di kedua mode tersebut (WFH memakai lokasi rumah terdaftar, Manual memakai koordinat pilihan user).",
   ]},
   { ver: "2.4.0", date: "2026-10-03", items: [
     "Fitur Baru: WFH v2 Mode (toggle, default OFF):",
-    "• Menyamakan tampilan halaman Presensi Lama dengan aplikasi resmi v1.0.13 saat mode ini dinyalakan.",
-    "• Badge marker peta 'K' menjadi 'R', popup 'Lokasi kantor' menjadi 'Lokasi rumah WFH', dan teks 'Jarak ke kantor' menjadi 'Jarak ke rumah'.",
-    "• Angka jarak TIDAK diubah — hanya teks labelnya. Koordinat, radius, dan seluruh payload API tetap seperti yang dihitung halaman.",
-    "• Hanya berlaku di halaman lama (/cek-lokasi-wfh dan /cek-lokasi-wfa). Halaman /absen-dev/ yang sudah benar dari server tidak pernah disentuh.",
-    "• WFO (/cek-lokasi) tidak pernah disentuh — di sana 'K' memang benar.",
-    "• Ikut aktif otomatis saat Bypass All dinyalakan.",
+    "Menyamakan tampilan halaman Presensi Lama dengan aplikasi resmi v1.0.13 saat mode ini dinyalakan.",
+    "Badge marker peta 'K' menjadi 'R', popup 'Lokasi kantor' menjadi 'Lokasi rumah WFH', dan teks 'Jarak ke kantor' menjadi 'Jarak ke rumah'.",
+    "Angka jarak TIDAK diubah — hanya teks labelnya. Koordinat, radius, dan seluruh payload API tetap seperti yang dihitung halaman.",
+    "Hanya berlaku di halaman lama (/cek-lokasi-wfh dan /cek-lokasi-wfa). Halaman /absen-dev/ yang sudah benar dari server tidak pernah disentuh.",
+    "WFO (/cek-lokasi) tidak pernah disentuh — di sana 'K' memang benar.",
+    "Ikut aktif otomatis saat Bypass All dinyalakan.",
     "Catatan: fitur ini sengaja tidak mengubah endpoint API maupun koordinat acuan, agar tidak mungkin memblokir proses absensi.",
   ]},
   { ver: "2.3.1", date: "2026-10-03", items: [
     "Fix Marker 'R' Tidak Muncul (revisi v2.3.0):",
-    "• Root Cause: spoof.js didaftarkan dengan world:'MAIN' sehingga chrome.storage TIDAK bisa diakses (hanya tersedia di ISOLATED world). loadGeoCfg() selalu gagal diam-diam sehingga isWfhModeActive() tidak pernah bernilai true.",
-    "• Penusan geoMode: background.js kini meneruskan geoMode (wfo/wfh/manual) ke window.__EH_GEO__ lewat readGeoMode() dan buildGeoCfg() pada setiap navigasi/reload.",
-    "• Prioritas Konfigurasi: Konfigurasi yang di-inject selalu menang. Fallback berbasis path halaman (/cek-lokasi-wfh, /cek-lokasi-wfa) hanya dipakai selagi background belum menyuntikkan apa pun — tidak pernah menimpa status disabled atau pilihan mode WFO.",
-    "• loadGeoCfg tidak lagi menimpa window.__EH_GEO__ yang sudah ada.",
+    "Root Cause: spoof.js didaftarkan dengan world:'MAIN' sehingga chrome.storage TIDAK bisa diakses (hanya tersedia di ISOLATED world). loadGeoCfg() selalu gagal diam-diam sehingga isWfhModeActive() tidak pernah bernilai true.",
+    "Penusan geoMode: background.js kini meneruskan geoMode (wfo/wfh/manual) ke window.__EH_GEO__ lewat readGeoMode() dan buildGeoCfg() pada setiap navigasi/reload.",
+    "Prioritas Konfigurasi: Konfigurasi yang di-inject selalu menang. Fallback berbasis path halaman (/cek-lokasi-wfh, /cek-lokasi-wfa) hanya dipakai selagi background belum menyuntikkan apa pun — tidak pernah menimpa status disabled atau pilihan mode WFO.",
+    "loadGeoCfg tidak lagi menimpa window.__EH_GEO__ yang sudah ada.",
   ]},
   { ver: "2.3.0", date: "2026-10-03", items: [
     "WFH Marker 'R' (Rumah) — Sinkron dengan App Resmi v1.0.13:",
-    "• Relabel Marker Peta: Saat mode GPS WFH aktif, marker titik acuan di peta Leaflet otomatis diubah dari 'K' (Kantor) menjadi 'R' (Rumah), dan popup 'Lokasi kantor' menjadi 'Rumah WFH' — mengikuti tampilan di aplikasi resmi Kementerian Desa.",
-    "• Gated pada Mode WFH: Relabel hanya berlaku di halaman WFH/WFA. Mode WFO tetap menampilkan 'K' (Kantor) sesuai aslinya.",
-    "• Kosmetik murni: Tidak ada koordinat, radius, atau payload API yang diubah.",
-    "• Hoisting getGeoCfg: Fungsi getGeoCfg() dipindahkan ke root scope IIFE agar isWfhModeActive() tidak terkena ReferenceError di bawah mode strict.",
+    "Relabel Marker Peta: Saat mode GPS WFH aktif, marker titik acuan di peta Leaflet otomatis diubah dari 'K' (Kantor) menjadi 'R' (Rumah), dan popup 'Lokasi kantor' menjadi 'Rumah WFH' — mengikuti tampilan di aplikasi resmi Kementerian Desa.",
+    "Gated pada Mode WFH: Relabel hanya berlaku di halaman WFH/WFA. Mode WFO tetap menampilkan 'K' (Kantor) sesuai aslinya.",
+    "Kosmetik murni: Tidak ada koordinat, radius, atau payload API yang diubah.",
+    "Hoisting getGeoCfg: Fungsi getGeoCfg() dipindahkan ke root scope IIFE agar isWfhModeActive() tidak terkena ReferenceError di bawah mode strict.",
   ]},
   { ver: "2.2.3", date: "2026-09-21", items: [
     "Permanent Gatekeeper Dismissal ('ePresensi Versi Web Sudah Tidak Digunakan'):",
-    "• Persistence & In-Page Cache: Menyimpan status Gate Block di localStorage sehingga langsung aktif pada document_start bahkan sebelum background worker sempat menginjeksi config.",
-    "• Navigation/Reload Auto-Sync: Memperbaiki event onUpdated background service worker agar selalu menyuntikkan ulang Gate Block pada setiap reload/F5 tab.",
-    "• Multi-Layer Purge & Poller: Menambahkan poller 200ms pasca-load untuk menghancurkan SweetAlert tertunda, menutup Swal.close() secara bersih, dan mengembalikan overflow body.",
+    "Persistence & In-Page Cache: Menyimpan status Gate Block di localStorage sehingga langsung aktif pada document_start bahkan sebelum background worker sempat menginjeksi config.",
+    "Navigation/Reload Auto-Sync: Memperbaiki event onUpdated background service worker agar selalu menyuntikkan ulang Gate Block pada setiap reload/F5 tab.",
+    "Multi-Layer Purge & Poller: Menambahkan poller 200ms pasca-load untuk menghancurkan SweetAlert tertunda, menutup Swal.close() secara bersih, dan mengembalikan overflow body.",
   ]},
   { ver: "2.2.2", date: "2026-09-21", items: [
     "Restore Baseline iPhone Safari Fingerprint: Mengembalikan User-Agent dan profil navigator ke iPhone Safari resmi (Mozilla/5.0 ... Version/26.4 Mobile/15E148 Safari/604.1).",
@@ -508,16 +516,16 @@ const CHANGELOG = [
   ]},
   { ver: "2.1.0", date: "2026-09-18", items: [
     "Fitur GPS Location Style (iOS & Android):",
-    "• iOS Style: Emulasi presisi CoreLocation / WebKit 64-bit IEEE 754 double precision (14 digit desimal, misal: -6.34294464805416, 106.859012539737).",
-    "• Android Style: Format presisi standar FusedLocationProvider / Chromium Android (6-7 digit desimal, misal: -6.254742, 106.7249454).",
-    "• Dynamic Conversion & Input Parsing: Input manual mendukung pemisah koma, tab (\\t), atau spasi, serta otomatis beradaptasi dengan gaya perangkat yang dipilih.",
-    "• Dual Preset Engine: Tersedia 30 titik acak WFO Kalibata & Kalisari khusus untuk mode iOS dan Android.",
+    "iOS Style: Emulasi presisi CoreLocation / WebKit 64-bit IEEE 754 double precision (14 digit desimal, misal: -6.34294464805416, 106.859012539737).",
+    "Android Style: Format presisi standar FusedLocationProvider / Chromium Android (6-7 digit desimal, misal: -6.254742, 106.7249454).",
+    "Dynamic Conversion & Input Parsing: Input manual mendukung pemisah koma, tab (\\t), atau spasi, serta otomatis beradaptasi dengan gaya perangkat yang dipilih.",
+    "Dual Preset Engine: Tersedia 30 titik acak WFO Kalibata & Kalisari khusus untuk mode iOS dan Android.",
   ]},
   { ver: "2.0.5", date: "2026-09-14", items: [
     "Pembaruan Label UI/UX:",
-    "• CTA Update: Label tombol OTA diubah menjadi 'Update latest version'.",
-    "• Modul Lokasi: Label card diubah menjadi 'GPS Location' (dari sebelumnya 'GPS Location Spoof').",
-    "• Deskripsi Netral: Kata 'Memalsukan' diubah menjadi 'Mengubah koordinat GPS...'.",
+    "CTA Update: Label tombol OTA diubah menjadi 'Update latest version'.",
+    "Modul Lokasi: Label card diubah menjadi 'GPS Location' (dari sebelumnya 'GPS Location Spoof').",
+    "Deskripsi Netral: Kata 'Memalsukan' diubah menjadi 'Mengubah koordinat GPS...'.",
   ]},
   { ver: "2.0.4", date: "2026-09-14", items: [
     "Normalisasi Desimal GPS (7 Digit): Menyeragamkan seluruh koordinat preset WFO (Kalibata & Kalisari), anchor, spoof engine, dan input manual menjadi tepat 7 digit desimal (standar presisi GPS smartphone).",
@@ -605,11 +613,11 @@ const CHANGELOG = [
     "Proxy Route conditional: default Target Host = presensi.kemendesa.go.id (cuma site itu lewat proxy, sisanya DIRECT). Kosongkan = semua trafik. Field Target Host TETAP kelihatan di Auto mode.",
     "Auto proxy (proxy ID gratis <=100km): anchor = GPS SPOOF aktif (auto random 50 preset ATAU manual input), fallback titik default. Filter haversine 100km dari titik spoof, live-test tab stealth, PAC conditional dari Target Host.",
     "Auto UI: checklist 5 tahap (1 ambil 2 filter 3 test 4 terapkan 5 verifikasi IP) muncul SATU PER SATU + delay 3 detik, spinner muter, auto-reload tab pas AKTIF. Hint: mylocation.org gak berubah kalau Target Host = presensi (site-specific).",
-    "iOS Safari fingerprint: DNR strip sec-ch-ua* (Client Hints) saat UA Spoof ON -> server fallback ke UA iPhone Safari. Butuh permission declarativeNetRequestWithHostAccess + hapus 'fetch' dari resourceTypes (MV3 invalid).",
-    "Proxy status real-time di card (update pas ketik/toggle/mode). Auto-migrate storage lama 127.0.0.1:1080 / 16.78.6.181 -> AWS. MV3 keep-alive alarm + guard lastError (fix 'message port closed').",
-    "Catatan: 'Mode development aktif' di website = environment server (bukan extension). Free proxy (Auto) umur pendek -> pakai Manual AWS untuk IP stabil.",
-    "Proxy Config selector Manual/Auto: Manual -> input URL + Target Host; Auto -> disable manual + tombol Auto (ID <=100km). applyAll hormati proxy-mode.",
-    "Bypass All CTA: klik -> applyAll() lalu auto-reload tab aktif biar seluruh config (UA/JS/Geo/Proxy) langsung jalan di halaman.",
+    "iOS Safari fingerprint: DNR strip sec-ch-ua* (Client Hints) saat UA Spoof ON → server fallback ke UA iPhone Safari. Butuh permission declarativeNetRequestWithHostAccess + hapus 'fetch' dari resourceTypes (MV3 invalid).",
+    "Proxy status real-time di card (update pas ketik/toggle/mode). Auto-migrate storage lama 127.0.0.1:1080 / 16.78.6.181 → AWS. MV3 keep-alive alarm + guard lastError (fix 'message port closed').",
+    "Catatan: 'Mode development aktif' di website = environment server (bukan extension). Free proxy (Auto) umur pendek → pakai Manual AWS untuk IP stabil.",
+    "Proxy Config selector Manual/Auto: Manual → input URL + Target Host; Auto → disable manual + tombol Auto (ID ≤ 100km). applyAll hormati proxy-mode.",
+    "Bypass All CTA: klik → applyAll() lalu auto-reload tab aktif biar seluruh config (UA/JS/Geo/Proxy) langsung jalan di halaman.",
   ]},
   { ver: "1.4.4", date: "2026-08-06", items: [
     "Hapus status-card dari tab Controls (render null-safe).",
@@ -663,6 +671,28 @@ const CHANGELOG = [
   ]},
 ];
 
+function formatChangelogItem(raw) {
+  const isSub = /^[•·\-\*]\s*/.test(raw);
+  let text = raw.replace(/^[•·\-\*]\s*/, "");
+
+  // Normalize typography arrows & comparisons
+  text = text.replace(/->/g, "→").replace(/<=/g, "≤");
+
+  // Escape HTML entities to prevent malformed tags
+  text = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // Highlight inline backtick code snippets
+  text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  const isHeading = !isSub && (text.endsWith(":") || text.includes("(UI/UX Pro Max):"));
+  const className = isHeading ? "cl-heading" : (isSub ? "cl-sub" : "cl-item");
+
+  return `<li class="${className}">${text}</li>`;
+}
+
 function renderChangelog() {
   const c = $("changelog-container");
   if (!c) return;
@@ -673,7 +703,7 @@ function renderChangelog() {
         <span class="cl-ver">v${e.ver}</span>
         <span class="cl-date">${e.date}</span>
       </div>
-      <ul class="cl-list">${e.items.map(i => `<li>${i}</li>`).join("")}</ul>
+      <ul class="cl-list">${e.items.map(it => formatChangelogItem(it)).join("")}</ul>
     </div>
   `).join("");
 }
@@ -1466,13 +1496,10 @@ async function checkOTAUpdate(isManual = false) {
       if (clContent) {
         if (remoteNotes) {
           // Format release notes dari GitHub Release
-          const formattedNotes = remoteNotes
-            .replace(/^##\s+.*$/m, "")
-            .replace(/\n\s*-\s+/g, "<br>• ")
-            .trim();
+          const lines = remoteNotes.split("\n").map(l => l.trim()).filter(Boolean);
           clContent.innerHTML = `
-            <div style="font-weight:700; margin-bottom:4px;">Rilis v${remoteVer}</div>
-            <div style="line-height:1.4;">${formattedNotes}</div>
+            <div style="font-weight:700; margin-bottom:6px;">Rilis v${remoteVer}</div>
+            <ul class="cl-list">${lines.map(it => formatChangelogItem(it)).join("")}</ul>
           `;
         } else {
           // Fallback ke local changelog entry
@@ -1480,7 +1507,7 @@ async function checkOTAUpdate(isManual = false) {
           if (localEntry && localEntry.items) {
             clContent.innerHTML = `
               <div style="font-weight:700; margin-bottom:4px;">Rilis v${localEntry.ver} (${localEntry.date})</div>
-              <ul>${localEntry.items.map(it => `<li>${it}</li>`).join("")}</ul>
+              <ul class="cl-list">${localEntry.items.map(it => formatChangelogItem(it)).join("")}</ul>
             `;
           }
         }

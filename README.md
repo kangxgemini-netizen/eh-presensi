@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.1 (2026-10-04)
+- **Perbaikan Format Karakter & Simbol Changelog:**
+  - **Eliminasi Double Bullets:** Menghapus seluruh karakter bullet mentah (`•`, `·`, `-`, `*`) di awal string dan merapikan list dengan bullet point tunggal via CSS custom bullets (`.cl-list li::before`).
+  - **Hierarki Judul Rilis:** Baris judul kategori diubah menjadi bold header tanpa bullet point, terpisah rapi dari item-item rilis di bawahnya.
+  - **Normalisasi Simbol Tipografi:** Simbol panah ASCII `->` diubah menjadi tanda panah tipografi `→`, dan batasan `panel <=320px` / `ID <=100km` diubah menjadi simbol matematis `≤` yang valid dan aman dari parsing HTML.
+  - **Sanitasi Entitas HTML:** Menerapkan escape `&lt;`, `&gt;`, dan `&amp;` serta styling inline `<code>` untuk kode warna, selector, dan nama file.
+  - **Container Padding:** Menambah padding bawah kontainer Changelog menjadi 24px agar kartu riwayat terbawah tidak terpotong radius sudut panel.
+
 ### v2.9.0 (2026-10-04)
 - **UI/UX Consistency Overhaul (UI/UX Pro Max & Anti-Slop):**
   - **100% Solid Fill Icon System:** Seluruh icon (navigation tabs, cards, toggles, accordions, selectors, master actions, secondary links, toolbars, dan status footer) kini 100% menggunakan solid fill vector glyphs tanpa garis stroke outline tipis yang tidak konsisten.
