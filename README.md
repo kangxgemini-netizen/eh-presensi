@@ -8,6 +8,15 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.0 (2026-10-04)
+- **UI/UX Consistency Overhaul (UI/UX Pro Max & Anti-Slop):**
+  - **100% Solid Fill Icon System:** Seluruh icon (navigation tabs, cards, toggles, accordions, selectors, master actions, secondary links, toolbars, dan status footer) kini 100% menggunakan solid fill vector glyphs tanpa garis stroke outline tipis yang tidak konsisten.
+  - **Top Navigation Tabs:** Icon *Controls* diperbarui menjadi solid gear/cog, *Log* solid terminal prompt, dan *Changelog* solid document sheet dengan ukuran optik dan bobot visual yang serasi seimbang.
+  - **Secondary Action Buttons:** Icon tautan *Presensi* dan *Developer* menggunakan Heroicons Solid `arrow-top-right-on-square` dengan ketebalan visual yang seimbang dengan teks tombol.
+  - **Synchronized Accordion Motion:** Rotasi chevron 180° tersinkronisasi 1:1 dengan ekspansi tinggi WAAPI spring physics (`cubic-bezier(0.16, 1, 0.3, 1)`) tanpa snapping.
+  - **Accessible Contrast Toggles:** Kontras track toggle inactive dinaikkan menggunakan warna slate-300 (`#cbd5e1`) agar lolos kriteria kontras aksesibilitas WCAG AA.
+  - **Code Hygiene (Anti-Slop):** Membersihkan banner separator berulang, komentar naratif alur langkah, dan penamaan generik di seluruh source code ekstensi.
+
 ### v2.8.6 (2026-10-04)
 - **Iconography: standarisasi 100% Solid Fill Vector Icons di seluruh kontrol aksi.**
   - **Selector Device e-Presensi:** Icon Android diganti menjadi solid fill robot dome/head yang proporsional dan selaras dengan Apple logo.

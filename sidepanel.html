@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>eh-Presensi • Borderless Apple/Vercel Modern UI</title>
   <style>
-    /* ==========================================================================
-       DESIGN TOKENS — Soft Neutral & Layered Surfaces (NO BORDER-LINE UI)
-       ========================================================================== */
+    /* Design tokens: soft neutral layered surfaces */
     :root {
       /* Background Canvas & Layered Surfaces */
       --canvas: #f4f6f9;
@@ -15,6 +13,7 @@
       --surface-subtle: #f8fafc;
       --surface-elevated: #f1f5f9;
       --surface-active: #e2e8f0;
+      --switch-track-off: #cbd5e1;
 
       /* Typography Colors */
       --text-main: #0f172a;
@@ -96,9 +95,7 @@
       min-height: 0;
     }
 
-    /* ==========================================================================
-       4. TOP NAVIGATION / SEGMENTED TABS (Framer Motion Sliding Glider)
-       ========================================================================== */
+    /* Top navigation and segmented tabs */
     .tab-bar {
       position: relative;
       display: grid;
@@ -205,9 +202,7 @@
       overflow: hidden;
     }
 
-    /* ==========================================================================
-       OVERLAY AUTO-HIDE FLOATING SCROLLBARS (Zero Layout Shift + 3s Auto-Hide)
-       ========================================================================== */
+    /* Floating overlay scrollbars with zero layout shift */
     * {
       scrollbar-width: thin;
       scrollbar-color: transparent transparent;
@@ -350,9 +345,7 @@
       margin-top: 3px;
     }
 
-    /* ==========================================================================
-       8. MODERN TACTILE TOGGLE SWITCH (iOS HIG)
-       ========================================================================== */
+    /* Tactile toggle switch */
     .switch {
       position: relative;
       display: inline-block;
@@ -371,7 +364,7 @@
     .slider {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--surface-active);
+      background-color: var(--switch-track-off);
       border-radius: var(--radius-pill);
       transition: background-color 0.22s ease-out;
     }
@@ -409,9 +402,7 @@
       transform: translateX(14px);
     }
 
-    /* ==========================================================================
-       9. EXPANDABLE ACCORDIONS (No Hard Dividers or Nested Bordered Boxes)
-       ========================================================================== */
+    /* Expandable accordions */
     details.modern-accordion {
       margin-top: 12px;
     }
@@ -444,11 +435,15 @@
     details.modern-accordion summary .chevron-ic {
       width: 14px;
       height: 14px;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-block;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    details.modern-accordion[open] summary .chevron-ic {
-      transform: rotate(180deg);
+    details.modern-accordion[open] summary .chevron-ic,
+    details.modern-accordion[open] > summary .chevron-ic {
+      transform: rotate(180deg) !important;
     }
 
     .accordion-body {
@@ -542,9 +537,7 @@
       transform: scale(0.96);
     }
 
-    /* ==========================================================================
-       10. GPS LOCATION MODULE & MODERN SEGMENTED CONTROLS
-       ========================================================================== */
+    /* GPS controls and segmented pills */
     .gps-sub-section {
       margin-top: 14px;
       display: flex;
@@ -703,9 +696,7 @@
       color: #dc2626 !important;
     }
 
-    /* ==========================================================================
-       11. PRIMARY MASTER ACTION & 12. SECONDARY ACTIONS
-       ========================================================================== */
+    /* Master action and secondary buttons */
     .master-action-row {
       display: flex;
       gap: 8px;
@@ -877,9 +868,7 @@
       font-size: 10.5px;
     }
 
-    /* ==========================================================================
-       TAB 2: CONSOLE LOG & TAB 3: CHANGELOG
-       ========================================================================== */
+    /* Console log and changelog tabs */
     .console-toolbar {
       display: flex;
       align-items: center;
@@ -1054,53 +1043,47 @@
 
 <div class="app-shell">
 
-  <!-- ========================================================================
-       4. TOP NAVIGATION (Capsule Segmented Tab Bar with Sliding Glider)
-       ======================================================================== -->
+  <!-- Top Navigation (Capsule Segmented Tab Bar) -->
   <nav class="tab-bar">
     <div class="tab-glider" id="tab-glider"></div>
     <button type="button" class="tab-btn active" id="tab-btn-controls">
-      <svg class="ic" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>
+      <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.84 1.804A1 1 0 018.82 1h2.36a1 1 0 01.98.804l.331 1.652a6.993 6.993 0 011.929 1.115l1.598-.54a1 1 0 011.186.447l1.18 2.044a1 1 0 01-.205 1.251l-1.267 1.113a7.047 7.047 0 010 2.228l1.267 1.113a1 1 0 01.206 1.25l-1.18 2.045a1 1 0 01-1.187.447l-1.598-.54a6.993 6.993 0 01-1.929 1.115l-.33 1.652a1 1 0 01-.98.804H8.82a1 1 0 01-.98-.804l-.331-1.652a6.993 6.993 0 01-1.929-1.115l-1.598.54a1 1 0 01-1.186-.447l-1.18-2.044a1 1 0 01.205-1.251l1.267-1.114a7.05 7.05 0 010-2.227L1.821 7.773a1 1 0 01-.206-1.25l1.18-2.045a1 1 0 011.187-.447l1.598.54A6.992 6.992 0 017.51 3.456l.33-1.652zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
       <span>Controls</span>
     </button>
     <button type="button" class="tab-btn" id="tab-btn-console">
-      <svg class="ic" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+      <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 4.25A2.25 2.25 0 014.25 2h11.5A2.25 2.25 0 0118 4.25v11.5A2.25 2.25 0 0115.75 18H4.25A2.25 2.25 0 012 15.75V4.25zm4.72 3.22a.75.75 0 011.06 0l2.5 2.5a.75.75 0 010 1.06l-2.5 2.5a.75.75 0 11-1.06-1.06L8.69 11 6.72 9.03a.75.75 0 010-1.06zm4.53 6.03a.75.75 0 01.75-.75h3a.75.75 0 010 1.5h-3a.75.75 0 01-.75-.75z" clip-rule="evenodd"/></svg>
       <span>Log</span>
       <span class="tab-badge" id="log-count-badge">0</span>
     </button>
     <button type="button" class="tab-btn" id="tab-btn-changelog">
-      <svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+      <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.5 2A1.5 1.5 0 003 3.5v13A1.5 1.5 0 004.5 18h11a1.5 1.5 0 001.5-1.5V7.621a1.5 1.5 0 00-.44-1.06l-4.12-4.122A1.5 1.5 0 0011.378 2H4.5zm2.25 8.5a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5zm0 3a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd"/></svg>
       <span>Changelog</span>
     </button>
   </nav>
 
-  <!-- ========================================================================
-       TAB VIEWPORT (Fluid Height Transition Container)
-       ======================================================================== -->
+  <!-- Tab Viewport Container -->
   <div class="tab-viewport" id="tab-viewport">
 
-    <!-- ========================================================================
-         TAB 1: CONTROLS
-         ======================================================================== -->
+    <!-- Tab 1: Controls -->
     <div class="tab-content active" id="tab-controls">
 
     <!-- OTA Update Alert Banner -->
     <div class="ota-banner" id="ota-banner">
       <div class="ota-banner-header">
-        <svg class="ic" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
         <span id="ota-title">Update Tersedia</span>
       </div>
       <div class="ota-banner-desc" id="ota-desc">Versi baru telah dirilis di GitHub repository.</div>
       <div>
         <button type="button" class="btn-ota-update" id="btn-ota-open">
           <span>Update latest version</span>
-          <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+          <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M384 32c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V96C32 60.7 60.7 32 96 32H384zM160 144c-8.8 0-16 7.2-16 16s7.2 16 16 16h117.5L137.4 335c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L320 197.5V315c0 8.8 7.2 16 16 16s16-7.2 16-16V160c0-8.8-7.2-16-16-16H160z"/></svg>
         </button>
       </div>
       <details class="modern-accordion" id="ota-changelog-accordion">
         <summary>
           <span>Lihat Changelog Rilis Baru</span>
-          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="ic chevron-ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
         </summary>
         <div class="accordion-body" id="ota-changelog-content">Memuat changelog...</div>
       </details>
@@ -1177,11 +1160,11 @@
             <div class="input-wrap">
               <input type="text" id="geo-manual" placeholder="-6.34294464805416, 106.859012539737" />
               <div id="geo-manual-check-ic" class="input-check">
-                <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/></svg>
               </div>
             </div>
             <button type="button" class="btn btn-maps" id="btn-open-maps" title="Buka koordinat ini di Google Maps">
-              <svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <svg class="ic ic-fill" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
               <span>Buka Google Maps</span>
             </button>
           </div>
@@ -1195,7 +1178,7 @@
       <div class="feature-header-row">
         <div class="feature-meta">
           <div class="feature-icon-box">
-            <svg class="ic" viewBox="0 0 24 24"><path d="M17 1.5H7a2 2 0 0 0-2 2v17a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-17a2 2 0 0 0-2-2zm-5 19.25a1.25 1.25 0 1 1 1.25-1.25 1.25 1.25 0 0 1-1.25 1.25zm5-3.5H7V4.75h10v12.5z"/></svg>
+            <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zm3 14a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
           </div>
           <div class="feature-text-block">
             <h2 class="feature-title">iOS Safari Fingerprint</h2>
@@ -1214,7 +1197,7 @@
       <div class="feature-header-row">
         <div class="feature-meta">
           <div class="feature-icon-box">
-            <svg class="ic" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
+            <svg class="ic ic-fill" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.5 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
           </div>
           <div class="feature-text-block">
             <h2 class="feature-title">Security Bypass</h2>
@@ -1226,11 +1209,11 @@
           <span class="slider"></span>
         </label>
       </div>
-      <!-- 9. Modern Expandable Accordion (Advanced) -->
+      <!-- Accordion: Advanced -->
       <details class="modern-accordion">
         <summary>
           <span>Advanced</span>
-          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="ic chevron-ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
         </summary>
         <div class="accordion-body">
           <div class="field-group">
@@ -1263,10 +1246,11 @@
         </label>
       </div>
       <!-- 9. Modern Expandable Accordion (Target Element) -->
+      <!-- Accordion: Target Element -->
       <details class="modern-accordion">
         <summary>
           <span>Target Element</span>
-          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="ic chevron-ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
         </summary>
         <div class="accordion-body">
           <div class="field-group">
@@ -1319,11 +1303,11 @@
         </label>
       </div>
 
-      <!-- 9. Modern Expandable Accordion (Proxy Config) -->
+      <!-- Accordion: Proxy Config -->
       <details class="modern-accordion">
         <summary>
           <span>Proxy Config</span>
-          <svg class="ic chevron-ic" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="ic chevron-ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
         </summary>
         <div class="accordion-body">
           <div class="field-group" id="proxy-url-box">
@@ -1345,7 +1329,7 @@
             <div class="proxy-host-row">
               <input type="text" class="modern-input" id="proxy-host" placeholder="presensi.kemendesa.go.id" value="presensi.kemendesa.go.id" />
               <button type="button" class="btn btn-secondary btn-proxy-test-icon" id="btn-proxy-test" title="Test Connection">
-                <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                <svg class="ic ic-fill" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd"/></svg>
               </button>
             </div>
             <div id="proxy-test-status" class="input-hint"></div>
@@ -1373,11 +1357,11 @@
     <div class="secondary-links-row">
       <button type="button" class="btn btn-secondary" id="btn-open-legacy" title="Buka https://presensi.kemendesa.go.id/dashboard">
         <span>Presensi</span>
-        <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M384 32c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V96C32 60.7 60.7 32 96 32H384zM160 144c-8.8 0-16 7.2-16 16s7.2 16 16 16h117.5L137.4 335c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L320 197.5V315c0 8.8 7.2 16 16 16s16-7.2 16-16V160c0-8.8-7.2-16-16-16H160z"/></svg>
+        <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h4a.75.75 0 010 1.5h-4z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.19 12.75a.75.75 0 001.06 1.06l7.5-7.5V9a.75.75 0 001.5 0V4.25a.75.75 0 00-.75-.75H10.75a.75.75 0 000 1.5h2.69l-7.25 7.5z" clip-rule="evenodd"/></svg>
       </button>
       <button type="button" class="btn btn-secondary" id="btn-open-dashboard" title="Buka https://presensi.kemendesa.go.id/absen-dev/dashboard">
         <span>Developer</span>
-        <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M384 32c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V96C32 60.7 60.7 32 96 32H384zM160 144c-8.8 0-16 7.2-16 16s7.2 16 16 16h117.5L137.4 335c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L320 197.5V315c0 8.8 7.2 16 16 16s16-7.2 16-16V160c0-8.8-7.2-16-16-16H160z"/></svg>
+        <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h4a.75.75 0 010 1.5h-4z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M6.19 12.75a.75.75 0 001.06 1.06l7.5-7.5V9a.75.75 0 001.5 0V4.25a.75.75 0 00-.75-.75H10.75a.75.75 0 000 1.5h2.69l-7.25 7.5z" clip-rule="evenodd"/></svg>
       </button>
     </div>
 
@@ -1400,11 +1384,11 @@
       </select>
       <div style="display:flex; gap:6px;">
         <button type="button" class="btn-xs" id="btn-copy-log">
-          <svg class="ic ic-sm" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.5 3A1.501 1.501 0 009 4.5h6A1.5 1.5 0 0013.5 3h-3zm-2.25 0A3.001 3.001 0 0111.25 1.5h1.5a3.001 3.001 0 013 3V6h1.5A2.25 2.25 0 0119.5 8.25v10.5A2.25 2.25 0 0117.25 21h-10.5A2.25 2.25 0 014.5 18.75V8.25A2.25 2.25 0 016.75 6H8.25V4.5A3.001 3.001 0 018.25 3z" clip-rule="evenodd"/></svg>
           <span>Copy</span>
         </button>
         <button type="button" class="btn-xs" id="btn-clear-log">
-          <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <svg class="ic ic-sm ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.09 3.05 14.5 3.483 14.5 4.024v.457c-1.637-.066-3.298-.066-4.936 0v-.457c0-.54.41-.974.864-1zM9 9.75a.75.75 0 00-.75.75v7.5a.75.75 0 001.5 0v-7.5A.75.75 0 009 9.75zm6 0a.75.75 0 00-.75.75v7.5a.75.75 0 001.5 0v-7.5A.75.75 0 0015 9.75z" clip-rule="evenodd"/></svg>
           <span>Clear</span>
         </button>
       </div>
@@ -1414,9 +1398,7 @@
     </div>
   </div>
 
-  <!-- ========================================================================
-       TAB 3: CHANGELOG
-       ======================================================================== -->
+  <!-- Tab 3: Changelog -->
   <div class="tab-content" id="tab-changelog">
     <div class="changelog-container" id="changelog-container">
       <!-- Dynamic Changelog Rendered via sidepanel.js -->
@@ -1425,29 +1407,34 @@
 
   </div><!-- /tab-viewport -->
 
-  <!-- ========================================================================
-       13. LIGHTWEIGHT FOOTER (Global to App Shell)
-       ======================================================================== -->
+  <!-- App Footer -->
   <footer class="app-footer">
     <button type="button" class="btn-check-version" id="btn-check-version">
-      <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
       <span id="check-version-text">Cek Update</span>
     </button>
-    <span class="app-version-badge" id="app-version">v2.8.6</span>
+    <span class="app-version-badge" id="app-version">v2.9.0</span>
   </footer>
 
 </div><!-- /app-shell -->
 
 <script src="sidepanel.js"></script>
 <script>
-  // WAAPI Spring Accordions (Native Motion engine, zero-dependency, Framer Motion feel)
+  // WAAPI Spring Accordions
   document.querySelectorAll('details.modern-accordion').forEach(el => {
     const summary = el.querySelector('summary');
     const body = el.querySelector('.accordion-body');
+    const chevron = el.querySelector('.chevron-ic');
     if (!summary || !body) return;
     summary.addEventListener('click', (e) => {
       e.preventDefault();
       if (el.open) {
+        if (chevron) {
+          chevron.animate([
+            { transform: 'rotate(180deg)' },
+            { transform: 'rotate(0deg)' }
+          ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+        }
         const anim = body.animate([
           { height: `${body.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' },
           { height: '0px', opacity: 0, transform: 'translateY(-6px)' }
@@ -1455,6 +1442,12 @@
         anim.onfinish = () => el.removeAttribute('open');
       } else {
         el.setAttribute('open', '');
+        if (chevron) {
+          chevron.animate([
+            { transform: 'rotate(0deg)' },
+            { transform: 'rotate(180deg)' }
+          ], { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
+        }
         body.animate([
           { height: '0px', opacity: 0, transform: 'translateY(-6px)' },
           { height: `${body.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' }

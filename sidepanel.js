@@ -250,7 +250,7 @@ async function currentTab() {
   return tab;
 }
 
-// --- AUTO-HIDE FLOATING SCROLLBAR ENGINE (Overlay + 3s Auto-Hide) ---
+// Floating overlay scrollbars with 3s auto-hide
 function initAutoHideScrollbars() {
   document.addEventListener("scroll", (e) => {
     const target = e.target;
@@ -263,7 +263,7 @@ function initAutoHideScrollbars() {
   }, true);
 }
 
-// --- TAB SWITCHER LOGIC (Fluid Height & Framer Motion Transitions) ---
+// Tab navigation with directional cross-slide transitions
 function initTabs() {
   const tabs = [
     { btn: "tab-btn-controls",   tab: "tab-controls" },
@@ -365,8 +365,17 @@ function initTabs() {
   });
 }
 
-// --- CHANGELOG VIEWER ---
+// Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.0", date: "2026-10-04", items: [
+    "Design System & UI/UX Consistency Overhaul (UI/UX Pro Max):",
+    "• 100% Solid Fill Icons: seluruh icon tombol, tabs, selector, badge, banner, accordion chevron, dan toolbar distandarisasikan ke solid fill vector glyphs tanpa garis stroke tipis.",
+    "• Top Navigation Tabs: icon Controls diperbarui menjadi solid gear (cog), Log solid terminal prompt, dan Changelog solid document sheet dengan bobot visual dan ukuran optik identik.",
+    "• Secondary Action Buttons: tombol Presensi dan Developer menggunakan Heroicons Solid arrow-top-right-on-square dengan ketebalan stroke-matching yang proporsional.",
+    "• Chevron & Accordions: rotasi chevron 180° tersinkronisasi 1:1 dengan ekspansi WAAPI spring physics (cubic-bezier 0.16, 1, 0.3, 1) tanpa snapping.",
+    "• Accessible Toggle Switches: kontras track toggle inactive ditingkatkan dengan slate-300 (#cbd5e1) agar memenuhi standar aksesibilitas kontras WCAG AA.",
+    "• Code Hygiene (Anti-Slop): pembersihan banner separator ascii berulang, komentar naratif alur, dan label generik di seluruh source code.",
+  ]},
   { ver: "2.8.6", date: "2026-10-04", items: [
     "Iconography: standarisasi 100% solid fill vector icons di seluruh antarmuka tombol dan kontrol.",
     "• Device e-Presensi: selector Android kini menggunakan icon solid fill robot head yang presisi dan senada dengan Apple logo.",
@@ -669,7 +678,7 @@ function renderChangelog() {
   `).join("");
 }
 
-// --- CONSOLE LOG VIEWER ---
+// Console log filtering and rendering
 let currentLogFilter = "ALL";
 
 function renderLogs(logs) {
@@ -739,7 +748,7 @@ function initConsoleToolbar() {
   });
 }
 
-// --- CONTROLS LOGIC ---
+// Panel state hydration and event listeners
 async function load() {
   const data = await chrome.storage.local.get(["pattern", "mode", "js", "ua", "proxyUrl", "proxyHost", "proxyOn", "proxyScope", "geoMode", "geoAnchor", "geoManual", "geoStyle", "logHistory", "gateBlockEnabled"]);
   $("pattern").value = data.pattern || DEFAULT_PATTERN;
@@ -1337,7 +1346,7 @@ if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage)
   });
 }
 
-// --- OTA UPDATE CHECKER ---
+// GitHub Releases update checker
 const REPO_OWNER = "kangxgemini-netizen";
 const REPO_NAME = "eh-presensi";
 const REPO_URL = `https://github.com/${REPO_OWNER}/${REPO_NAME}`;
