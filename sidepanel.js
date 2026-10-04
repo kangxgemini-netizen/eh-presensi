@@ -547,6 +547,12 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "2.9.7", date: "2026-10-04", items: [
+    "Clean Minimalist Proxy Route Drawer (UI/UX Pro Max):",
+    "Complete Removal of Target Host & Test Elements: menghapus seluruh elemen input Target Host, tombol Test Connection, dan status text helper dari Proxy Config drawer.",
+    "Streamlined Workflow: konfigurasi Proxy Route kini murni terdiri dari input Proxy URL yang bersih dan segmented control Routing Scope (Target Host Only vs All Traffic).",
+    "Automatic Routing Binding: scope Target Host Only secara otomatis mengunci lalu lintas ke presensi.kemendesa.go.id di level PAC background routing tanpa memerlukan input manual.",
+  ]},
   { ver: "2.9.6", date: "2026-10-04", items: [
     "Penyederhanaan Konfigurasi Proxy Route (UI/UX Pro Max):",
     "Eliminasi Target Host Box Redundan: menghapus input field dan label Target Host yang berlebih, karena opsi Target Host Only secara otomatis dan konsisten menargetkan presensi.kemendesa.go.id, sedangkan All Traffic mencakup seluruh lalu lintas browser.",
@@ -1423,35 +1429,6 @@ document.querySelectorAll('input[name="proxy-scope"]').forEach((r) => r.addEvent
     await applyProxyIfOn();
   }
 }));
-
-$("btn-proxy-test").addEventListener("click", async () => {
-  const btn = $("btn-proxy-test");
-  const statusEl = $("proxy-test-status");
-  let url = $("proxy-url").value.trim();
-
-  if (!url) {
-    statusEl.textContent = "Silakan isi Proxy URL terlebih dahulu.";
-    statusEl.style.color = "var(--destructive)";
-    return;
-  }
-
-  btn.disabled = true;
-  btn.style.opacity = "0.6";
-  statusEl.textContent = "Menguji koneksi proxy...";
-  statusEl.style.color = "var(--muted-foreground)";
-
-  chrome.runtime.sendMessage({ type: "PROXY_TEST", proxyUrl: url }, (res) => {
-    btn.disabled = false;
-    btn.style.opacity = "1";
-    if (res && res.ok) {
-      statusEl.textContent = `Connected (${res.latencyMs}ms) · IP: ${res.ip}`;
-      statusEl.style.color = "var(--success)";
-    } else {
-      statusEl.textContent = `Gagal: ${res && res.error ? res.error : "Connection error"}`;
-      statusEl.style.color = "var(--destructive)";
-    }
-  });
-});
 
 $("proxy-toggle").addEventListener("change", async (e) => {
   if (e.target.checked) {

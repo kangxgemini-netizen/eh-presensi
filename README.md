@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v2.9.7 (2026-10-04)
+- **Clean Minimalist Proxy Route Drawer (UI/UX Pro Max):**
+  - **Complete Removal of Target Host & Test Elements:** Menghapus seluruh elemen input *Target Host*, tombol *Test Connection*, dan status text helper dari *Proxy Config* drawer.
+  - **Streamlined Workflow:** Konfigurasi *Proxy Route* kini murni terdiri dari input *Proxy URL* yang bersih dan segmented control *Routing Scope* (*Target Host Only* vs *All Traffic*).
+  - **Automatic Routing Binding:** Scope *Target Host Only* secara otomatis mengunci lalu lintas ke `presensi.kemendesa.go.id` di level PAC background routing tanpa memerlukan input manual.
+
 ### v2.9.6 (2026-10-04)
 - **Penyederhanaan Konfigurasi Proxy Route (UI/UX Pro Max):**
   - **Eliminasi Target Host Box Redundan:** Menghapus input field dan label *Target Host* yang berlebih, karena opsi *Target Host Only* secara otomatis dan konsisten menargetkan `presensi.kemendesa.go.id`, sedangkan *All Traffic* mencakup seluruh lalu lintas browser tanpa pembatasan domain.
