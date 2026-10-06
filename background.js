@@ -126,6 +126,25 @@ chrome.debugger.onDetach.addListener((source) => {
 chrome.tabs.onRemoved.addListener((tabId) => { spoofOff(tabId); maybeDetachTab(tabId); });
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
   if (spoofTabs.has(tabId) && info.url) registerSpoofOnce(tabId, info.url);
+
+  // Sync Revamp UI state on loading and complete
+  if (info.status === "loading" || info.status === "complete") {
+    const currentUrl = (tab && tab.url) ? tab.url : (info.url || "");
+    if (/presensi\.kemendesa\.go\.id/i.test(currentUrl)) {
+      const t = await getTab(tabId);
+      const revampOn = (t && t.revampUiEnabled !== undefined) ? !!t.revampUiEnabled : (await readRevampUi());
+      try {
+        chrome.scripting.executeScript({
+          target: { tabId },
+          world: "MAIN",
+          func: injectRevampUiFn,
+          args: [revampOn],
+          injectImmediately: true,
+        }).catch(() => {});
+      } catch (_) {}
+    }
+  }
+
   // Re-inject gate block and geo config on every navigation/reload
   if (info.status === "loading") {
     const t = await getTab(tabId);
@@ -215,6 +234,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "PROXY_CLEAR"){ proxyClear().then(sendResponse).catch(() => sendResponse({ ok: false, error: "proxyClear failed" })); return true; }
   if (msg.type === "GATE_BLOCK_SET") { gateBlockSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "gateBlockSet failed" })); return true; }
   if (msg.type === "WFH_V2_SET")   { wfhV2Set(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "wfhV2Set failed" })); return true; }
+  if (msg.type === "REVAMP_UI_SET") { revampUiSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "revampUiSet failed" })); return true; }
   if (msg.action === "INJECT_LOG") { addLog(msg.cat || "INJECT", msg.msg); return false; }
 });
 
@@ -258,6 +278,16 @@ async function readWfhV2() {
   }
 }
 
+// "Revamp UI Mode" toggle. Default OFF.
+async function readRevampUi() {
+  try {
+    const d = await chrome.storage.local.get(["revampUiEnabled"]);
+    return !!d.revampUiEnabled;
+  } catch (_) {
+    return false;
+  }
+}
+
 // Build the geo config object handed to the MAIN world. Includes geoMode so
 // page-side helpers (e.g. the WFH marker relabel) can tell wfo from wfh.
 async function buildGeoCfg(t) {
@@ -294,7 +324,8 @@ function status(tabId) {
     geo: t.geo || null,
     proxy: t.proxy || null,
     geoEnabled: !!t.geoEnabled,
-    gateBlockEnabled: !!t.gateBlockEnabled
+    gateBlockEnabled: !!t.gateBlockEnabled,
+    revampUiEnabled: !!t.revampUiEnabled
   };
 }
 
@@ -302,9 +333,11 @@ async function getTab(tabId) {
   let t = tabs.get(tabId);
   if (!t) {
     let gateSaved = false;
+    let revampSaved = false;
     try {
-      const d = await chrome.storage.local.get("gateBlockEnabled");
+      const d = await chrome.storage.local.get(["gateBlockEnabled", "revampUiEnabled"]);
       gateSaved = !!d.gateBlockEnabled;
+      revampSaved = !!d.revampUiEnabled;
     } catch (_) {}
     t = {
       js: null,
@@ -313,7 +346,8 @@ async function getTab(tabId) {
       geoAuto: false,
       geoEnabled: false,
       proxy: null,
-      gateBlockEnabled: gateSaved
+      gateBlockEnabled: gateSaved,
+      revampUiEnabled: revampSaved
     };
     tabs.set(tabId, t);
   }
@@ -343,6 +377,47 @@ async function wfhV2Set(tabId, enabled) {
       });
     } catch (_) {}
   }
+  return { ok: true };
+}
+
+// ---------- Revamp UI Mode (opt-in, default OFF) ----------
+function injectRevampUiFn(active) {
+  window.__EH_REVAMP_UI__ = active;
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("__EH_REVAMP_UI__", active ? "1" : "0");
+    }
+  } catch (_) {}
+  if (typeof window.__EH_APPLY_REVAMP_UI__ === "function") {
+    window.__EH_APPLY_REVAMP_UI__(active);
+  }
+}
+
+async function revampUiSet(tabId, enabled) {
+  const on = !!enabled;
+  await chrome.storage.local.set({ revampUiEnabled: on });
+  addLog("UI", `Revamp UI Mode ${on ? "ON — profil 2 baris 1 kolom terpusat" : "OFF"}`);
+
+  if (tabId) {
+    const t = await getTab(tabId);
+    if (t) t.revampUiEnabled = on;
+  }
+
+  try {
+    const allTabs = await chrome.tabs.query({ url: "*://presensi.kemendesa.go.id/*" });
+    const targetIds = new Set(allTabs.map((t) => t.id));
+    if (tabId) targetIds.add(tabId);
+
+    for (const tid of targetIds) {
+      chrome.scripting.executeScript({
+        target: { tabId: tid },
+        world: "MAIN",
+        func: injectRevampUiFn,
+        args: [on],
+        injectImmediately: true,
+      }).catch(() => {});
+    }
+  } catch (_) {}
   return { ok: true };
 }
 

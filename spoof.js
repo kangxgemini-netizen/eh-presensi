@@ -964,4 +964,26 @@
     window.Swal = _swalVal;
   }
 
+  // =========================================================================
+  // --- Revamp UI Mode (delegates to content.js) ---
+  // =========================================================================
+  function applyRevampUi(active) {
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("__EH_REVAMP_UI__", active ? "1" : "0");
+      }
+      window.dispatchEvent(new CustomEvent("EH_REVAMP_UI_CHANGE", { detail: { active: !!active } }));
+    } catch (_) {}
+  }
+
+  window.__EH_APPLY_REVAMP_UI__ = applyRevampUi;
+
+  try {
+    var storedRevamp = (typeof localStorage !== "undefined") ? localStorage.getItem("__EH_REVAMP_UI__") : null;
+    var initRevamp = (typeof window.__EH_REVAMP_UI__ !== "undefined") ? !!window.__EH_REVAMP_UI__ : (storedRevamp === "1");
+    if (initRevamp) {
+      applyRevampUi(true);
+    }
+  } catch (_) {}
+
 })();

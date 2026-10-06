@@ -364,6 +364,25 @@
       letter-spacing: -0.01em;
       color: var(--text-main);
       line-height: 1.25;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-experiment {
+      display: inline-flex;
+      align-items: center;
+      padding: 1.5px 7px;
+      border-radius: 999px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      color: #2563eb;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.5;
+      white-space: nowrap;
     }
 
     .feature-desc {
@@ -1493,7 +1512,26 @@
     <!-- Section Title: Advance -->
     <div class="section-title">Advance</div>
 
-    <!-- Feature 6: Proxy Route -->
+    <!-- Feature 6: Revamp UI -->
+    <section class="feature-card">
+      <div class="feature-header-row">
+        <div class="feature-meta">
+          <div class="feature-icon-box">
+            <svg class="ic ic-fill" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.402 1.83c-.772.322-.772 1.416 0 1.737l4.402 1.83 1.83 4.401c.321.772 1.415.772 1.736 0l1.83-4.401 4.402-1.83c.772-.321.772-1.415 0-1.736l-4.402-1.83-1.83-4.402zM3.47 3.47a.75.75 0 011.06 0l.707.707a.75.75 0 010 1.06l-.707.708a.75.75 0 01-1.06 0l-.708-.707a.75.75 0 010-1.061l.707-.707zm11.314 0a.75.75 0 011.06 0l.708.707a.75.75 0 010 1.061l-.707.707a.75.75 0 01-1.061 0l-.707-.707a.75.75 0 010-1.06l.707-.708z" clip-rule="evenodd" /></svg>
+          </div>
+          <div class="feature-text-block">
+            <h2 class="feature-title">Revamp UI <span class="badge-experiment">experiment</span></h2>
+            <p class="feature-desc">Menata ulang dan mengoptimalkan tata letak antarmuka web presensi agar lebih modern, rapi, dan terpusat.</p>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="revamp-toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Feature 7: Proxy Route -->
     <section class="feature-card">
       <div class="feature-header-row">
         <div class="feature-meta">
@@ -1605,49 +1643,12 @@
         <svg class="ic ic-sm ic-fill" viewBox="0 0 512 512" fill="currentColor"><path d="M463.5 224H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 160c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5z"/></svg>
         <span id="check-version-text">Cek Update</span>
       </button>
-      <span class="app-version-badge" id="app-version">v2.9.9</span>
+      <span class="app-version-badge" id="app-version">v3.0.0</span>
     </footer>
   </div>
 
 </div><!-- /app-shell -->
 
 <script src="sidepanel.js"></script>
-<script>
-  // WAAPI Spring Accordions
-  document.querySelectorAll('details.modern-accordion').forEach(el => {
-    const summary = el.querySelector('summary');
-    const body = el.querySelector('.accordion-body');
-    const chevron = el.querySelector('.chevron-ic');
-    if (!summary || !body) return;
-    summary.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (el.open) {
-        if (chevron) {
-          chevron.animate([
-            { transform: 'rotate(180deg)' },
-            { transform: 'rotate(0deg)' }
-          ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
-        }
-        const anim = body.animate([
-          { height: `${body.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' },
-          { height: '0px', opacity: 0, transform: 'translateY(-6px)' }
-        ], { duration: 200, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-        anim.onfinish = () => el.removeAttribute('open');
-      } else {
-        el.setAttribute('open', '');
-        if (chevron) {
-          chevron.animate([
-            { transform: 'rotate(0deg)' },
-            { transform: 'rotate(180deg)' }
-          ], { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' });
-        }
-        body.animate([
-          { height: '0px', opacity: 0, transform: 'translateY(-6px)' },
-          { height: `${body.scrollHeight}px`, opacity: 1, transform: 'translateY(0)' }
-        ], { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-      }
-    });
-  });
-</script>
 </body>
 </html>

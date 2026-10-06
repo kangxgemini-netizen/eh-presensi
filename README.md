@@ -8,6 +8,14 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.0 (2026-10-06)
+- **Revamp UI Mode (Modern Web Experience):**
+  - **Universal Top Navigation:** Menyatukan logo instansi (navigasi langsung ke `/dashboard`), jam digital dan tanggal real-time terpusat di navbar, serta tombol hamburger minimalis icon-only (tanpa background, border, atau shadow) di seluruh rute halaman presensi.
+  - **WFO & WFH Selection Bottom Sheet:** Menghadirkan bottom sheet interaktif dengan animasi slide-up dan backdrop blur saat menekan tombol presensi untuk memilih moda kehadiran WFO (`/cek-lokasi`) atau WFH (`/cek-lokasi-wfh`).
+  - **Streamlined Dashboard Layout:** Menyembunyikan kartu jam analog redundant dan avatar foto profil lama saat Revamp UI aktif demi tampilan modern yang fokus dan bersih.
+  - **Idempotent DOM Architecture:** Mengoptimalkan MutationObserver dengan throttling anti-loop, writer idempoten, dan trailing debounce untuk mencegah lonjakan CPU atau freeze halaman.
+  - **Sidepanel Stability & MV3 CSP Hardening:** Memindahkan seluruh script animasi ke `sidepanel.js` untuk mematuhi CSP Manifest V3 tanpa inline script, serta membungkus API navigasi tab dengan safe error handler.
+
 ### v2.9.9 (2026-10-04)
 - **Pembersihan Deskripsi Changelog:**
   - **Penyelarasan Catatan Rilis:** Merapikan seluruh judul dan deskripsi catatan rilis di seluruh versi agar berfokus murni pada fitur dan peningkatan sistem.
@@ -566,6 +574,7 @@ Catatan: Proxy Auto (bagian D) pakai titik GPS spoof ini sebagai **anchor radius
 ## File
 - `manifest.json` — config + version
 - `background.js` — service worker: CDP Fetch, Emulation, geo state, logging, side panel
+- `content.js` — content script: Revamp UI mode, universal header, bottom sheet WFO/WFH
 - `sidepanel.html` / `sidepanel.js` — UI side panel (Controls + Console Log)
 - `popup.html` — fallback pesan (side panel mode)
 - `spoof.js` — MAIN-world device fingerprint + geolocation patch

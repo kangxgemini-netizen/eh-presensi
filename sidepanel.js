@@ -260,6 +260,47 @@ async function currentTab() {
   return tab;
 }
 
+// Tab id yang basi (tab sudah tertutup) atau tab yang menolak navigasi wajib
+// ditelan di sini — kalau dibiarkan, console sidepanel penuh dengan
+// unhandled "Navigation rejected" dan "Unchecked runtime.lastError: No tab
+// with id: ...". Semua jalur reload/navigate di sidepanel lewat helper ini.
+async function safeReloadTab(tabId) {
+  if (!tabId) return false;
+  try {
+    await chrome.tabs.reload(tabId);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+async function safeNavigateTab(tabId, url) {
+  if (!tabId) return false;
+  try {
+    await chrome.tabs.update(tabId, { url, active: true });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Navigasi tab aktif; kalau id-nya basi atau tab menolak, fallback ke tab baru.
+async function navigate(url) {
+  let tab = null;
+  try {
+    tab = await currentTab();
+  } catch (_) {
+    tab = null;
+  }
+  if (tab && tab.id && (await safeNavigateTab(tab.id, url))) return true;
+  try {
+    await chrome.tabs.create({ url, active: true });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 // Floating Overlay Scrollbar: zero layout displacement, renders on top of UI
 class OverlayScrollbar {
   constructor(scrollTarget, trackParent, options = {}) {
@@ -547,6 +588,14 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.0", date: "2026-10-06", items: [
+    "Revamp UI Mode (Modern Web Experience):",
+    "Universal Top Navigation: menyatukan logo instansi (navigasi langsung ke /dashboard), jam digital dan tanggal real-time terpusat di navbar, serta tombol hamburger minimalis icon-only (tanpa background, border, atau shadow) di seluruh rute halaman presensi.",
+    "WFO & WFH Selection Bottom Sheet: menghadirkan bottom sheet interaktif dengan animasi slide-up dan backdrop blur saat menekan tombol presensi untuk memilih moda kehadiran WFO (/cek-lokasi) atau WFH (/cek-lokasi-wfh).",
+    "Streamlined Dashboard Layout: menyembunyikan kartu jam analog redundant dan avatar foto profil lama saat Revamp UI aktif demi tampilan modern yang fokus dan bersih.",
+    "Idempotent DOM Architecture: mengoptimalkan MutationObserver dengan throttling anti-loop, writer idempoten, dan trailing debounce untuk mencegah lonjakan CPU atau freeze halaman.",
+    "Sidepanel Stability & MV3 CSP Hardening: memindahkan seluruh script animasi ke sidepanel.js untuk mematuhi CSP Manifest V3 tanpa inline script, serta membungkus API navigasi tab dengan safe error handler.",
+  ]},
   { ver: "2.9.9", date: "2026-10-04", items: [
     "Pembersihan Deskripsi Changelog:",
     "Penyelarasan Catatan Rilis: merapikan seluruh judul dan deskripsi catatan rilis di seluruh versi agar berfokus murni pada fitur dan peningkatan sistem.",
@@ -1047,6 +1096,8 @@ async function load() {
   if ($("wfhv2-toggle")) $("wfhv2-toggle").checked = !!data.wfhV2Enabled;
   updateWfhV2Status();
 
+  if ($("revamp-toggle")) $("revamp-toggle").checked = !!data.revampUiEnabled;
+
   renderLogs(Array.isArray(data.logHistory) ? data.logHistory : []);
 
   // Show extension version label (read live from manifest)
@@ -1083,6 +1134,9 @@ async function load() {
       $("wfhv2-toggle").checked = !!res.wfhV2Enabled;
     }
     updateWfhV2Status();
+    if ($("revamp-toggle") && res && res.revampUiEnabled !== undefined) {
+      $("revamp-toggle").checked = !!res.revampUiEnabled;
+    }
     if (uaOn) $("ua").value = res.ua;
     if (geoOn) setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
 
@@ -1218,6 +1272,15 @@ async function applyAll(on) {
 }
 
 // Event Listeners
+if ($("revamp-toggle")) {
+  $("revamp-toggle").addEventListener("change", async (e) => {
+    const on = e.target.checked;
+    await chrome.storage.local.set({ revampUiEnabled: on });
+    const tab = await currentTab();
+    chrome.runtime.sendMessage({ type: "REVAMP_UI_SET", tabId: tab ? tab.id : null, enabled: on });
+  });
+}
+
 if ($("wfhv2-toggle")) {
   $("wfhv2-toggle").addEventListener("change", async (e) => {
     const on = e.target.checked;
@@ -1529,7 +1592,7 @@ $("btn-reload").addEventListener("click", async () => {
       }
     );
   }
-  chrome.tabs.reload(tab.id);
+  await safeReloadTab(tab.id);
 });
 
 $("btn-bypass-all").addEventListener("click", async () => {
@@ -1538,31 +1601,21 @@ $("btn-bypass-all").addEventListener("click", async () => {
   // Reload tab aktif biar seluruh config (UA/JS/Geo/Proxy) langsung jalan di halaman
   try {
     const [t] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (t && t.id) chrome.tabs.reload(t.id);
+    if (t && t.id) await safeReloadTab(t.id);
   } catch (_) {}
 });
 
 if ($("btn-open-dashboard")) {
   $("btn-open-dashboard").addEventListener("click", async () => {
     const targetUrl = "https://presensi.kemendesa.go.id/absen-dev/dashboard";
-    const tab = await currentTab();
-    if (tab && tab.id) {
-      chrome.tabs.update(tab.id, { url: targetUrl, active: true });
-    } else {
-      chrome.tabs.create({ url: targetUrl, active: true });
-    }
+    await navigate(targetUrl);
   });
 }
 
 if ($("btn-open-legacy")) {
   $("btn-open-legacy").addEventListener("click", async () => {
     const targetUrl = "https://presensi.kemendesa.go.id/dashboard";
-    const tab = await currentTab();
-    if (tab && tab.id) {
-      chrome.tabs.update(tab.id, { url: targetUrl, active: true });
-    } else {
-      chrome.tabs.create({ url: targetUrl, active: true });
-    }
+    await navigate(targetUrl);
   });
 }
 
@@ -1758,11 +1811,63 @@ function initOTA() {
   checkOTAUpdate(false);
 }
 
+// WAAPI Spring Accordions (dipindah dari inline script di sidepanel.html
+// agar mematuhi MV3 Content Security Policy — tidak ada inline script).
+function initAccordions() {
+  document.querySelectorAll("details.modern-accordion").forEach((el) => {
+    const summary = el.querySelector("summary");
+    const body = el.querySelector(".accordion-body");
+    const chevron = el.querySelector(".chevron-ic");
+    if (!summary || !body) return;
+    summary.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (el.open) {
+        if (chevron) {
+          chevron.animate(
+            [
+              { transform: "rotate(180deg)" },
+              { transform: "rotate(0deg)" },
+            ],
+            { duration: 200, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "forwards" }
+          );
+        }
+        const anim = body.animate(
+          [
+            { height: `${body.scrollHeight}px`, opacity: 1, transform: "translateY(0)" },
+            { height: "0px", opacity: 0, transform: "translateY(-6px)" },
+          ],
+          { duration: 200, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }
+        );
+        anim.onfinish = () => el.removeAttribute("open");
+      } else {
+        el.setAttribute("open", "");
+        if (chevron) {
+          chevron.animate(
+            [
+              { transform: "rotate(0deg)" },
+              { transform: "rotate(180deg)" },
+            ],
+            { duration: 240, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "forwards" }
+          );
+        }
+        body.animate(
+          [
+            { height: "0px", opacity: 0, transform: "translateY(-6px)" },
+            { height: `${body.scrollHeight}px`, opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 240, easing: "cubic-bezier(0.16, 1, 0.3, 1)" }
+        );
+      }
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initOverlayScrollbars();
   initTabs();
   initSegmentedGliders();
   initConsoleToolbar();
   initOTA();
+  initAccordions();
   load();
 });
