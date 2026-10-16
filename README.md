@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.3 (2026-10-06)
+- **WFH Random Micro-Jitter Generator (50 Titik Acak 1-5 Meter):**
+  - **Simulasi GPS Alami Indoor:** Menambahkan 50 titik koordinat acak realistis berjarak 1-5 meter mengelilingi titik pusat rumah WFH terdaftar, mengemulasi fluktuasi satelit smartphone fisik di dalam ruangan.
+  - **Perlindungan Audit Anti-Detection:** Mencegah deteksi pola koordinat statis/beku di backend server ePresensi Kemendesa dengan selalu memilih titik acak baru tiap reload atau sesi presensi.
+  - **Dukungan Format Multi-Device:** 50 titik WFH tersedia dalam presisi 14 digit desimal (iOS Safari) dan 6-7 digit desimal (Android resmi).
+
 ### v3.0.2 (2026-10-06)
 - **Perbaikan Integrasi Tombol Buka Google Maps:**
   - **Dukungan Koordinat Preset Default:** Tombol *Buka Google Maps* kini dapat langsung diklik kapan saja tanpa mengharuskan input kustom terisi; jika kosong, peta otomatis membuka titik lokasi aktif (WFO Kalibata/Kalisari atau WFH Rumah).
