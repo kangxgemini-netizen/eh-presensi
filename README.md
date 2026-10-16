@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.4 (2026-10-16)
+- **Penyelarasan Lokasi Rumah WFH Terdaftar & Auto-Marker "R":**
+  - **Koreksi Koordinat WFH:** Memperbarui titik acuan rumah WFH ke titik lokasi terdaftar resmi di database ePresensi Kemendesa (`-6.2547387, 106.7249493`) dan menata ulang 50 titik acak micro-jitter (1-5m) di sekeliling koordinat rumah yang sebenarnya.
+  - **Proactive Leaflet Marker & Popup Interceptor:** Mencegah marker berlabel "K" muncul di peta saat WFH dengan mencegat pembuatan divIcon ("K" $\rightarrow$ "R") dan popup ("Lokasi kantor" $\rightarrow$ "Rumah WFH") secara instan sejak pemanggilan pertama.
+  - **Penyesuaian Label Teks Lokasi & Radius:** Mengganti teks *"Koordinat kantor"* menjadi *"Koordinat rumah"* dan *"Radius kantor"* menjadi *"Radius rumah"* pada halaman cek lokasi WFH.
+  - **Auto-Sync Mode Bottom Sheet:** Menyinkronkan pilihan WFH/WFO pada bottom sheet dashboard secara real-time ke mode GPS ekstensi dan storage lokal agar tidak terjadi desinkronisasi koordinat saat berpindah halaman.
+
 ### v3.0.3 (2026-10-06)
 - **WFH Random Micro-Jitter Generator (50 Titik Acak 1-5 Meter):**
   - **Simulasi GPS Alami Indoor:** Menambahkan 50 titik koordinat acak realistis berjarak 1-5 meter mengelilingi titik pusat rumah WFH terdaftar, mengemulasi fluktuasi satelit smartphone fisik di dalam ruangan.

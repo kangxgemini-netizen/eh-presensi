@@ -1471,12 +1471,29 @@
       }
       return;
     }
+    const chosenMode = mode === "wfh" ? "wfh" : "wfo";
     try {
-      sessionStorage.setItem("ehAbsenMode", mode === "wfh" ? "WFH" : "WFO");
+      sessionStorage.setItem("ehAbsenMode", chosenMode === "wfh" ? "WFH" : "WFO");
     } catch (_) {
       /* ignore */
     }
-    window.location.href = mode === "wfh" ? "/cek-lokasi-wfh" : "/cek-lokasi";
+
+    // Auto-sync extension's geoMode and coordinates with the chosen mode
+    try {
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ geoMode: chosenMode });
+      }
+      if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+        chrome.runtime.sendMessage({
+          type: "SWITCH_GEO_MODE",
+          mode: chosenMode
+        });
+      }
+    } catch (_) {
+      /* best-effort */
+    }
+
+    window.location.href = chosenMode === "wfh" ? "/cek-lokasi-wfh" : "/cek-lokasi";
   }
 
   // One capture-phase listener covers every absen entry point on the dashboard,

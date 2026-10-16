@@ -249,71 +249,37 @@
   // refresh cache periodically in case the user changes config without reload
   try { setInterval(loadGeoCfg, 1000); } catch (_) {}
 
-  // --- GPS spoof (random from curated list) ---
-  // Intercept getCurrentPosition/watchPosition and return a coordinate picked
-  // from GEO_LIST (or manual override). This works regardless of CDP timing.
+  // --- GPS spoof (intercept getCurrentPosition/watchPosition) ---
+  // Returns coordinate from active injected config (__EH_GEO__), with fail-safe
+  // fallbacks to registered WFH home or official office coordinates.
   try {
-    var GEO_LIST = [
-      { lat: -6.3432612, lng: 106.8588874 },
-      { lat: -6.3431555, lng: 106.8586968 },
-      { lat: -6.3435024, lng: 106.8585695 },
-      { lat: -6.3431626, lng: 106.8588921 },
-      { lat: -6.3432624, lng: 106.8588462 },
-      { lat: -6.3432992, lng: 106.8585461 },
-      { lat: -6.3432533, lng: 106.858687 },
-      { lat: -6.3433556, lng: 106.8584628 },
-      { lat: -6.3433624, lng: 106.8585651 },
-      { lat: -6.3432851, lng: 106.858917 },
-      { lat: -6.3435244, lng: 106.858595 },
-      { lat: -6.3431646, lng: 106.8587616 },
-      { lat: -6.3430692, lng: 106.8585355 },
-      { lat: -6.3432481, lng: 106.8587409 },
-      { lat: -6.3434457, lng: 106.8584743 },
-      { lat: -6.3435354, lng: 106.858642 },
-      { lat: -6.3433282, lng: 106.858869 },
-      { lat: -6.3433483, lng: 106.8585148 },
-      { lat: -6.3434615, lng: 106.8584912 },
-      { lat: -6.343412, lng: 106.8584502 },
-      { lat: -6.3432307, lng: 106.8588915 },
-      { lat: -6.3431701, lng: 106.8586413 },
-      { lat: -6.3432192, lng: 106.8586813 },
-      { lat: -6.3432106, lng: 106.8586579 },
-      { lat: -6.3431335, lng: 106.85853 },
-      { lat: -6.3431361, lng: 106.8587146 },
-      { lat: -6.343349, lng: 106.8588023 },
-      { lat: -6.3434325, lng: 106.8585039 },
-      { lat: -6.3434057, lng: 106.8586583 },
-      { lat: -6.3432201, lng: 106.8585933 },
-      { lat: -6.3435018, lng: 106.8585009 },
-      { lat: -6.3434796, lng: 106.8585921 },
-      { lat: -6.3435394, lng: 106.8587135 },
-      { lat: -6.3432691, lng: 106.8588003 },
-      { lat: -6.3431444, lng: 106.858656 },
-      { lat: -6.3433385, lng: 106.8587898 },
-      { lat: -6.343063, lng: 106.8585725 },
-      { lat: -6.3431618, lng: 106.8584988 },
-      { lat: -6.343229, lng: 106.858422 },
-      { lat: -6.3431562, lng: 106.858676 },
-      { lat: -6.3430935, lng: 106.8586567 },
-      { lat: -6.3434185, lng: 106.8588392 },
-      { lat: -6.3431277, lng: 106.8587059 },
-      { lat: -6.3433111, lng: 106.8584024 },
-      { lat: -6.3432713, lng: 106.8587513 },
-      { lat: -6.3433591, lng: 106.8586104 },
-      { lat: -6.3431822, lng: 106.8584597 },
-      { lat: -6.343249, lng: 106.8586226 },
-      { lat: -6.343344, lng: 106.8584066 },
-      { lat: -6.343499, lng: 106.8588445 }
-    ];
+    var DEFAULT_OFFICE = { lat: -6.254909, lng: 106.8514313 }; // Kalibata main office
+    var DEFAULT_HOME = { lat: -6.2547387, lng: 106.7249493 };   // WFH registered home
 
     function pickCoord() {
       var cfg = getGeoCfg();
+      var isWfh = isWfhModeActive();
+      if (isWfh) {
+        if (cfg.geoMode === "wfh" && cfg.lat != null && cfg.lng != null) {
+          var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
+          if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
+        }
+        // Fallback to employee's registered home from localStorage if available
+        try {
+          var peg = JSON.parse(localStorage.getItem("pegawai") || "null");
+          if (peg && peg.latitude_wfh && peg.longitude_wfh) {
+            var plat = parseFloat(peg.latitude_wfh), plng = parseFloat(peg.longitude_wfh);
+            if (!isNaN(plat) && !isNaN(plng)) return { latitude: plat, longitude: plng };
+          }
+        } catch (_) {}
+        return { latitude: DEFAULT_HOME.lat, longitude: DEFAULT_HOME.lng };
+      }
+
       if (cfg.lat != null && cfg.lng != null) {
         var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
         if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
       }
-      var c = GEO_LIST[Math.floor(Math.random() * GEO_LIST.length)];
-      return { latitude: c.lat, longitude: c.lng };
+      return { latitude: DEFAULT_OFFICE.lat, longitude: DEFAULT_OFFICE.lng };
     }
 
     function fakePos(coord) {
@@ -479,7 +445,11 @@
       var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
       // Explicitly exclude anything under /absen-dev/
       if (/\/absen-dev\//i.test(p)) return false;
-      return /\/cek-lokasi-(wfh|wfa)\/?$/i.test(p);
+      if (/\/cek-lokasi-(wfh|wfa)\/?$/i.test(p)) return true;
+      try {
+        if (window.sessionStorage && window.sessionStorage.getItem("ehAbsenMode") === "WFH") return true;
+      } catch (_) {}
+      return false;
     } catch (_) {
       return false;
     }
@@ -487,6 +457,12 @@
 
   function isWfhModeActive() {
     try {
+      var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
+      if (/\/cek-lokasi-(wfh|wfa)\/?$/i.test(p)) return true;
+      try {
+        if (window.sessionStorage && window.sessionStorage.getItem("ehAbsenMode") === "WFH") return true;
+      } catch (_) {}
+
       var cfg = getGeoCfg();
       // An explicitly disabled session never relabels, whatever the page is.
       if (cfg && cfg.disabled) return false;
@@ -509,14 +485,19 @@
     }
   }
 
-  // The master switch. Requires BOTH:
-  //   1. the "WFH v2 Mode" toggle to be on, and
-  //   2. the user to be in WFH geo mode (or still awaiting injection).
+  // The master switch. Requires:
+  //   1. Explicit WFH page / session OR
+  //   2. "WFH v2 Mode" toggle on + user in WFH geo mode.
   function wfhV2Enabled() {
     try {
+      var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
+      if (/\/cek-lokasi-(wfh|wfa)\/?$/i.test(p)) return true;
+      try {
+        if (window.sessionStorage && window.sessionStorage.getItem("ehAbsenMode") === "WFH") return true;
+      } catch (_) {}
+
       var w = (typeof window !== "undefined") ? window.__EH_WFH_V2__ : null;
-      if (w === undefined || w === null) return false;
-      var on = !!w;
+      var on = (w === undefined || w === null) ? true : !!w;
       if (!on) return false;
       return isWfhModeActive() || (!hasInjectedCfg() && onLegacyWfhPage());
     } catch (_) {
@@ -524,15 +505,33 @@
     }
   }
 
+  // Proactively intercept L.divIcon so the red marker is born as "R" from the very start
+  function interceptLeafletDivIcon() {
+    try {
+      if (typeof window.L !== "undefined" && window.L.divIcon && !window.L.divIcon._ehIntercepted) {
+        var origDivIcon = window.L.divIcon;
+        window.L.divIcon = function (options) {
+          if (wfhV2Enabled() && options && typeof options.html === "string") {
+            options.html = options.html.replace(/>\s*K\s*</g, ">R<");
+          }
+          return origDivIcon.apply(this, arguments);
+        };
+        window.L.divIcon._ehIntercepted = true;
+      }
+    } catch (_) {}
+  }
+
   function relabelWfhMarker() {
     if (!wfhV2Enabled()) return false;
+    interceptLeafletDivIcon();
     var changed = false;
     try {
       // Leaflet renders our divIcon as .leaflet-marker-icon > div (the colored badge).
-      var badges = document.querySelectorAll(".leaflet-marker-icon div");
+      var badges = document.querySelectorAll(".leaflet-marker-icon div, .custom-div-icon div");
       for (var i = 0; i < badges.length; i++) {
         var b = badges[i];
-        if (b.textContent === "K" && !b.dataset.ehRelabelled) {
+        var txt = (b.textContent || "").trim();
+        if (txt === "K" && !b.dataset.ehRelabelled) {
           b.textContent = "R";
           b.dataset.ehRelabelled = "1";
           changed = true;
@@ -540,11 +539,11 @@
       }
 
       // Popup label follows the same wording as the official app.
-      var popups = document.querySelectorAll(".leaflet-popup-content");
+      var popups = document.querySelectorAll(".leaflet-popup-content, .leaflet-popup-content *");
       for (var j = 0; j < popups.length; j++) {
         var p = popups[j];
-        if (p.textContent === "Lokasi kantor") {
-          p.textContent = "Rumah WFH";
+        if (p.textContent && /lokasi\s+kantor/i.test(p.textContent)) {
+          p.textContent = p.textContent.replace(/lokasi\s+kantor/gi, "Rumah WFH");
           changed = true;
         }
       }
@@ -567,6 +566,9 @@
         if (!t) continue;
         var next = t
           .replace(/Jarak\s+ke\s+kantor/gi, "Jarak ke rumah")
+          .replace(/Koordinat\s+kantor/gi, "Koordinat rumah")
+          .replace(/Radius\s+kantor/gi, "Radius rumah")
+          .replace(/Lokasi\s+kantor/gi, "Lokasi rumah")
           .replace(/dalam\s+radius\s+lokasi\s+kerja/gi, "dalam radius lokasi rumah");
         if (next !== t) {
           node.nodeValue = next;

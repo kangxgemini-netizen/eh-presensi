@@ -6,6 +6,8 @@
 //   3. Strong device spoof via a MAIN-world content script (spoof.js)
 //   4. Geolocation override (Emulation.setGeolocationOverride) — re-applied on reload
 
+importScripts("gps_presets.js");
+
 const tabs = new Map();                 // tabId -> { js, ua, geo, geoAuto, proxy }
 const attached = new Set();             // tabIds currently attached to debugger
 const spoofTabs = new Set();            // tabIds with active MAIN-world spoof script
@@ -54,67 +56,45 @@ addLog("STATE", "eh-Presensi background initialized");
   } catch (_) {}
 })();
 
-// Curated 50 preset coordinates within 60m diameter (30m radius) of -6.343295, 106.858673
-const GEO_LIST = [
-  { lat: -6.3432612, lng: 106.8588874 },
-  { lat: -6.3431555, lng: 106.8586968 },
-  { lat: -6.3435024, lng: 106.8585695 },
-  { lat: -6.3431626, lng: 106.8588921 },
-  { lat: -6.3432624, lng: 106.8588462 },
-  { lat: -6.3432992, lng: 106.8585461 },
-  { lat: -6.3432533, lng: 106.858687 },
-  { lat: -6.3433556, lng: 106.8584628 },
-  { lat: -6.3433624, lng: 106.8585651 },
-  { lat: -6.3432851, lng: 106.858917 },
-  { lat: -6.3435244, lng: 106.858595 },
-  { lat: -6.3431646, lng: 106.8587616 },
-  { lat: -6.3430692, lng: 106.8585355 },
-  { lat: -6.3432481, lng: 106.8587409 },
-  { lat: -6.3434457, lng: 106.8584743 },
-  { lat: -6.3435354, lng: 106.858642 },
-  { lat: -6.3433282, lng: 106.858869 },
-  { lat: -6.3433483, lng: 106.8585148 },
-  { lat: -6.3434615, lng: 106.8584912 },
-  { lat: -6.343412, lng: 106.8584502 },
-  { lat: -6.3432307, lng: 106.8588915 },
-  { lat: -6.3431701, lng: 106.8586413 },
-  { lat: -6.3432192, lng: 106.8586813 },
-  { lat: -6.3432106, lng: 106.8586579 },
-  { lat: -6.3431335, lng: 106.85853 },
-  { lat: -6.3431361, lng: 106.8587146 },
-  { lat: -6.343349, lng: 106.8588023 },
-  { lat: -6.3434325, lng: 106.8585039 },
-  { lat: -6.3434057, lng: 106.8586583 },
-  { lat: -6.3432201, lng: 106.8585933 },
-  { lat: -6.3435018, lng: 106.8585009 },
-  { lat: -6.3434796, lng: 106.8585921 },
-  { lat: -6.3435394, lng: 106.8587135 },
-  { lat: -6.3432691, lng: 106.8588003 },
-  { lat: -6.3431444, lng: 106.858656 },
-  { lat: -6.3433385, lng: 106.8587898 },
-  { lat: -6.343063, lng: 106.8585725 },
-  { lat: -6.3431618, lng: 106.8584988 },
-  { lat: -6.343229, lng: 106.858422 },
-  { lat: -6.3431562, lng: 106.858676 },
-  { lat: -6.3430935, lng: 106.8586567 },
-  { lat: -6.3434185, lng: 106.8588392 },
-  { lat: -6.3431277, lng: 106.8587059 },
-  { lat: -6.3433111, lng: 106.8584024 },
-  { lat: -6.3432713, lng: 106.8587513 },
-  { lat: -6.3433591, lng: 106.8586104 },
-  { lat: -6.3431822, lng: 106.8584597 },
-  { lat: -6.343249, lng: 106.8586226 },
-  { lat: -6.343344, lng: 106.8584066 },
-  { lat: -6.343499, lng: 106.8588445 }
-];
-
-function pickGeo(mode, manualLat, manualLng) {
-  if (mode === "manual" && manualLat != null && manualLng != null) {
-    const lat = parseFloat(manualLat), lng = parseFloat(manualLng);
-    if (!isNaN(lat) && !isNaN(lng)) return { lat: Number(lat.toFixed(7)), lng: Number(lng.toFixed(7)) };
+function pickGeoForTab(mode, style, anchor, manualCoord) {
+  const s = style || "ios";
+  if (manualCoord && String(manualCoord).trim().length > 0) {
+    const trimmed = String(manualCoord).trim();
+    const parts = trimmed.includes(",") ? trimmed.split(",") : trimmed.split(/\s+/);
+    if (parts.length >= 2) {
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return { lat: Number(lat.toFixed(s === "android" ? 7 : 14)), lng: Number(lng.toFixed(s === "android" ? 7 : 14)) };
+      }
+    }
   }
-  const item = GEO_LIST[Math.floor(Math.random() * GEO_LIST.length)];
-  return { lat: Number(item.lat.toFixed(7)), lng: Number(item.lng.toFixed(7)) };
+  if (mode === "wfh") {
+    const list = WFH_PRESETS[s] || WFH_PRESETS.ios;
+    return randItem(list);
+  }
+  const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
+  const a = anchor || "kalibata";
+  const list = presetsByStyle[a] || presetsByStyle.kalibata;
+  return randItem(list);
+}
+
+async function readGeoAnchor() {
+  try {
+    const d = await chrome.storage.local.get(["geoAnchor"]);
+    return d.geoAnchor || "kalibata";
+  } catch (_) {
+    return "kalibata";
+  }
+}
+
+async function readGeoManual() {
+  try {
+    const d = await chrome.storage.local.get(["geoManual"]);
+    return (d.geoManual || "").trim();
+  } catch (_) {
+    return "";
+  }
 }
 
 chrome.debugger.onEvent.addListener((debuggeeId, method, params) => {
@@ -181,8 +161,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     const wfhV2 = await readWfhV2();
     if (t.geoEnabled) {
       if (t.geoAuto) {
-        const g = pickGeo("auto");
+        const anchor = await readGeoAnchor();
+        const manual = await readGeoManual();
+        const g = pickGeoForTab(geoMode, t.geoStyle, anchor, manual);
         t.geo = g;
+        await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
       }
       try {
         const cfg = {
@@ -235,6 +218,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "GATE_BLOCK_SET") { gateBlockSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "gateBlockSet failed" })); return true; }
   if (msg.type === "WFH_V2_SET")   { wfhV2Set(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "wfhV2Set failed" })); return true; }
   if (msg.type === "REVAMP_UI_SET") { revampUiSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "revampUiSet failed" })); return true; }
+  if (msg.type === "SWITCH_GEO_MODE") {
+    const targetMode = msg.mode === "wfh" ? "wfh" : "wfo";
+    chrome.storage.local.set({ geoMode: targetMode }).then(() => {
+      sendResponse({ ok: true });
+    }).catch(() => sendResponse({ ok: false }));
+    return true;
+  }
   if (msg.action === "INJECT_LOG") { addLog(msg.cat || "INJECT", msg.msg); return false; }
 });
 
