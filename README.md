@@ -8,6 +8,10 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.5 (2026-10-16)
+- **Penyederhanaan Label CTA Lokasi:**
+  - **Minimalist Action Label:** Menyederhanakan label tombol buka Google Maps di samping input koordinat kustom menjadi *"Maps"* agar lebih ringkas, proporsional, dan nyaman di mata pada layout side panel.
+
 ### v3.0.4 (2026-10-16)
 - **Penyelarasan Lokasi Rumah WFH Terdaftar & Auto-Marker "R":**
   - **Koreksi Koordinat WFH:** Memperbarui titik acuan rumah WFH ke titik lokasi terdaftar resmi di database ePresensi Kemendesa (`-6.2547387, 106.7249493`) dan menata ulang 50 titik acak micro-jitter (1-5m) di sekeliling koordinat rumah yang sebenarnya.

@@ -628,6 +628,10 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.5", date: "2026-10-16", items: [
+    "Penyederhanaan Label CTA Lokasi:",
+    "Minimalist Action Label: menyederhanakan label tombol buka Google Maps di samping input koordinat kustom menjadi 'Maps' agar lebih ringkas, proporsional, dan nyaman di mata pada layout side panel.",
+  ]},
   { ver: "3.0.4", date: "2026-10-16", items: [
     "Penyelarasan Lokasi Rumah WFH Terdaftar & Auto-Marker 'R':",
     "Koreksi Koordinat WFH: memperbarui titik acuan rumah WFH ke titik lokasi terdaftar resmi di database ePresensi Kemendesa (-6.2547387, 106.7249493) dan menata ulang 50 titik acak micro-jitter (1-5m) di sekeliling koordinat rumah yang sebenarnya.",
