@@ -622,6 +622,12 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.2", date: "2026-10-06", items: [
+    "Perbaikan Integrasi Tombol Buka Google Maps:",
+    "Dukungan Koordinat Preset Default: tombol Buka Google Maps kini dapat langsung diklik kapan saja tanpa mengharuskan input kustom terisi; jika kosong, peta otomatis membuka titik lokasi aktif (WFO Kalibata/Kalisari atau WFH Rumah).",
+    "Dual-Transport Tab Opener: mengimplementasikan fallback window.open di samping chrome.tabs.create agar tautan Google Maps dipastikan selalu terbuka di tab baru tanpa terhambat status ekstensi.",
+    "Presisi URL Pin Lokasi: menggunakan format standar Google Maps pin query untuk memuat titik koordinat secara langsung dan akurat.",
+  ]},
   { ver: "3.0.1", date: "2026-10-06", items: [
     "Penyelarasan Mode GPS & Koordinat Kustom:",
     "Integrasi Opsi Manual ke WFO dan WFH: menghapus pill mode terpisah 'Manual' pada kontrol utama dan menyederhanakan pilihan mode menjadi murni WFO dan WFH.",
@@ -1400,16 +1406,20 @@ $("geo-toggle").addEventListener("change", async (e) => {
   }
 });
 
-// Buka Google Maps pada koordinat yang sedang diketik di kolom manual.
-// Memakai parseGeoCoord() yang sama dengan validasi input, lalu applyGeoStyle()
-// supaya koordinat yang dibuka persis dengan yang benar-benar dikirim ke halaman
-// (untuk iOS, digit trailing longitude ditambahkan).
+// Buka Google Maps pada koordinat kustom (jika diisi) atau koordinat preset aktif
+// (WFO Kalibata/Kalisari atau WFH) jika input kosong.
+// Memakai parseGeoCoord() dan applyGeoStyle() agar koordinat yang dibuka presisi.
 $("btn-open-maps").addEventListener("click", async () => {
   const hint = $("geo-manual-hint");
   const inputEl = $("geo-manual");
   const btn = $("btn-open-maps");
-  const raw = parseGeoCoord($("geo-manual").value.trim());
-  const defaultHint = "Format: lat, lng (iOS: 14 digit, Android: 6-7 digit)";
+  const rawVal = $("geo-manual").value.trim();
+  const style = getGeoStyle();
+  const defaultHint = rawVal.length > 0
+    ? (style === "android"
+        ? "Format: -6.254742, 106.7249454 (Android: 6-7 digit desimal)"
+        : "Format: -6.34294464805416, 106.859012539737 (iOS: 14 digit desimal)")
+    : "Kosongkan untuk koordinat preset default, atau isi lat, lng untuk override lokasi.";
 
   const flashHint = (msg) => {
     if (hint) hint.textContent = msg;
@@ -1420,24 +1430,49 @@ $("btn-open-maps").addEventListener("click", async () => {
     }, 2600);
   };
 
-  if (!raw) {
-    flashHint($("geo-manual").value.trim()
-      ? "Koordinat tidak valid — isi dulu format lat, lng."
-      : "Isi koordinat dulu untuk membuka Google Maps.");
-    inputEl.focus();
+  let coord = null;
+  if (rawVal) {
+    const raw = parseGeoCoord(rawVal);
+    if (!raw) {
+      flashHint("Koordinat kustom tidak valid — periksa format lat, lng.");
+      inputEl.focus();
+      return;
+    }
+    coord = applyGeoStyle(raw, style);
+  } else {
+    // Input kosong: otomatis gunakan koordinat preset aktif (WFO Kalibata/Kalisari atau WFH)
+    const mode = getGeoMode();
+    const anchor = getGeoAnchor();
+    coord = pickGeo(mode, "", anchor, style);
+  }
+
+  if (!coord) {
+    flashHint("Tidak dapat menentukan koordinat untuk Google Maps.");
     return;
   }
 
-  const style = getGeoStyle();
-  const coord = applyGeoStyle(raw, style);
-
-  const url = "https://www.google.com/maps/search/?api=1&query=" +
-    encodeURIComponent(coord.lat + "," + coord.lng);
+  const url = "https://www.google.com/maps?q=" + encodeURIComponent(coord.lat + "," + coord.lng);
 
   btn.disabled = true;
   try {
-    await chrome.tabs.create({ url, active: true });
-    if (hint) hint.textContent = "Google Maps dibuka untuk koordinat ini.";
+    let opened = false;
+    try {
+      if (typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.create) {
+        await chrome.tabs.create({ url, active: true });
+        opened = true;
+      }
+    } catch (_) {
+      opened = false;
+    }
+
+    if (!opened) {
+      window.open(url, "_blank");
+    }
+
+    if (hint) {
+      const modeLabel = rawVal ? "kustom" : (getGeoMode() === "wfh" ? "WFH" : getGeoAnchor());
+      hint.textContent = `Google Maps dibuka untuk lokasi ${modeLabel} (${coord.lat}, ${coord.lng}).`;
+    }
     setTimeout(() => { if (hint) hint.textContent = defaultHint; }, 2600);
   } catch (e) {
     flashHint("Gagal membuka Google Maps.");

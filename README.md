@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.2 (2026-10-06)
+- **Perbaikan Integrasi Tombol Buka Google Maps:**
+  - **Dukungan Koordinat Preset Default:** Tombol *Buka Google Maps* kini dapat langsung diklik kapan saja tanpa mengharuskan input kustom terisi; jika kosong, peta otomatis membuka titik lokasi aktif (WFO Kalibata/Kalisari atau WFH Rumah).
+  - **Dual-Transport Tab Opener:** Mengimplementasikan fallback `window.open` di samping `chrome.tabs.create` agar tautan Google Maps dipastikan selalu terbuka di tab baru tanpa terhambat status ekstensi.
+  - **Presisi URL Pin Lokasi:** Menggunakan format standar Google Maps pin query untuk memuat titik koordinat secara langsung dan akurat.
+
 ### v3.0.1 (2026-10-06)
 - **Penyelarasan Mode GPS & Koordinat Kustom:**
   - **Integrasi Opsi Manual ke WFO dan WFH:** Menghapus pill mode terpisah *Manual* pada kontrol utama dan menyederhanakan pilihan mode menjadi murni WFO dan WFH.
