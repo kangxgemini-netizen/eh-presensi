@@ -217,14 +217,16 @@
         chrome.storage.local.get(["geoMode", "geoManual", "geoDisabled", "geoLat", "geoLng", "geoStyle"], function (d) {
           if (!d) return;
           var disabled = !!d.geoDisabled;
-          var geoMode = disabled ? "off" : (d.geoMode || "wfo");
+          var rawGeoMode = d.geoMode || "wfo";
+          var geoMode = disabled ? "off" : (rawGeoMode === "manual" ? "wfo" : rawGeoMode);
           var style = d.geoStyle || "ios";
-          var mode = disabled ? "off" : (d.geoMode || "auto");
+          var hasManual = Boolean(d.geoManual && String(d.geoManual).trim().length > 0);
+          var mode = disabled ? "off" : (hasManual ? "manual" : "auto");
           var cfg = { mode: mode, geoMode: geoMode, disabled: disabled, style: style };
           if (d.geoLat != null && d.geoLng != null) {
             cfg.lat = parseFloat(d.geoLat);
             cfg.lng = parseFloat(d.geoLng);
-          } else if (mode === "manual" && d.geoManual) {
+          } else if (hasManual) {
             var trimmed = String(d.geoManual).trim();
             var parts = trimmed.includes(",") ? trimmed.split(",") : (trimmed.includes("\t") ? trimmed.split("\t") : trimmed.split(/\s+/));
             if (parts.length >= 2) {

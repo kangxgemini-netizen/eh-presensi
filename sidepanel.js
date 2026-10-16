@@ -24,10 +24,12 @@ function setGeoAnchor(v) {
 
 function getGeoMode() {
   const el = document.querySelector('input[name="geo-mode"]:checked');
-  return el ? el.value : "wfo";
+  const v = el ? el.value : "wfo";
+  return (v === "manual") ? "wfo" : v;
 }
 function setGeoMode(v) {
-  const r = document.querySelector('input[name="geo-mode"][value="' + v + '"]');
+  const target = (v === "manual") ? "wfo" : v;
+  const r = document.querySelector('input[name="geo-mode"][value="' + target + '"]');
   if (r) {
     r.checked = true;
     updateSegmentedGliders();
@@ -50,12 +52,21 @@ function updateGeoPlaceholder(style) {
   const inputEl = $("geo-manual");
   const hintEl = $("geo-manual-hint");
   if (!inputEl) return;
+  const isFilled = inputEl.value.trim().length > 0;
   if (style === "android") {
     inputEl.placeholder = "-6.254742, 106.7249454";
-    if (hintEl) hintEl.textContent = "Format: -6.254742, 106.7249454 (Android style: 6-7 digit desimal)";
+    if (hintEl) {
+      hintEl.textContent = isFilled
+        ? "Format: -6.254742, 106.7249454 (Android: 6-7 digit desimal)"
+        : "Kosongkan untuk koordinat preset default, atau isi lat, lng untuk override lokasi.";
+    }
   } else {
     inputEl.placeholder = "-6.34294464805416, 106.859012539737";
-    if (hintEl) hintEl.textContent = "Format: -6.34294464805416, 106.859012539737 (iOS style: 14 digit desimal)";
+    if (hintEl) {
+      hintEl.textContent = isFilled
+        ? "Format: -6.34294464805416, 106.859012539737 (iOS: 14 digit desimal)"
+        : "Kosongkan untuk koordinat preset default, atau isi lat, lng untuk override lokasi.";
+    }
   }
 }
 
@@ -166,8 +177,8 @@ function parseGeoCoord(str) {
 
 function pickGeo(mode, manualCoord, anchor, style) {
   const s = style || getGeoStyle();
-  if (mode === "manual") {
-    const c = parseGeoCoord(manualCoord);
+  if (manualCoord && manualCoord.trim()) {
+    const c = parseGeoCoord(manualCoord.trim());
     if (c) return applyGeoStyle(c, s);
   }
   if (mode === "wfo") {
@@ -189,14 +200,19 @@ function renderGeoCoords(mode, anchor, manual, style) {
   const el = $("geo-coords");
   if (!el) return;
   const s = style || getGeoStyle();
-  if (mode === "manual" && parseGeoCoord(manual)) {
-    const c = applyGeoStyle(parseGeoCoord(manual), s);
-    el.textContent = `Manual · ${s.toUpperCase()} · ${c.lat}, ${c.lng}`;
+  if (manual && manual.trim() && parseGeoCoord(manual.trim())) {
+    const c = applyGeoStyle(parseGeoCoord(manual.trim()), s);
+    el.textContent = `${mode.toUpperCase()} (Kustom) · ${s.toUpperCase()} · ${c.lat}, ${c.lng}`;
+    return;
+  }
+  if (mode === "wfh") {
+    const wfh = WFH_COORDS[s] || WFH_COORDS.ios;
+    el.textContent = `WFH · Rumah · ${s.toUpperCase()} · ${wfh.lat}, ${wfh.lng}`;
     return;
   }
   const anchorsByStyle = ANCHORS[s] || ANCHORS.ios;
   const a = anchorsByStyle[anchor] || anchorsByStyle.kalibata;
-  el.textContent = `${mode.toUpperCase()} · ${anchor[0].toUpperCase()+anchor.slice(1)} · ${s.toUpperCase()} · ${a.lat}, ${a.lng}`;
+  el.textContent = `WFO · ${anchor[0].toUpperCase()+anchor.slice(1)} · ${s.toUpperCase()} · ${a.lat}, ${a.lng}`;
 }
 
 async function validateAndApplyGeoManual() {
@@ -216,7 +232,7 @@ async function validateAndApplyGeoManual() {
 
     await chrome.storage.local.set({ geoManual: val, geoLat: coord.lat, geoLng: coord.lng });
 
-    renderGeoCoords("manual", anchor, val, style);
+    renderGeoCoords(mode, anchor, val, style);
 
     if ($("geo-toggle").checked) {
       const tab = await currentTab();
@@ -238,9 +254,27 @@ async function validateAndApplyGeoManual() {
     else inputEl.classList.remove("geo-invalid");
     if (checkIc) checkIc.style.display = "none";
 
-    await chrome.storage.local.set({ geoManual: val });
+    await chrome.storage.local.set({ geoManual: "" });
     renderGeoCoords(mode, anchor, "", style);
+
+    if ($("geo-toggle").checked && val.length === 0) {
+      const tab = await currentTab();
+      if (tab) {
+        const g = pickGeo(mode, "", anchor, style);
+        await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
+        chrome.runtime.sendMessage(
+          { type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto: false, geoStyle: style },
+          (res) => {
+            if (res && res.geo) {
+              setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
+            }
+            render();
+          }
+        );
+      }
+    }
   }
+  updateGeoPlaceholder(style);
 }
 const DEFAULT_PATTERN = "*/security-guard.js*";
 const DEFAULT_MODE = "prepend";
@@ -588,6 +622,12 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.1", date: "2026-10-06", items: [
+    "Penyelarasan Mode GPS & Koordinat Kustom:",
+    "Integrasi Opsi Manual ke WFO dan WFH: menghapus pill mode terpisah 'Manual' pada kontrol utama dan menyederhanakan pilihan mode menjadi murni WFO dan WFH.",
+    "Bidirectional Custom Override: menambahkan input 'Koordinat Kustom (Opsional)' di bawah mode WFO dan WFH. Jika diisi, koordinat kustom meng-override lokasi secara instan; jika dikosongkan, sistem otomatis kembali ke koordinat preset default (Kalibata/Kalisari untuk WFO, atau titik rumah untuk WFH).",
+    "Realtime Dynamic Feedback: teks status koordinat otomatis menampilkan label '(Kustom)' saat koordinat manual aktif, dan kembali ke label preset saat dikosongkan.",
+  ]},
   { ver: "3.0.0", date: "2026-10-06", items: [
     "Revamp UI Mode (Modern Web Experience):",
     "Universal Top Navigation: menyatukan logo instansi (navigasi langsung ke /dashboard), jam digital dan tanggal real-time terpusat di navbar, serta tombol hamburger minimalis icon-only (tanpa background, border, atau shadow) di seluruh rute halaman presensi.",
@@ -1084,7 +1124,7 @@ async function load() {
   setGeoStyle(data.geoStyle || "ios");
   updateGeoPlaceholder(data.geoStyle || "ios");
   $("geo-manual").value = data.geoManual || "";
-  $("geo-manual-box").style.display = (getGeoMode() === "manual") ? "block" : "none";
+  $("geo-manual-box").style.display = "block";
   updateGeoAnchorVisibility(getGeoMode());
   validateAndApplyGeoManual();
   updateProxyStatusLive();
@@ -1408,7 +1448,6 @@ $("btn-open-maps").addEventListener("click", async () => {
 
 document.querySelectorAll('input[name="geo-mode"]').forEach((r) => r.addEventListener("change", async (e) => {
   const mode = e.target.value;
-  $("geo-manual-box").style.display = (mode === "manual") ? "block" : "none";
   updateGeoAnchorVisibility(mode);
   await chrome.storage.local.set({ geoMode: mode });
   validateAndApplyGeoManual();

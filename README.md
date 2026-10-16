@@ -8,6 +8,12 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.1 (2026-10-06)
+- **Penyelarasan Mode GPS & Koordinat Kustom:**
+  - **Integrasi Opsi Manual ke WFO dan WFH:** Menghapus pill mode terpisah *Manual* pada kontrol utama dan menyederhanakan pilihan mode menjadi murni WFO dan WFH.
+  - **Bidirectional Custom Override:** Menambahkan input *Koordinat Kustom (Opsional)* di bawah mode WFO dan WFH. Jika diisi, koordinat kustom meng-override lokasi secara instan; jika dikosongkan, sistem otomatis kembali ke koordinat preset default (Kalibata/Kalisari untuk WFO, atau titik rumah untuk WFH).
+  - **Realtime Dynamic Feedback:** Teks status koordinat otomatis menampilkan label *(Kustom)* saat koordinat manual aktif, dan kembali ke label preset saat dikosongkan.
+
 ### v3.0.0 (2026-10-06)
 - **Revamp UI Mode (Modern Web Experience):**
   - **Universal Top Navigation:** Menyatukan logo instansi (navigasi langsung ke `/dashboard`), jam digital dan tanggal real-time terpusat di navbar, serta tombol hamburger minimalis icon-only (tanpa background, border, atau shadow) di seluruh rute halaman presensi.

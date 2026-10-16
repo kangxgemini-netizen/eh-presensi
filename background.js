@@ -261,7 +261,8 @@ async function readGeoMode() {
   try {
     const d = await chrome.storage.local.get(["geoMode", "geoDisabled"]);
     if (d.geoDisabled) return "off";
-    return d.geoMode || "wfo";
+    const m = d.geoMode || "wfo";
+    return m === "manual" ? "wfo" : m;
   } catch (_) {
     return "wfo";
   }
