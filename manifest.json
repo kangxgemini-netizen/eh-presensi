@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "eh-Presensi",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "bantu pegawai yang struggle di jalanan menuju kantor",
   "icons": {
     "16": "icon-16.png",
@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["*://presensi.kemendesa.go.id/*"],
-      "js": ["content.js"],
+      "js": ["gps_presets.js", "content.js"],
       "run_at": "document_start"
     }
   ],

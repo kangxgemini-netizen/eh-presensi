@@ -1518,6 +1518,13 @@
       const payload = { geoMode: chosenMode };
       if (chosenMode === "wfh" && home) {
         payload.userWfhHome = home;
+        if (typeof generateGeoJitter === "function") {
+          const jitter = generateGeoJitter(home.lat, home.lng, "ios");
+          if (jitter) {
+            payload.geoLat = jitter.lat;
+            payload.geoLng = jitter.lng;
+          }
+        }
       }
       if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
         chrome.storage.local.set(payload);

@@ -83,13 +83,14 @@ async function pickGeoForTab(mode, style, anchor, manualCoord) {
   }
   if (mode === "wfh") {
     const userHome = await readUserWfhHome();
-    const base = userHome || (WFH_COORDS && WFH_COORDS[s]) || WFH_COORDS.ios;
-    if (typeof generateGeoJitter === "function") {
-      const jittered = generateGeoJitter(base.lat, base.lng, s);
-      if (jittered) return jittered;
+    if (userHome && typeof userHome.lat === "number" && typeof userHome.lng === "number") {
+      if (typeof generateGeoJitter === "function") {
+        const jittered = generateGeoJitter(userHome.lat, userHome.lng, s);
+        if (jittered) return jittered;
+      }
+      return { lat: userHome.lat, lng: userHome.lng };
     }
-    const list = WFH_PRESETS[s] || WFH_PRESETS.ios;
-    return randItem(list);
+    return null;
   }
   const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
   const a = anchor || "kalibata";
@@ -248,7 +249,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "SWITCH_GEO_MODE") {
     const targetMode = msg.mode === "wfh" ? "wfh" : "wfo";
     const updateObj = { geoMode: targetMode };
-    if (msg.wfhHome) updateObj.userWfhHome = msg.wfhHome;
+    if (msg.wfhHome) {
+      updateObj.userWfhHome = msg.wfhHome;
+      if (typeof generateGeoJitter === "function") {
+        const jitter = generateGeoJitter(msg.wfhHome.lat, msg.wfhHome.lng, "ios");
+        if (jitter) {
+          updateObj.geoLat = jitter.lat;
+          updateObj.geoLng = jitter.lng;
+        }
+      }
+    }
     chrome.storage.local.set(updateObj).then(() => {
       sendResponse({ ok: true });
     }).catch(() => sendResponse({ ok: false }));

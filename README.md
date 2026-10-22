@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.7 (2026-10-16)
+- **Zero Hardcoded WFH Coordinates (Pure Dynamic Profile Extraction):**
+  - **Pembersihan Total Hardcode WFH:** Menghapus seluruh koordinat statis WFH dari file konfigurasi dan preset (`gps_presets.js` dan `sidepanel.js`).
+  - **Dynamic Profile Anchor:** Lokasi rumah WFH kini murni ditarik 100% dari data profil kepegawaian pengguna aktif (`latitude_wfh` dan `longitude_wfh`) saat login atau membuka presensi.
+  - **Jitter On-The-Fly Realtime:** Menghasilkan variasi jitter alami 1.2 s/d 4.8 meter tepat di sekeliling rumah dinamis profil pengguna pada setiap reload.
+  - **Informative Unsynced State:** Memberikan status informatif jika akun belum sinkron atau belum memiliki titik WFH terdaftar di sistem kepegawaian.
+
 ### v3.0.6 (2026-10-16)
 - **Dynamic Profile-Based WFH Location & On-The-Fly Jitter:**
   - **Ekstraksi Dinamis Profil Pegawai:** Membaca titik koordinat rumah WFH terdaftar langsung dari data profil login di portal ePresensi (`latitude_wfh` dan `longitude_wfh`) secara otomatis tanpa perlu hardcode.

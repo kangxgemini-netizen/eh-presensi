@@ -96,17 +96,7 @@ const ANCHORS = {
   }
 };
 
-const WFH_COORDS = {
-  ios: { lat: -6.2547387, lng: 106.7249493 },
-  android: { lat: -6.2547387, lng: 106.7249493 }
-};
-
 let activeWfhHome = null;
-
-const WFH_PRESETS = {
-  ios: [{"lat": -6.25475273314589, "lng": 106.7249436396424}, {"lat": -6.25476599903409, "lng": 106.72496667748122}, {"lat": -6.25472934568437, "lng": 106.7249675388855}, {"lat": -6.25470640882506, "lng": 106.72493954169342}, {"lat": -6.25476605004891, "lng": 106.72494402209449}, {"lat": -6.25474051790897, "lng": 106.72493684153595}, {"lat": -6.25476449215435, "lng": 106.72492248759806}, {"lat": -6.25476083950161, "lng": 106.72492125718011}, {"lat": -6.25472591388177, "lng": 106.72494956086348}, {"lat": -6.25477780348082, "lng": 106.72495626840755}, {"lat": -6.25475358816129, "lng": 106.72492420796559}, {"lat": -6.25476519862508, "lng": 106.72498162938119}, {"lat": -6.25472156691624, "lng": 106.72496558912758}, {"lat": -6.25475672599577, "lng": 106.7249751917954}, {"lat": -6.25473556186088, "lng": 106.72497630031913}, {"lat": -6.25477192936748, "lng": 106.72495460904281}, {"lat": -6.25474992144006, "lng": 106.72497599124809}, {"lat": -6.25473554804627, "lng": 106.72491384233855}, {"lat": -6.25472688923189, "lng": 106.72493437761571}, {"lat": -6.25473226180138, "lng": 106.72492160917157}, {"lat": -6.25473606388059, "lng": 106.7249095855014}, {"lat": -6.2547622331393, "lng": 106.7249531521565}, {"lat": -6.25472562853917, "lng": 106.7249645567857}, {"lat": -6.25473755558522, "lng": 106.72493450863405}, {"lat": -6.25476025102567, "lng": 106.7249265688437}, {"lat": -6.25475982136426, "lng": 106.72493429650336}, {"lat": -6.2547155996172, "lng": 106.7249283213986}, {"lat": -6.25472084004511, "lng": 106.72496093196978}, {"lat": -6.25472613218591, "lng": 106.7249466692324}, {"lat": -6.254741543625, "lng": 106.72493662298288}, {"lat": -6.25472924183436, "lng": 106.72491726055472}, {"lat": -6.25472533002287, "lng": 106.72494259319664}, {"lat": -6.25473290291991, "lng": 106.72496271338842}, {"lat": -6.25475128664907, "lng": 106.72497753997523}, {"lat": -6.25472101938125, "lng": 106.7249671647291}, {"lat": -6.25476705010866, "lng": 106.72492932443419}, {"lat": -6.2547307267496, "lng": 106.72497893244118}, {"lat": -6.2547542788375, "lng": 106.7249281842659}, {"lat": -6.25475029444177, "lng": 106.72495013163378}, {"lat": -6.2547355328462, "lng": 106.72493675374567}, {"lat": -6.25472868134941, "lng": 106.72494246866637}, {"lat": -6.25475073704853, "lng": 106.7249800310731}, {"lat": -6.25469689530606, "lng": 106.72494870943899}, {"lat": -6.2547787722216, "lng": 106.72495490432267}, {"lat": -6.25477233365505, "lng": 106.72497280376255}, {"lat": -6.25476437170121, "lng": 106.72491551611964}, {"lat": -6.25473909210418, "lng": 106.72492825509521}, {"lat": -6.2547372147661, "lng": 106.72498776938504}, {"lat": -6.25470105679722, "lng": 106.72494356749868}, {"lat": -6.25471678030398, "lng": 106.72495249222048}],
-  android: [{"lat": -6.2547527, "lng": 106.7249436}, {"lat": -6.254766, "lng": 106.7249667}, {"lat": -6.2547293, "lng": 106.7249675}, {"lat": -6.2547064, "lng": 106.7249395}, {"lat": -6.2547661, "lng": 106.724944}, {"lat": -6.2547405, "lng": 106.7249368}, {"lat": -6.2547645, "lng": 106.7249225}, {"lat": -6.2547608, "lng": 106.7249213}, {"lat": -6.2547259, "lng": 106.7249496}, {"lat": -6.2547778, "lng": 106.7249563}, {"lat": -6.2547536, "lng": 106.7249242}, {"lat": -6.2547652, "lng": 106.7249816}, {"lat": -6.2547216, "lng": 106.7249656}, {"lat": -6.2547567, "lng": 106.7249752}, {"lat": -6.2547356, "lng": 106.7249763}, {"lat": -6.2547719, "lng": 106.7249546}, {"lat": -6.2547499, "lng": 106.724976}, {"lat": -6.2547355, "lng": 106.7249138}, {"lat": -6.2547269, "lng": 106.7249344}, {"lat": -6.2547323, "lng": 106.7249216}, {"lat": -6.2547361, "lng": 106.7249096}, {"lat": -6.2547622, "lng": 106.7249532}, {"lat": -6.2547256, "lng": 106.7249646}, {"lat": -6.2547376, "lng": 106.7249345}, {"lat": -6.2547603, "lng": 106.7249266}, {"lat": -6.2547598, "lng": 106.7249343}, {"lat": -6.2547156, "lng": 106.7249283}, {"lat": -6.2547208, "lng": 106.7249609}, {"lat": -6.2547261, "lng": 106.7249467}, {"lat": -6.2547415, "lng": 106.7249366}, {"lat": -6.2547292, "lng": 106.7249173}, {"lat": -6.2547253, "lng": 106.7249426}, {"lat": -6.2547329, "lng": 106.7249627}, {"lat": -6.2547513, "lng": 106.7249775}, {"lat": -6.254721, "lng": 106.7249672}, {"lat": -6.2547671, "lng": 106.7249293}, {"lat": -6.2547307, "lng": 106.7249789}, {"lat": -6.2547543, "lng": 106.7249282}, {"lat": -6.2547503, "lng": 106.7249501}, {"lat": -6.2547355, "lng": 106.7249368}, {"lat": -6.2547287, "lng": 106.7249425}, {"lat": -6.2547507, "lng": 106.72498}, {"lat": -6.2546969, "lng": 106.7249487}, {"lat": -6.2547788, "lng": 106.7249549}, {"lat": -6.2547723, "lng": 106.7249728}, {"lat": -6.2547644, "lng": 106.7249155}, {"lat": -6.2547391, "lng": 106.7249283}, {"lat": -6.2547372, "lng": 106.7249878}, {"lat": -6.2547011, "lng": 106.7249436}, {"lat": -6.2547168, "lng": 106.7249525}]
-};
 
 const WFO_PRESETS = {
   ios: {
@@ -195,14 +185,12 @@ function pickGeo(mode, manualCoord, anchor, style) {
     return { lat: item.lat, lng: item.lng };
   }
   if (mode === "wfh") {
-    const base = activeWfhHome || (WFH_COORDS && WFH_COORDS[s]) || WFH_COORDS.ios;
-    if (typeof generateGeoJitter === "function") {
-      const jittered = generateGeoJitter(base.lat, base.lng, s);
+    if (activeWfhHome && typeof activeWfhHome.lat === "number" && typeof activeWfhHome.lng === "number") {
+      const jittered = generateGeoJitter(activeWfhHome.lat, activeWfhHome.lng, s);
       if (jittered) return jittered;
+      return { lat: activeWfhHome.lat, lng: activeWfhHome.lng };
     }
-    const presetsByStyle = WFH_PRESETS[s] || WFH_PRESETS.ios;
-    const item = randItem(presetsByStyle);
-    return { lat: item.lat, lng: item.lng };
+    return null;
   }
   const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
   const item = randItem(presetsByStyle.kalibata);
@@ -219,9 +207,12 @@ function renderGeoCoords(mode, anchor, manual, style) {
     return;
   }
   if (mode === "wfh") {
-    const base = activeWfhHome || (WFH_COORDS && WFH_COORDS[s]) || WFH_COORDS.ios;
-    const label = activeWfhHome ? "Profil Terdaftar (Acak 1-5m)" : "Rumah (Acak 1-5m)";
-    el.textContent = `WFH · ${label} · ${s.toUpperCase()} · ${base.lat}, ${base.lng}`;
+    if (activeWfhHome && typeof activeWfhHome.lat === "number" && typeof activeWfhHome.lng === "number") {
+      const info = activeWfhHome.alamat ? ` (${activeWfhHome.alamat.split(",")[0].trim()})` : "";
+      el.textContent = `WFH · Profil Terdaftar${info} · ${s.toUpperCase()} · ${activeWfhHome.lat}, ${activeWfhHome.lng}`;
+    } else {
+      el.textContent = `WFH · Profil Belum Termuat · Buka/Login Portal Presensi`;
+    }
     return;
   }
   const anchorsByStyle = ANCHORS[s] || ANCHORS.ios;
@@ -636,6 +627,13 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.7", date: "2026-10-16", items: [
+    "Zero Hardcoded WFH Coordinates (Pure Dynamic Profile Extraction):",
+    "Pembersihan Total Hardcode WFH: menghapus seluruh koordinat statis WFH (Pondok Aren/Kalisari) dari file konfigurasi dan preset.",
+    "Dynamic Profile Anchor: lokasi rumah WFH kini murni ditarik 100% dari data profil kepegawaian pengguna aktif (latitude_wfh dan longitude_wfh) saat login atau membuka presensi.",
+    "Jitter On-The-Fly Realtime: menghasilkan variasi jitter alami 1.2 s/d 4.8 meter tepat di sekeliling rumah dinamis profil pengguna pada setiap reload.",
+    "Informative Unsynced State: memberikan status informatif jika akun belum sinkron atau belum memiliki titik WFH terdaftar di sistem.",
+  ]},
   { ver: "3.0.6", date: "2026-10-16", items: [
     "Dynamic Profile-Based WFH Location & On-The-Fly Jitter:",
     "Ekstraksi Dinamis Profil Pegawai: membaca titik koordinat rumah WFH terdaftar langsung dari data profil login di portal ePresensi (latitude_wfh dan longitude_wfh) secara otomatis tanpa perlu hardcode.",
@@ -1488,7 +1486,11 @@ $("btn-open-maps").addEventListener("click", async () => {
   }
 
   if (!coord) {
-    flashHint("Tidak dapat menentukan koordinat untuk Google Maps.");
+    if (getGeoMode() === "wfh") {
+      flashHint("Lokasi WFH profil belum termuat. Buka portal presensi terlebih dahulu.");
+    } else {
+      flashHint("Tidak dapat menentukan koordinat untuk Google Maps.");
+    }
     return;
   }
 
@@ -1511,8 +1513,8 @@ $("btn-open-maps").addEventListener("click", async () => {
     }
 
     if (hint) {
-      const modeLabel = rawVal ? "kustom" : (getGeoMode() === "wfh" ? "WFH" : getGeoAnchor());
-      hint.textContent = `Google Maps dibuka untuk lokasi ${modeLabel} (${coord.lat}, ${coord.lng}).`;
+      const modeLabel = rawVal ? "kustom" : (getGeoMode() === "wfh" ? (activeWfhHome && activeWfhHome.alamat ? activeWfhHome.alamat.split(",")[0].trim() : "WFH Profil") : getGeoAnchor());
+      hint.textContent = `Maps dibuka untuk lokasi ${modeLabel} (${coord.lat}, ${coord.lng}).`;
     }
     setTimeout(() => { if (hint) hint.textContent = defaultHint; }, 2600);
   } catch (e) {

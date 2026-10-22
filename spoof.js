@@ -254,7 +254,6 @@
   // fallbacks to registered WFH home or official office coordinates.
   try {
     var DEFAULT_OFFICE = { lat: -6.254909, lng: 106.8514313 }; // Kalibata main office
-    var DEFAULT_HOME = { lat: -6.2547387, lng: 106.7249493 };   // WFH registered home fallback
 
     function generateGeoJitter(baseLat, baseLng, style, minR, maxR) {
       var bLat = typeof baseLat === "number" ? baseLat : parseFloat(baseLat);
@@ -284,21 +283,27 @@
           var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
           if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
         }
-        // Fallback to employee's registered home from localStorage if available
+        // Tarik lokasi WFH terdaftar secara dinamis langsung dari profil pegawai
         try {
           var peg = JSON.parse(localStorage.getItem("pegawai") || "null");
           if (peg && peg.latitude_wfh && peg.longitude_wfh) {
             var plat = parseFloat(peg.latitude_wfh), plng = parseFloat(peg.longitude_wfh);
-            if (!isNaN(plat) && !isNaN(plng)) {
+            if (!isNaN(plat) && !isNaN(plng) && plat !== 0 && plng !== 0) {
               var jittered = generateGeoJitter(plat, plng, cfg.style || "ios");
               if (jittered) return { latitude: jittered.lat, longitude: jittered.lng };
               return { latitude: plat, longitude: plng };
             }
           }
         } catch (_) {}
-        var fallbackJitter = generateGeoJitter(DEFAULT_HOME.lat, DEFAULT_HOME.lng, cfg.style || "ios");
-        if (fallbackJitter) return { latitude: fallbackJitter.lat, longitude: fallbackJitter.lng };
-        return { latitude: DEFAULT_HOME.lat, longitude: DEFAULT_HOME.lng };
+
+        if (cfg.wfhHome && cfg.wfhHome.lat != null && cfg.wfhHome.lng != null) {
+          var wlat = parseFloat(cfg.wfhHome.lat), wlng = parseFloat(cfg.wfhHome.lng);
+          if (!isNaN(wlat) && !isNaN(wlng) && wlat !== 0 && wlng !== 0) {
+            var j = generateGeoJitter(wlat, wlng, cfg.style || "ios");
+            if (j) return { latitude: j.lat, longitude: j.lng };
+            return { latitude: wlat, longitude: wlng };
+          }
+        }
       }
 
       if (cfg.lat != null && cfg.lng != null) {
