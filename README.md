@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.6 (2026-10-16)
+- **Dynamic Profile-Based WFH Location & On-The-Fly Jitter:**
+  - **Ekstraksi Dinamis Profil Pegawai:** Membaca titik koordinat rumah WFH terdaftar langsung dari data profil login di portal ePresensi (`latitude_wfh` dan `longitude_wfh`) secara otomatis tanpa perlu hardcode.
+  - **On-The-Fly Geodesic Micro-Jitter:** Menghasilkan koordinat acak realistis berjarak 1.2 hingga 4.8 meter langsung berpusat pada rumah terdaftar masing-masing pengguna di setiap reload atau sesi presensi.
+  - **Universal Multi-User Support:** Ekstensi kini otomatis beradaptasi dengan akun pegawai mana pun yang sedang login di browser tanpa risiko salah titik lokasi.
+  - **Resilient Fallback Protection:** Mempertahankan fallback koordinat rumah standar jika user belum login atau profil belum dimuat.
+
 ### v3.0.5 (2026-10-16)
 - **Penyederhanaan Label CTA Lokasi:**
   - **Minimalist Action Label:** Menyederhanakan label tombol buka Google Maps di samping input koordinat kustom menjadi *"Maps"* agar lebih ringkas, proporsional, dan nyaman di mata pada layout side panel.

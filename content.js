@@ -1452,6 +1452,40 @@
     if (backdrop) backdrop.remove();
   }
 
+  // ------------------------------------------------------------------
+  // Pegawai Profile Auto-Sync (WFH registered home coordinates)
+  // ------------------------------------------------------------------
+  function syncPegawaiProfile() {
+    try {
+      const raw = localStorage.getItem("pegawai");
+      if (!raw) return null;
+      const pegawai = JSON.parse(raw);
+      if (!pegawai) return null;
+      const plat = parseFloat(pegawai.latitude_wfh);
+      const plng = parseFloat(pegawai.longitude_wfh);
+      if (!isNaN(plat) && !isNaN(plng) && plat !== 0 && plng !== 0) {
+        const home = {
+          lat: plat,
+          lng: plng,
+          nama: pegawai.nama || pegawai.name || "",
+          alamat: pegawai.alamat_domisili || "",
+          enroll: pegawai.enroll_number || "",
+          ts: Date.now()
+        };
+        if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+          chrome.storage.local.set({ userWfhHome: home });
+        }
+        if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
+          chrome.runtime.sendMessage({ type: "SYNC_WFH_HOME", home }).catch(() => {});
+        }
+        return home;
+      }
+    } catch (_) {}
+    return null;
+  }
+  syncPegawaiProfile();
+  try { setInterval(syncPegawaiProfile, 2500); } catch (_) {}
+
   // Mirror the site's own guard: pilihAbsen() refuses to run until the
   // pegawai record is loaded, otherwise /cek-lokasi lands on an empty state.
   function goAbsenMode(mode) {
@@ -1471,6 +1505,7 @@
       }
       return;
     }
+    const home = syncPegawaiProfile();
     const chosenMode = mode === "wfh" ? "wfh" : "wfo";
     try {
       sessionStorage.setItem("ehAbsenMode", chosenMode === "wfh" ? "WFH" : "WFO");
@@ -1480,13 +1515,18 @@
 
     // Auto-sync extension's geoMode and coordinates with the chosen mode
     try {
+      const payload = { geoMode: chosenMode };
+      if (chosenMode === "wfh" && home) {
+        payload.userWfhHome = home;
+      }
       if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ geoMode: chosenMode });
+        chrome.storage.local.set(payload);
       }
       if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.sendMessage) {
         chrome.runtime.sendMessage({
           type: "SWITCH_GEO_MODE",
-          mode: chosenMode
+          mode: chosenMode,
+          wfhHome: home
         });
       }
     } catch (_) {

@@ -31,3 +31,21 @@ const WFO_PRESETS = {
 };
 
 function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generateGeoJitter(baseLat, baseLng, style, minR = 1.2, maxR = 4.8) {
+  const bLat = typeof baseLat === "number" ? baseLat : parseFloat(baseLat);
+  const bLng = typeof baseLng === "number" ? baseLng : parseFloat(baseLng);
+  if (isNaN(bLat) || isNaN(bLng)) return null;
+  const s = style || "ios";
+  const m_per_deg_lat = 111132.954;
+  const m_per_deg_lng = 111132.954 * Math.cos(bLat * (Math.PI / 180));
+  const r = minR + Math.random() * (maxR - minR);
+  const theta = Math.random() * 2 * Math.PI;
+  const dlat = (r * Math.cos(theta)) / m_per_deg_lat;
+  const dlng = (r * Math.sin(theta)) / m_per_deg_lng;
+  const digits = s === "android" ? 7 : 14;
+  return {
+    lat: Number((bLat + dlat).toFixed(digits)),
+    lng: Number((bLng + dlng).toFixed(digits))
+  };
+}

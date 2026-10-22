@@ -56,7 +56,19 @@ addLog("STATE", "eh-Presensi background initialized");
   } catch (_) {}
 })();
 
-function pickGeoForTab(mode, style, anchor, manualCoord) {
+async function readUserWfhHome() {
+  try {
+    const d = await chrome.storage.local.get(["userWfhHome"]);
+    if (d && d.userWfhHome && typeof d.userWfhHome.lat === "number" && typeof d.userWfhHome.lng === "number") {
+      return d.userWfhHome;
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
+
+async function pickGeoForTab(mode, style, anchor, manualCoord) {
   const s = style || "ios";
   if (manualCoord && String(manualCoord).trim().length > 0) {
     const trimmed = String(manualCoord).trim();
@@ -70,6 +82,12 @@ function pickGeoForTab(mode, style, anchor, manualCoord) {
     }
   }
   if (mode === "wfh") {
+    const userHome = await readUserWfhHome();
+    const base = userHome || (WFH_COORDS && WFH_COORDS[s]) || WFH_COORDS.ios;
+    if (typeof generateGeoJitter === "function") {
+      const jittered = generateGeoJitter(base.lat, base.lng, s);
+      if (jittered) return jittered;
+    }
     const list = WFH_PRESETS[s] || WFH_PRESETS.ios;
     return randItem(list);
   }
@@ -163,7 +181,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
       if (t.geoAuto) {
         const anchor = await readGeoAnchor();
         const manual = await readGeoManual();
-        const g = pickGeoForTab(geoMode, t.geoStyle, anchor, manual);
+        const g = await pickGeoForTab(geoMode, t.geoStyle, anchor, manual);
         t.geo = g;
         await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
       }
@@ -218,9 +236,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "GATE_BLOCK_SET") { gateBlockSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "gateBlockSet failed" })); return true; }
   if (msg.type === "WFH_V2_SET")   { wfhV2Set(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "wfhV2Set failed" })); return true; }
   if (msg.type === "REVAMP_UI_SET") { revampUiSet(msg.tabId, msg.enabled).then(sendResponse).catch(() => sendResponse({ ok: false, error: "revampUiSet failed" })); return true; }
+  if (msg.type === "SYNC_WFH_HOME") {
+    if (msg.home && typeof msg.home.lat === "number" && typeof msg.home.lng === "number") {
+      chrome.storage.local.set({ userWfhHome: msg.home }).then(() => {
+        addLog("GEO", `WFH Home synced from profile: ${msg.home.lat}, ${msg.home.lng}`);
+        sendResponse({ ok: true });
+      }).catch(() => sendResponse({ ok: false }));
+      return true;
+    }
+  }
   if (msg.type === "SWITCH_GEO_MODE") {
     const targetMode = msg.mode === "wfh" ? "wfh" : "wfo";
-    chrome.storage.local.set({ geoMode: targetMode }).then(() => {
+    const updateObj = { geoMode: targetMode };
+    if (msg.wfhHome) updateObj.userWfhHome = msg.wfhHome;
+    chrome.storage.local.set(updateObj).then(() => {
       sendResponse({ ok: true });
     }).catch(() => sendResponse({ ok: false }));
     return true;
@@ -284,18 +313,20 @@ async function readRevampUi() {
 async function buildGeoCfg(t) {
   const geoMode = await readGeoMode();
   const wfhV2 = await readWfhV2();
+  const userHome = await readUserWfhHome();
   if (t.geoEnabled && t.geo) {
     return {
       mode: t.geoAuto ? "auto" : "manual",
       geoMode: geoMode,
       wfhV2: wfhV2,
+      wfhHome: userHome,
       disabled: false,
       style: t.geoStyle || "ios",
       lat: t.geo.lat,
       lng: t.geo.lng
     };
   }
-  return { mode: "off", geoMode: geoMode, wfhV2: wfhV2, disabled: true, style: t.geoStyle || "ios" };
+  return { mode: "off", geoMode: geoMode, wfhV2: wfhV2, wfhHome: userHome, disabled: true, style: t.geoStyle || "ios" };
 }
 
 async function safeGetTab(tabId) {

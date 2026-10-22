@@ -254,7 +254,27 @@
   // fallbacks to registered WFH home or official office coordinates.
   try {
     var DEFAULT_OFFICE = { lat: -6.254909, lng: 106.8514313 }; // Kalibata main office
-    var DEFAULT_HOME = { lat: -6.2547387, lng: 106.7249493 };   // WFH registered home
+    var DEFAULT_HOME = { lat: -6.2547387, lng: 106.7249493 };   // WFH registered home fallback
+
+    function generateGeoJitter(baseLat, baseLng, style, minR, maxR) {
+      var bLat = typeof baseLat === "number" ? baseLat : parseFloat(baseLat);
+      var bLng = typeof baseLng === "number" ? baseLng : parseFloat(baseLng);
+      if (isNaN(bLat) || isNaN(bLng)) return null;
+      var s = style || "ios";
+      var minDistance = (typeof minR === "number") ? minR : 1.2;
+      var maxDistance = (typeof maxR === "number") ? maxR : 4.8;
+      var m_per_deg_lat = 111132.954;
+      var m_per_deg_lng = 111132.954 * Math.cos(bLat * (Math.PI / 180));
+      var r = minDistance + Math.random() * (maxDistance - minDistance);
+      var theta = Math.random() * 2 * Math.PI;
+      var dlat = (r * Math.cos(theta)) / m_per_deg_lat;
+      var dlng = (r * Math.sin(theta)) / m_per_deg_lng;
+      var digits = s === "android" ? 7 : 14;
+      return {
+        lat: Number((bLat + dlat).toFixed(digits)),
+        lng: Number((bLng + dlng).toFixed(digits))
+      };
+    }
 
     function pickCoord() {
       var cfg = getGeoCfg();
@@ -269,9 +289,15 @@
           var peg = JSON.parse(localStorage.getItem("pegawai") || "null");
           if (peg && peg.latitude_wfh && peg.longitude_wfh) {
             var plat = parseFloat(peg.latitude_wfh), plng = parseFloat(peg.longitude_wfh);
-            if (!isNaN(plat) && !isNaN(plng)) return { latitude: plat, longitude: plng };
+            if (!isNaN(plat) && !isNaN(plng)) {
+              var jittered = generateGeoJitter(plat, plng, cfg.style || "ios");
+              if (jittered) return { latitude: jittered.lat, longitude: jittered.lng };
+              return { latitude: plat, longitude: plng };
+            }
           }
         } catch (_) {}
+        var fallbackJitter = generateGeoJitter(DEFAULT_HOME.lat, DEFAULT_HOME.lng, cfg.style || "ios");
+        if (fallbackJitter) return { latitude: fallbackJitter.lat, longitude: fallbackJitter.lng };
         return { latitude: DEFAULT_HOME.lat, longitude: DEFAULT_HOME.lng };
       }
 
