@@ -8,6 +8,13 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.2.0 (2026-10-16)
+- **Pembersihan Menyeluruh & Penghapusan Fitur Eksperimental Revamp UI:**
+  - **Penghapusan Fitur Revamp UI:** Menghapus seluruh modul injeksi antarmuka Revamp UI (skrip manipulasi DOM, observer tata letak, dan gaya antarmuka kustom) demi menjaga keaslian antarmuka bawaan sistem presensi.
+  - **Penyederhanaan Arsitektur Ekstensi:** Menghapus berkas skrip injeksi halaman (`content.js`) dan entri `content_scripts` pada manifest, mengembalikan struktur ekstensi ke bentuk yang ramping, efisien, dan bebas interferensi DOM.
+  - **Penyelarasan Kontrol Panel Samping:** Mengeliminasi kartu sakelar dan pemantau status Revamp UI pada antarmuka panel samping, serta menyelaraskan alur aktivasi tombol Bypass All.
+  - **Pembersihan Penyimpanan:** Membersihkan residu kunci konfigurasi antarmuka eksperimental dari penyimpanan lokal browser secara otomatis saat inisialisasi.
+
 ### v3.1.0 (2026-10-16)
 - **Penyelesaian Konflik Deklarasi Script Sidepanel:**
   - **Penyatuan Dependensi Script Mandiri:** Menghapus tag script eksternal redundan pada antarmuka panel samping dan memusatkan seluruh logika kalkulasi koordinat di dalam satu file skrip mandiri, menuntaskan kendala *SyntaxError: Identifier already declared*.
@@ -634,9 +641,6 @@ Catatan: Proxy Auto (bagian D) pakai titik GPS spoof ini sebagai **anchor radius
 ## File
 - `manifest.json` — config + version
 - `background.js` — service worker: CDP Fetch, Emulation, geo state, logging, side panel
-- `content.js` — content script: Revamp UI mode, universal header, bottom sheet WFO/WFH
-- `sidepanel.html` / `sidepanel.js` — UI side panel (Controls + Console Log)
-- `popup.html` — fallback pesan (side panel mode)
-- `spoof.js` — MAIN-world device fingerprint + geolocation patch
-- `popup.js` — legacy popup logic (mirror)
-- `proxy-auto.js` — modul auto-proxy (fetch ID + geolocate + filter radius + live-test); di-inline ke background.js saat build
+- `sidepanel.html` / `sidepanel.js` — UI side panel (Controls, Console Log, Changelog)
+- `spoof.js` — MAIN-world device fingerprint, geolocation patch, proactive marker, SweetAlert dismissal
+- `gps_presets.js` — preset geolokasi dan kalkulasi geodesik acak (1–5 meter)

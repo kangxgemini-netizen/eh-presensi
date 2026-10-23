@@ -645,6 +645,13 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.2.0", date: "2026-10-16", items: [
+    "Pembersihan Menyeluruh & Penghapusan Fitur Eksperimental Revamp UI:",
+    "Penghapusan Fitur Revamp UI: menghapus seluruh modul injeksi antarmuka Revamp UI (skrip manipulasi DOM, observer tata letak, dan gaya antarmuka kustom) demi menjaga keaslian antarmuka bawaan sistem presensi.",
+    "Penyederhanaan Arsitektur Ekstensi: menghapus berkas skrip injeksi halaman (content.js) dan entri content_scripts pada manifest, mengembalikan struktur ekstensi ke bentuk yang ramping, efisien, dan bebas interferensi DOM.",
+    "Penyelarasan Kontrol Panel Samping: mengeliminasi kartu sakelar dan pemantau status Revamp UI pada antarmuka panel samping, serta menyelaraskan alur aktivasi tombol Bypass All.",
+    "Pembersihan Penyimpanan: membersihkan residu kunci konfigurasi antarmuka eksperimental dari penyimpanan lokal browser secara otomatis saat inisialisasi.",
+  ]},
   { ver: "3.1.0", date: "2026-10-16", items: [
     "Penyelesaian Konflik Deklarasi Script Sidepanel:",
     "Penyatuan Dependensi Script Mandiri: menghapus tag script eksternal redundan pada antarmuka panel samping dan memusatkan seluruh logika kalkulasi koordinat di dalam satu file skrip mandiri, menuntaskan kendala SyntaxError Identifier already declared.",
@@ -1252,8 +1259,6 @@ async function load() {
   if ($("wfhv2-toggle")) $("wfhv2-toggle").checked = !!data.wfhV2Enabled;
   updateWfhV2Status();
 
-  if ($("revamp-toggle")) $("revamp-toggle").checked = !!data.revampUiEnabled;
-
   renderLogs(Array.isArray(data.logHistory) ? data.logHistory : []);
 
   // Show extension version label (read live from manifest)
@@ -1290,9 +1295,6 @@ async function load() {
       $("wfhv2-toggle").checked = !!res.wfhV2Enabled;
     }
     updateWfhV2Status();
-    if ($("revamp-toggle") && res && res.revampUiEnabled !== undefined) {
-      $("revamp-toggle").checked = !!res.revampUiEnabled;
-    }
     if (uaOn) $("ua").value = res.ua;
     if (geoOn) setCardSub("geo-coords", `${res.geo.lat}, ${res.geo.lng}`);
 
@@ -1427,15 +1429,6 @@ async function applyAll(on) {
     updateWfhV2Status();
   }
 
-  // Revamp UI juga ikutan aktif jika toggle ada
-  if ($("revamp-toggle")) {
-    $("revamp-toggle").checked = on;
-    await chrome.storage.local.set({ revampUiEnabled: on });
-    try {
-      chrome.runtime.sendMessage({ type: "REVAMP_UI_SET", tabId: tab.id, enabled: on });
-    } catch (_) {}
-  }
-
   $("ua-toggle").checked = on;
   $("js-toggle").checked = on;
   $("geo-toggle").checked = on;
@@ -1443,15 +1436,6 @@ async function applyAll(on) {
 }
 
 // Event Listeners
-if ($("revamp-toggle")) {
-  $("revamp-toggle").addEventListener("change", async (e) => {
-    const on = e.target.checked;
-    await chrome.storage.local.set({ revampUiEnabled: on });
-    const tab = await currentTab();
-    chrome.runtime.sendMessage({ type: "REVAMP_UI_SET", tabId: tab ? tab.id : null, enabled: on });
-  });
-}
-
 if ($("wfhv2-toggle")) {
   $("wfhv2-toggle").addEventListener("change", async (e) => {
     const on = e.target.checked;
