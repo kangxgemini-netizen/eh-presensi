@@ -8,6 +8,11 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.9 (2026-10-16)
+- **Hotfix Scope Script Sidepanel (Bypass All Stability):**
+  - **Resolusi Definisi Generator Koordinat:** Menyertakan fungsi kalkulasi koordinat micro-jitter secara mandiri pada antarmuka side panel dan memuat dependensi script secara berurutan, menyelesaikan kendala pemanggilan fungsi pada baris evaluasi geolokasi.
+  - **Jaminan Kelancaran Bypass All:** Tombol master kini dapat mengaktifkan seluruh modul proteksi (User-Agent, Script Patching, Geolokasi, dan Proteksi Sistem) secara mulus tanpa interupsi error di latar belakang.
+
 ### v3.0.8 (2026-10-16)
 - **Penyempurnaan Eksekusi Bypass All & Sinkronisasi Lokasi Dinamis:**
   - **Pemulihan Menyeluruh Bypass All:** Memperbaiki penanganan aktivasi serentak agar seluruh modul proteksi (User-Agent, Script Patching, Geolokasi, dan Proteksi Sistem) aktif secara instan dan konsisten tanpa kendala.

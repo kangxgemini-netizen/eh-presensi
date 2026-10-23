@@ -111,6 +111,24 @@ const WFO_PRESETS = {
 
 function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
+function generateGeoJitter(baseLat, baseLng, style, minR = 1.2, maxR = 4.8) {
+  const bLat = typeof baseLat === "number" ? baseLat : parseFloat(baseLat);
+  const bLng = typeof baseLng === "number" ? baseLng : parseFloat(baseLng);
+  if (isNaN(bLat) || isNaN(bLng)) return null;
+  const s = style || "ios";
+  const m_per_deg_lat = 111132.954;
+  const m_per_deg_lng = 111132.954 * Math.cos(bLat * (Math.PI / 180));
+  const r = minR + Math.random() * (maxR - minR);
+  const theta = Math.random() * 2 * Math.PI;
+  const dlat = (r * Math.cos(theta)) / m_per_deg_lat;
+  const dlng = (r * Math.sin(theta)) / m_per_deg_lng;
+  const digits = s === "android" ? 7 : 14;
+  return {
+    lat: Number((bLat + dlat).toFixed(digits)),
+    lng: Number((bLng + dlng).toFixed(digits))
+  };
+}
+
 function applyGeoStyle(coord, style) {
   if (!coord) return null;
   const s = style || "ios";
@@ -627,6 +645,11 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.9", date: "2026-10-16", items: [
+    "Hotfix Scope Script Sidepanel (Bypass All Stability):",
+    "Resolusi Definisi Generator Koordinat: menyertakan fungsi kalkulasi koordinat micro-jitter secara mandiri pada antarmuka side panel dan memuat dependensi script secara berurutan, menyelesaikan kendala pemanggilan fungsi pada baris evaluasi geolokasi.",
+    "Jaminan Kelancaran Bypass All: tombol master kini dapat mengaktifkan seluruh modul proteksi (User-Agent, Script Patching, Geolokasi, dan Proteksi Sistem) secara mulus tanpa interupsi error di latar belakang.",
+  ]},
   { ver: "3.0.8", date: "2026-10-16", items: [
     "Penyempurnaan Eksekusi Bypass All & Sinkronisasi Lokasi Dinamis:",
     "Pemulihan Menyeluruh Bypass All: memperbaiki penanganan aktivasi serentak agar seluruh modul proteksi (User-Agent, Script Patching, Geolokasi, dan Proteksi Sistem) aktif secara instan dan konsisten tanpa kendala.",
