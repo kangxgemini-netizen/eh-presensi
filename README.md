@@ -8,6 +8,11 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.1.0 (2026-10-16)
+- **Penyelesaian Konflik Deklarasi Script Sidepanel:**
+  - **Penyatuan Dependensi Script Mandiri:** Menghapus tag script eksternal redundan pada antarmuka panel samping dan memusatkan seluruh logika kalkulasi koordinat di dalam satu file skrip mandiri, menuntaskan kendala *SyntaxError: Identifier already declared*.
+  - **Pemulihan Penuh Antarmuka:** Memastikan seluruh komponen panel samping, tombol kontrol, dan sakelar Bypass All dapat dieksekusi secara mulus tanpa gangguan penguraian skrip.
+
 ### v3.0.9 (2026-10-16)
 - **Hotfix Scope Script Sidepanel (Bypass All Stability):**
   - **Resolusi Definisi Generator Koordinat:** Menyertakan fungsi kalkulasi koordinat micro-jitter secara mandiri pada antarmuka side panel dan memuat dependensi script secara berurutan, menyelesaikan kendala pemanggilan fungsi pada baris evaluasi geolokasi.

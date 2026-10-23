@@ -645,6 +645,11 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.1.0", date: "2026-10-16", items: [
+    "Penyelesaian Konflik Deklarasi Script Sidepanel:",
+    "Penyatuan Dependensi Script Mandiri: menghapus tag script eksternal redundan pada antarmuka panel samping dan memusatkan seluruh logika kalkulasi koordinat di dalam satu file skrip mandiri, menuntaskan kendala SyntaxError Identifier already declared.",
+    "Pemulihan Penuh Antarmuka: memastikan seluruh komponen panel samping, tombol kontrol, dan sakelar Bypass All dapat dieksekusi secara mulus tanpa gangguan penguraian skrip.",
+  ]},
   { ver: "3.0.9", date: "2026-10-16", items: [
     "Hotfix Scope Script Sidepanel (Bypass All Stability):",
     "Resolusi Definisi Generator Koordinat: menyertakan fungsi kalkulasi koordinat micro-jitter secara mandiri pada antarmuka side panel dan memuat dependensi script secara berurutan, menyelesaikan kendala pemanggilan fungsi pada baris evaluasi geolokasi.",
