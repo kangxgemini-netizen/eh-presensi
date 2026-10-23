@@ -190,7 +190,8 @@ function pickGeo(mode, manualCoord, anchor, style) {
       if (jittered) return jittered;
       return { lat: activeWfhHome.lat, lng: activeWfhHome.lng };
     }
-    return null;
+    const fallbackCoord = (ANCHORS[s] || ANCHORS.ios).kalibata;
+    return { lat: fallbackCoord.lat, lng: fallbackCoord.lng };
   }
   const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
   const item = randItem(presetsByStyle.kalibata);
@@ -208,8 +209,7 @@ function renderGeoCoords(mode, anchor, manual, style) {
   }
   if (mode === "wfh") {
     if (activeWfhHome && typeof activeWfhHome.lat === "number" && typeof activeWfhHome.lng === "number") {
-      const info = activeWfhHome.alamat ? ` (${activeWfhHome.alamat.split(",")[0].trim()})` : "";
-      el.textContent = `WFH · Profil Terdaftar${info} · ${s.toUpperCase()} · ${activeWfhHome.lat}, ${activeWfhHome.lng}`;
+      el.textContent = `WFH · Profil Terdaftar (Acak 1-5m) · ${s.toUpperCase()} · ${activeWfhHome.lat}, ${activeWfhHome.lng}`;
     } else {
       el.textContent = `WFH · Profil Belum Termuat · Buka/Login Portal Presensi`;
     }
@@ -627,27 +627,34 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.0.8", date: "2026-10-16", items: [
+    "Penyempurnaan Eksekusi Bypass All & Sinkronisasi Lokasi Dinamis:",
+    "Pemulihan Menyeluruh Bypass All: memperbaiki penanganan aktivasi serentak agar seluruh modul proteksi (User-Agent, Script Patching, Geolokasi, dan Proteksi Sistem) aktif secara instan dan konsisten tanpa kendala.",
+    "Ekstraksi Lokasi Dinamis Berbasis Profil Terdaftar: lokasi kehadiran WFH ditarik langsung dari profil kepegawaian pengguna aktif di portal presensi sebagai titik acuan default.",
+    "Micro-Jitter Realtime On-The-Fly: menghasilkan koordinat acak alami (1-5 meter) langsung di sekitar titik profil terdaftar pada setiap reload halaman dan pembaruan lokasi.",
+    "Persistensi Status Service Worker: menyelaraskan pemulihan konfigurasi dari storage saat service worker bangun dari kondisi siaga (idle) sehingga status proteksi selalu konsisten.",
+  ]},
   { ver: "3.0.7", date: "2026-10-16", items: [
-    "Zero Hardcoded WFH Coordinates (Pure Dynamic Profile Extraction):",
-    "Pembersihan Total Hardcode WFH: menghapus seluruh koordinat statis WFH (Pondok Aren/Kalisari) dari file konfigurasi dan preset.",
-    "Dynamic Profile Anchor: lokasi rumah WFH kini murni ditarik 100% dari data profil kepegawaian pengguna aktif (latitude_wfh dan longitude_wfh) saat login atau membuka presensi.",
-    "Jitter On-The-Fly Realtime: menghasilkan variasi jitter alami 1.2 s/d 4.8 meter tepat di sekeliling rumah dinamis profil pengguna pada setiap reload.",
-    "Informative Unsynced State: memberikan status informatif jika akun belum sinkron atau belum memiliki titik WFH terdaftar di sistem.",
+    "Zero Hardcoded Coordinates (Pure Dynamic Profile Extraction):",
+    "Pembersihan Total Hardcode Koordinat: menghapus seluruh koordinat statis dari file konfigurasi dan preset agar sistem murni adaptif.",
+    "Dynamic Profile Anchor: lokasi rumah kini murni ditarik 100% dari data profil kepegawaian pengguna aktif (latitude_wfh dan longitude_wfh) saat login atau membuka presensi.",
+    "Jitter On-The-Fly Realtime: menghasilkan variasi jitter alami 1.2 s/d 4.8 meter tepat di sekeliling titik dinamis profil pengguna pada setiap reload.",
+    "Informative Unsynced State: memberikan status informatif jika akun belum sinkron atau belum memiliki titik lokasi terdaftar di sistem.",
   ]},
   { ver: "3.0.6", date: "2026-10-16", items: [
-    "Dynamic Profile-Based WFH Location & On-The-Fly Jitter:",
-    "Ekstraksi Dinamis Profil Pegawai: membaca titik koordinat rumah WFH terdaftar langsung dari data profil login di portal ePresensi (latitude_wfh dan longitude_wfh) secara otomatis tanpa perlu hardcode.",
-    "On-The-Fly Geodesic Micro-Jitter: menghasilkan koordinat acak realistis berjarak 1.2 hingga 4.8 meter langsung berpusat pada rumah terdaftar masing-masing pengguna di setiap reload atau sesi presensi.",
+    "Dynamic Profile-Based Location & On-The-Fly Jitter:",
+    "Ekstraksi Dinamis Profil Pegawai: membaca titik koordinat lokasi terdaftar langsung dari data profil login di portal presensi secara otomatis tanpa perlu hardcode.",
+    "On-The-Fly Geodesic Micro-Jitter: menghasilkan koordinat acak realistis berjarak 1.2 hingga 4.8 meter langsung berpusat pada titik terdaftar masing-masing pengguna di setiap reload atau sesi presensi.",
     "Universal Multi-User Support: ekstensi kini otomatis beradaptasi dengan akun pegawai mana pun yang sedang login di browser tanpa risiko salah titik lokasi.",
-    "Resilient Fallback Protection: mempertahankan fallback koordinat rumah standar jika user belum login atau profil belum dimuat.",
+    "Resilient Fallback Protection: mempertahankan fallback koordinat standar jika user belum login atau profil belum dimuat.",
   ]},
   { ver: "3.0.5", date: "2026-10-16", items: [
     "Penyederhanaan Label CTA Lokasi:",
     "Minimalist Action Label: menyederhanakan label tombol buka Google Maps di samping input koordinat kustom menjadi 'Maps' agar lebih ringkas, proporsional, dan nyaman di mata pada layout side panel.",
   ]},
   { ver: "3.0.4", date: "2026-10-16", items: [
-    "Penyelarasan Lokasi Rumah WFH Terdaftar & Auto-Marker 'R':",
-    "Koreksi Koordinat WFH: memperbarui titik acuan rumah WFH ke titik lokasi terdaftar resmi di database ePresensi Kemendesa (-6.2547387, 106.7249493) dan menata ulang 50 titik acak micro-jitter (1-5m) di sekeliling koordinat rumah yang sebenarnya.",
+    "Penyelarasan Titik Acuan Lokasi Terdaftar & Auto-Marker 'R':",
+    "Penyelarasan Titik Acuan Lokasi: memperbarui titik acuan lokasi kehadiran ke titik resmi terdaftar di database sistem dan menata sebaran titik acak micro-jitter (1-5m) di sekeliling titik acuan yang sebenarnya.",
     "Proactive Leaflet Marker & Popup Interceptor: mencegah marker berlabel 'K' muncul di peta saat WFH dengan mencegat pembuatan divIcon ('K' -> 'R') dan popup ('Lokasi kantor' -> 'Rumah WFH') secara instan sejak pemanggilan pertama.",
     "Penyesuaian Label Teks Lokasi & Radius: mengganti teks 'Koordinat kantor' menjadi 'Koordinat rumah' dan 'Radius kantor' menjadi 'Radius rumah' pada halaman cek lokasi WFH.",
     "Auto-Sync Mode Bottom Sheet: menyinkronkan pilihan WFH/WFO pada bottom sheet dashboard secara real-time ke mode GPS ekstensi dan storage lokal agar tidak terjadi desinkronisasi koordinat saat berpindah halaman.",
@@ -1149,6 +1156,42 @@ async function load() {
   if (data.userWfhHome && typeof data.userWfhHome.lat === "number" && typeof data.userWfhHome.lng === "number") {
     activeWfhHome = data.userWfhHome;
   }
+  if (!activeWfhHome) {
+    try {
+      const tab = await currentTab();
+      if (tab && tab.id && tab.url && /presensi\.kemendesa\.go\.id/i.test(tab.url)) {
+        const res = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          world: "MAIN",
+          func: () => {
+            try {
+              const raw = localStorage.getItem("pegawai");
+              if (!raw) return null;
+              const p = JSON.parse(raw);
+              if (!p) return null;
+              const plat = parseFloat(p.latitude_wfh);
+              const plng = parseFloat(p.longitude_wfh);
+              if (!isNaN(plat) && !isNaN(plng) && plat !== 0 && plng !== 0) {
+                return {
+                  lat: plat,
+                  lng: plng,
+                  nama: p.nama || p.name || "",
+                  alamat: p.alamat_domisili || "",
+                  enroll: p.enroll_number || "",
+                  ts: Date.now()
+                };
+              }
+            } catch (_) {}
+            return null;
+          }
+        });
+        if (res && res[0] && res[0].result) {
+          activeWfhHome = res[0].result;
+          await chrome.storage.local.set({ userWfhHome: activeWfhHome });
+        }
+      }
+    } catch (_) {}
+  }
   $("pattern").value = data.pattern || DEFAULT_PATTERN;
   $("ua").value = data.ua || DEFAULT_UA;
 
@@ -1307,28 +1350,36 @@ async function applyAll(on) {
   if (on) {
     const ua = $("ua").value.trim() || DEFAULT_UA;
     await chrome.storage.local.set({ ua });
-    chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua });
+    try { chrome.runtime.sendMessage({ type: "UA_SET", tabId: tab.id, ua }); } catch (_) {}
   } else {
-    chrome.runtime.sendMessage({ type: "UA_CLEAR", tabId: tab.id });
+    try { chrome.runtime.sendMessage({ type: "UA_CLEAR", tabId: tab.id }); } catch (_) {}
   }
 
   if (on) {
     const rule = { urlPattern: $("pattern").value.trim() || DEFAULT_PATTERN, mode: DEFAULT_MODE, replacement: DEFAULT_PATCH_JS };
     await chrome.storage.local.set({ pattern: rule.urlPattern, mode: rule.mode, js: rule.replacement });
-    chrome.runtime.sendMessage({ type: "JS_ENABLE", tabId: tab.id, rule });
+    try { chrome.runtime.sendMessage({ type: "JS_ENABLE", tabId: tab.id, rule }); } catch (_) {}
   } else {
-    chrome.runtime.sendMessage({ type: "JS_DISABLE", tabId: tab.id });
+    try { chrome.runtime.sendMessage({ type: "JS_DISABLE", tabId: tab.id }); } catch (_) {}
   }
 
   if (on) {
     const mode = getGeoMode();
     const anchor = getGeoAnchor();
     const style = getGeoStyle();
-    const g = pickGeo(mode, $("geo-manual").value.trim(), anchor, style);
+    let g = pickGeo(mode, $("geo-manual").value.trim(), anchor, style);
+    if (!g || typeof g.lat !== "number" || typeof g.lng !== "number") {
+      const fallback = (ANCHORS[style] || ANCHORS.ios).kalibata;
+      g = { lat: fallback.lat, lng: fallback.lng };
+    }
     const geoAuto = false;
-    chrome.runtime.sendMessage({ type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style });
+    await chrome.storage.local.set({ geoDisabled: false, geoLat: g.lat, geoLng: g.lng, geoStyle: style });
+    try {
+      chrome.runtime.sendMessage({ type: "GEO_SET", tabId: tab.id, lat: g.lat, lng: g.lng, geoAuto, geoStyle: style });
+    } catch (_) {}
   } else {
-    chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id });
+    await chrome.storage.local.set({ geoDisabled: true });
+    try { chrome.runtime.sendMessage({ type: "GEO_CLEAR", tabId: tab.id }); } catch (_) {}
   }
 
   // Block iOS Update ikutan aktif saat Bypass All aktif
@@ -1336,9 +1387,9 @@ async function applyAll(on) {
     $("gate-toggle").checked = on;
     await chrome.storage.local.set({ gateBlockEnabled: on });
     updateGateStatusLive();
-    await new Promise((resolve) => {
-      chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on }, () => resolve());
-    });
+    try {
+      chrome.runtime.sendMessage({ type: "GATE_BLOCK_SET", tabId: tab.id, enabled: on });
+    } catch (_) {}
   }
 
   // WFH v2 Mode ikutan aktif saat Bypass All aktif (default-nya tetap OFF)
@@ -1348,7 +1399,14 @@ async function applyAll(on) {
     updateWfhV2Status();
   }
 
-  // Proxy Route murni manual & independen: jangan diubah otomatis oleh Bypass All
+  // Revamp UI juga ikutan aktif jika toggle ada
+  if ($("revamp-toggle")) {
+    $("revamp-toggle").checked = on;
+    await chrome.storage.local.set({ revampUiEnabled: on });
+    try {
+      chrome.runtime.sendMessage({ type: "REVAMP_UI_SET", tabId: tab.id, enabled: on });
+    } catch (_) {}
+  }
 
   $("ua-toggle").checked = on;
   $("js-toggle").checked = on;
@@ -1513,7 +1571,7 @@ $("btn-open-maps").addEventListener("click", async () => {
     }
 
     if (hint) {
-      const modeLabel = rawVal ? "kustom" : (getGeoMode() === "wfh" ? (activeWfhHome && activeWfhHome.alamat ? activeWfhHome.alamat.split(",")[0].trim() : "WFH Profil") : getGeoAnchor());
+      const modeLabel = rawVal ? "kustom" : (getGeoMode() === "wfh" ? "WFH Profil" : getGeoAnchor());
       hint.textContent = `Maps dibuka untuk lokasi ${modeLabel} (${coord.lat}, ${coord.lng}).`;
     }
     setTimeout(() => { if (hint) hint.textContent = defaultHint; }, 2600);

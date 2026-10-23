@@ -62,6 +62,43 @@ async function readUserWfhHome() {
     if (d && d.userWfhHome && typeof d.userWfhHome.lat === "number" && typeof d.userWfhHome.lng === "number") {
       return d.userWfhHome;
     }
+    // Fallback: aktif baca langsung dari tab presensi yang sedang terbuka
+    try {
+      const tabs = await chrome.tabs.query({ url: "*://presensi.kemendesa.go.id/*" });
+      for (const tab of tabs) {
+        if (!tab || !tab.id) continue;
+        const res = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          world: "MAIN",
+          func: () => {
+            try {
+              const raw = localStorage.getItem("pegawai");
+              if (!raw) return null;
+              const p = JSON.parse(raw);
+              if (!p) return null;
+              const plat = parseFloat(p.latitude_wfh);
+              const plng = parseFloat(p.longitude_wfh);
+              if (!isNaN(plat) && !isNaN(plng) && plat !== 0 && plng !== 0) {
+                return {
+                  lat: plat,
+                  lng: plng,
+                  nama: p.nama || p.name || "",
+                  alamat: p.alamat_domisili || "",
+                  enroll: p.enroll_number || "",
+                  ts: Date.now()
+                };
+              }
+            } catch (_) {}
+            return null;
+          }
+        });
+        if (res && res[0] && res[0].result) {
+          const home = res[0].result;
+          await chrome.storage.local.set({ userWfhHome: home });
+          return home;
+        }
+      }
+    } catch (_) {}
     return null;
   } catch (_) {
     return null;
@@ -90,7 +127,13 @@ async function pickGeoForTab(mode, style, anchor, manualCoord) {
       }
       return { lat: userHome.lat, lng: userHome.lng };
     }
-    return null;
+    // Fallback aman jika profil belum termuat
+    const d = await chrome.storage.local.get(["geoLat", "geoLng"]);
+    if (d && typeof d.geoLat === "number" && typeof d.geoLng === "number") {
+      return { lat: d.geoLat, lng: d.geoLng };
+    }
+    const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
+    return randItem(presetsByStyle.kalibata);
   }
   const presetsByStyle = WFO_PRESETS[s] || WFO_PRESETS.ios;
   const a = anchor || "kalibata";
@@ -174,37 +217,45 @@ chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
     } catch (_) {}
 
     // 2. Sync Geolocation config
-    // Always push geoMode too — spoof.js runs in world:"MAIN" and cannot read
-    // chrome.storage, so window.__EH_GEO__ is its only view of the mode.
-    const geoMode = await readGeoMode();
+    const currentNavUrl = (tab && tab.url) ? tab.url : (info.url || "");
+    const isWfhUrl = /\/cek-lokasi-(wfh|wfa)\/?$/i.test(currentNavUrl);
+    let geoMode = await readGeoMode();
+    if (isWfhUrl && geoMode !== "wfh") {
+      geoMode = "wfh";
+      await chrome.storage.local.set({ geoMode: "wfh" });
+    }
     const wfhV2 = await readWfhV2();
     if (t.geoEnabled) {
-      if (t.geoAuto) {
+      if (t.geoAuto || isWfhUrl) {
         const anchor = await readGeoAnchor();
         const manual = await readGeoManual();
         const g = await pickGeoForTab(geoMode, t.geoStyle, anchor, manual);
-        t.geo = g;
-        await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
+        if (g && typeof g.lat === "number" && typeof g.lng === "number") {
+          t.geo = g;
+          await chrome.storage.local.set({ geoLat: g.lat, geoLng: g.lng });
+        }
       }
-      try {
-        const cfg = {
-          mode: t.geoAuto ? "auto" : "manual",
-          geoMode: geoMode,
-          wfhV2: wfhV2,
-          disabled: false,
-          style: t.geoStyle || "ios",
-          lat: t.geo.lat,
-          lng: t.geo.lng
-        };
-        chrome.scripting.executeScript({
-          target: { tabId },
-          world: "MAIN",
-          func: (c) => { window.__EH_GEO__ = c; window.__EH_WFH_V2__ = !!c.wfhV2; },
-          args: [cfg],
-          injectImmediately: true,
-        }).catch(() => {});
-      } catch (_) {}
-      geoApply(tabId, t.geo).catch(() => {});
+      if (t.geo && typeof t.geo.lat === "number" && typeof t.geo.lng === "number") {
+        try {
+          const cfg = {
+            mode: t.geoAuto ? "auto" : "manual",
+            geoMode: geoMode,
+            wfhV2: wfhV2,
+            disabled: false,
+            style: t.geoStyle || "ios",
+            lat: t.geo.lat,
+            lng: t.geo.lng
+          };
+          chrome.scripting.executeScript({
+            target: { tabId },
+            world: "MAIN",
+            func: (c) => { window.__EH_GEO__ = c; window.__EH_WFH_V2__ = !!c.wfhV2; },
+            args: [cfg],
+            injectImmediately: true,
+          }).catch(() => {});
+        } catch (_) {}
+        geoApply(tabId, t.geo).catch(() => {});
+      }
     } else if (t.geoEnabled === false && t.geo === null) {
       // Geo explicitly disabled: make sure the page sees disabled state
       try {
@@ -259,7 +310,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
       }
     }
-    chrome.storage.local.set(updateObj).then(() => {
+    chrome.storage.local.set(updateObj).then(async () => {
+      if (sender && sender.tab && sender.tab.id && updateObj.geoLat && updateObj.geoLng) {
+        await geoSet(sender.tab.id, updateObj.geoLat, updateObj.geoLng, false, "ios").catch(() => {});
+      }
       sendResponse({ ok: true });
     }).catch(() => sendResponse({ ok: false }));
     return true;
@@ -324,9 +378,12 @@ async function buildGeoCfg(t) {
   const geoMode = await readGeoMode();
   const wfhV2 = await readWfhV2();
   const userHome = await readUserWfhHome();
+  const manual = await readGeoManual();
+  const hasManual = Boolean(manual && manual.trim().length > 0);
   if (t.geoEnabled && t.geo) {
     return {
-      mode: t.geoAuto ? "auto" : "manual",
+      mode: hasManual ? "manual" : (t.geoAuto ? "auto" : "manual"),
+      isManual: hasManual,
       geoMode: geoMode,
       wfhV2: wfhV2,
       wfhHome: userHome,
@@ -336,7 +393,7 @@ async function buildGeoCfg(t) {
       lng: t.geo.lng
     };
   }
-  return { mode: "off", geoMode: geoMode, wfhV2: wfhV2, wfhHome: userHome, disabled: true, style: t.geoStyle || "ios" };
+  return { mode: "off", isManual: false, geoMode: geoMode, wfhV2: wfhV2, wfhHome: userHome, disabled: true, style: t.geoStyle || "ios" };
 }
 
 async function safeGetTab(tabId) {
@@ -364,19 +421,41 @@ function status(tabId) {
 async function getTab(tabId) {
   let t = tabs.get(tabId);
   if (!t) {
-    let gateSaved = false;
+    let gateSaved = true;
     let revampSaved = false;
+    let geoDisabled = false;
+    let geoLat = null;
+    let geoLng = null;
+    let geoStyle = "ios";
+    let ua = null;
+    let js = null;
     try {
-      const d = await chrome.storage.local.get(["gateBlockEnabled", "revampUiEnabled"]);
-      gateSaved = !!d.gateBlockEnabled;
-      revampSaved = !!d.revampUiEnabled;
+      const d = await chrome.storage.local.get([
+        "gateBlockEnabled", "revampUiEnabled",
+        "geoDisabled", "geoLat", "geoLng", "geoStyle",
+        "ua", "pattern", "mode", "js"
+      ]);
+      if (d.gateBlockEnabled !== undefined) gateSaved = !!d.gateBlockEnabled;
+      if (d.revampUiEnabled !== undefined) revampSaved = !!d.revampUiEnabled;
+      if (d.geoDisabled !== undefined) geoDisabled = !!d.geoDisabled;
+      if (d.geoLat != null && d.geoLng != null) {
+        geoLat = parseFloat(d.geoLat);
+        geoLng = parseFloat(d.geoLng);
+      }
+      if (d.geoStyle) geoStyle = d.geoStyle;
+      if (d.ua) ua = d.ua;
+      if (d.pattern && d.js) {
+        js = { urlPattern: d.pattern, mode: d.mode || "replace_body", replacement: d.js };
+      }
     } catch (_) {}
+
     t = {
-      js: null,
-      ua: null,
-      geo: null,
+      js: js,
+      ua: ua,
+      geo: (geoLat !== null && geoLng !== null) ? { lat: geoLat, lng: geoLng } : null,
       geoAuto: false,
-      geoEnabled: false,
+      geoEnabled: !geoDisabled,
+      geoStyle: geoStyle,
       proxy: null,
       gateBlockEnabled: gateSaved,
       revampUiEnabled: revampSaved

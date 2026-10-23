@@ -278,37 +278,51 @@
     function pickCoord() {
       var cfg = getGeoCfg();
       var isWfh = isWfhModeActive();
+
+      // Prioritas 1: Jika user mengisi koordinat kustom manual secara eksplisit
+      if (cfg && cfg.isManual && cfg.lat != null && cfg.lng != null) {
+        var mla = parseFloat(cfg.lat), mln = parseFloat(cfg.lng);
+        if (!isNaN(mla) && !isNaN(mln)) return { latitude: mla, longitude: mln };
+      }
+
       if (isWfh) {
-        if (cfg.geoMode === "wfh" && cfg.lat != null && cfg.lng != null) {
-          var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
-          if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
-        }
-        // Tarik lokasi WFH terdaftar secara dinamis langsung dari profil pegawai
+        // Prioritas 2: Tarik titik dasar rumah WFH secara dinamis langsung dari profil pegawai (localStorage)
+        var baseHome = null;
         try {
           var peg = JSON.parse(localStorage.getItem("pegawai") || "null");
           if (peg && peg.latitude_wfh && peg.longitude_wfh) {
             var plat = parseFloat(peg.latitude_wfh), plng = parseFloat(peg.longitude_wfh);
             if (!isNaN(plat) && !isNaN(plng) && plat !== 0 && plng !== 0) {
-              var jittered = generateGeoJitter(plat, plng, cfg.style || "ios");
-              if (jittered) return { latitude: jittered.lat, longitude: jittered.lng };
-              return { latitude: plat, longitude: plng };
+              baseHome = { lat: plat, lng: plng };
             }
           }
         } catch (_) {}
 
-        if (cfg.wfhHome && cfg.wfhHome.lat != null && cfg.wfhHome.lng != null) {
+        // Prioritas 3: Titik rumah profil yang disinkronkan dari background (cfg.wfhHome)
+        if (!baseHome && cfg && cfg.wfhHome && cfg.wfhHome.lat != null && cfg.wfhHome.lng != null) {
           var wlat = parseFloat(cfg.wfhHome.lat), wlng = parseFloat(cfg.wfhHome.lng);
           if (!isNaN(wlat) && !isNaN(wlng) && wlat !== 0 && wlng !== 0) {
-            var j = generateGeoJitter(wlat, wlng, cfg.style || "ios");
-            if (j) return { latitude: j.lat, longitude: j.lng };
-            return { latitude: wlat, longitude: wlng };
+            baseHome = { lat: wlat, lng: wlng };
           }
+        }
+
+        // Prioritas 4: Jika titik rumah profil ditemukan, hasilkan titik micro-jitter on-the-fly (1.2 - 4.8m)
+        if (baseHome) {
+          var jittered = generateGeoJitter(baseHome.lat, baseHome.lng, (cfg && cfg.style) || "ios");
+          if (jittered) return { latitude: jittered.lat, longitude: jittered.lng };
+          return { latitude: baseHome.lat, longitude: baseHome.lng };
+        }
+
+        // Prioritas 5: Gunakan cfg.lat jika ada
+        if (cfg && cfg.geoMode === "wfh" && cfg.lat != null && cfg.lng != null) {
+          var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
+          if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
         }
       }
 
-      if (cfg.lat != null && cfg.lng != null) {
-        var la = parseFloat(cfg.lat), ln = parseFloat(cfg.lng);
-        if (!isNaN(la) && !isNaN(ln)) return { latitude: la, longitude: ln };
+      if (cfg && cfg.lat != null && cfg.lng != null) {
+        var la2 = parseFloat(cfg.lat), ln2 = parseFloat(cfg.lng);
+        if (!isNaN(la2) && !isNaN(ln2)) return { latitude: la2, longitude: ln2 };
       }
       return { latitude: DEFAULT_OFFICE.lat, longitude: DEFAULT_OFFICE.lng };
     }
@@ -489,17 +503,18 @@
   function isWfhModeActive() {
     try {
       var p = (typeof window !== "undefined" && window.location) ? String(window.location.pathname) : "";
-      if (/\/cek-lokasi-(wfh|wfa)\/?$/i.test(p)) return true;
+      var isPathWfh = /\/cek-lokasi-(wfh|wfa)\/?$/i.test(p);
+      var isSessionWfh = false;
       try {
-        if (window.sessionStorage && window.sessionStorage.getItem("ehAbsenMode") === "WFH") return true;
+        if (window.sessionStorage && window.sessionStorage.getItem("ehAbsenMode") === "WFH") isSessionWfh = true;
       } catch (_) {}
 
+      // Jika halaman secara eksplisit adalah rute WFH, mode WFH selalu aktif
+      if (isPathWfh || isSessionWfh) return true;
+
       var cfg = getGeoCfg();
-      // An explicitly disabled session never relabels, whatever the page is.
       if (cfg && cfg.disabled) return false;
       if (!cfg) return false;
-      // geoMode is the business mode (wfo/wfh/manual) pushed by background.js.
-      // Fall back to mode for older injected payloads.
       var m = cfg.geoMode || cfg.mode;
       return m === "wfh";
     } catch (_) {

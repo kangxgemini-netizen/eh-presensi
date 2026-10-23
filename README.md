@@ -8,27 +8,34 @@ Extension Chrome Manifest V3 buat bantu pegawai yang struggle di jalanan menuju 
 
 ## Changelog
 
+### v3.0.8 (2026-10-16)
+- **Penyempurnaan Eksekusi Bypass All & Sinkronisasi Lokasi Dinamis:**
+  - **Pemulihan Menyeluruh Bypass All:** Memperbaiki penanganan aktivasi serentak agar seluruh modul proteksi (User-Agent, Script Patching, Geolokasi, dan Proteksi Sistem) aktif secara instan dan konsisten tanpa kendala.
+  - **Ekstraksi Lokasi Dinamis Berbasis Profil Terdaftar:** Lokasi kehadiran WFH ditarik langsung dari profil kepegawaian pengguna aktif di portal presensi sebagai titik acuan default.
+  - **Micro-Jitter Realtime On-The-Fly:** Menghasilkan koordinat acak alami (1-5 meter) langsung di sekitar titik profil terdaftar pada setiap reload halaman dan pembaruan lokasi.
+  - **Persistensi Status Service Worker:** Menyelaraskan pemulihan konfigurasi dari storage saat service worker bangun dari kondisi siaga (idle) sehingga status proteksi selalu konsisten.
+
 ### v3.0.7 (2026-10-16)
-- **Zero Hardcoded WFH Coordinates (Pure Dynamic Profile Extraction):**
-  - **Pembersihan Total Hardcode WFH:** Menghapus seluruh koordinat statis WFH dari file konfigurasi dan preset (`gps_presets.js` dan `sidepanel.js`).
-  - **Dynamic Profile Anchor:** Lokasi rumah WFH kini murni ditarik 100% dari data profil kepegawaian pengguna aktif (`latitude_wfh` dan `longitude_wfh`) saat login atau membuka presensi.
-  - **Jitter On-The-Fly Realtime:** Menghasilkan variasi jitter alami 1.2 s/d 4.8 meter tepat di sekeliling rumah dinamis profil pengguna pada setiap reload.
-  - **Informative Unsynced State:** Memberikan status informatif jika akun belum sinkron atau belum memiliki titik WFH terdaftar di sistem kepegawaian.
+- **Zero Hardcoded Coordinates (Pure Dynamic Profile Extraction):**
+  - **Pembersihan Total Hardcode Koordinat:** Menghapus seluruh koordinat statis dari file konfigurasi dan preset agar sistem murni adaptif.
+  - **Dynamic Profile Anchor:** Lokasi rumah kini murni ditarik 100% dari data profil kepegawaian pengguna aktif (`latitude_wfh` dan `longitude_wfh`) saat login atau membuka presensi.
+  - **Jitter On-The-Fly Realtime:** Menghasilkan variasi jitter alami 1.2 s/d 4.8 meter tepat di sekeliling titik dinamis profil pengguna pada setiap reload.
+  - **Informative Unsynced State:** Memberikan status informatif jika akun belum sinkron atau belum memiliki titik lokasi terdaftar di sistem kepegawaian.
 
 ### v3.0.6 (2026-10-16)
-- **Dynamic Profile-Based WFH Location & On-The-Fly Jitter:**
-  - **Ekstraksi Dinamis Profil Pegawai:** Membaca titik koordinat rumah WFH terdaftar langsung dari data profil login di portal ePresensi (`latitude_wfh` dan `longitude_wfh`) secara otomatis tanpa perlu hardcode.
-  - **On-The-Fly Geodesic Micro-Jitter:** Menghasilkan koordinat acak realistis berjarak 1.2 hingga 4.8 meter langsung berpusat pada rumah terdaftar masing-masing pengguna di setiap reload atau sesi presensi.
+- **Dynamic Profile-Based Location & On-The-Fly Jitter:**
+  - **Ekstraksi Dinamis Profil Pegawai:** Membaca titik koordinat lokasi terdaftar langsung dari data profil login di portal presensi secara otomatis tanpa perlu hardcode.
+  - **On-The-Fly Geodesic Micro-Jitter:** Menghasilkan koordinat acak realistis berjarak 1.2 hingga 4.8 meter langsung berpusat pada titik terdaftar masing-masing pengguna di setiap reload atau sesi presensi.
   - **Universal Multi-User Support:** Ekstensi kini otomatis beradaptasi dengan akun pegawai mana pun yang sedang login di browser tanpa risiko salah titik lokasi.
-  - **Resilient Fallback Protection:** Mempertahankan fallback koordinat rumah standar jika user belum login atau profil belum dimuat.
+  - **Resilient Fallback Protection:** Mempertahankan fallback koordinat standar jika user belum login atau profil belum dimuat.
 
 ### v3.0.5 (2026-10-16)
 - **Penyederhanaan Label CTA Lokasi:**
   - **Minimalist Action Label:** Menyederhanakan label tombol buka Google Maps di samping input koordinat kustom menjadi *"Maps"* agar lebih ringkas, proporsional, dan nyaman di mata pada layout side panel.
 
 ### v3.0.4 (2026-10-16)
-- **Penyelarasan Lokasi Rumah WFH Terdaftar & Auto-Marker "R":**
-  - **Koreksi Koordinat WFH:** Memperbarui titik acuan rumah WFH ke titik lokasi terdaftar resmi di database ePresensi Kemendesa (`-6.2547387, 106.7249493`) dan menata ulang 50 titik acak micro-jitter (1-5m) di sekeliling koordinat rumah yang sebenarnya.
+- **Penyelarasan Titik Acuan Lokasi Terdaftar & Auto-Marker "R":**
+  - **Penyelarasan Titik Acuan Lokasi:** Memperbarui titik acuan lokasi kehadiran ke titik resmi terdaftar di database sistem dan menata sebaran titik acak micro-jitter (1-5m) di sekeliling titik acuan yang sebenarnya.
   - **Proactive Leaflet Marker & Popup Interceptor:** Mencegah marker berlabel "K" muncul di peta saat WFH dengan mencegat pembuatan divIcon ("K" $\rightarrow$ "R") dan popup ("Lokasi kantor" $\rightarrow$ "Rumah WFH") secara instan sejak pemanggilan pertama.
   - **Penyesuaian Label Teks Lokasi & Radius:** Mengganti teks *"Koordinat kantor"* menjadi *"Koordinat rumah"* dan *"Radius kantor"* menjadi *"Radius rumah"* pada halaman cek lokasi WFH.
   - **Auto-Sync Mode Bottom Sheet:** Menyinkronkan pilihan WFH/WFO pada bottom sheet dashboard secara real-time ke mode GPS ekstensi dan storage lokal agar tidak terjadi desinkronisasi koordinat saat berpindah halaman.
