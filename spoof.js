@@ -625,6 +625,115 @@
     return changed;
   }
 
+  // ---- Canvas Watermark / Overlay Sanitization for WFH Photo ----
+  //
+  // On the legacy WFH page, drawOverlayScene hardcodes "Office: ..." and "Radius: ..."
+  // in drawLabelBox, and hardcodes "K" marker pin + "S: Saya   K: Kantor" legend on
+  // the mini-map canvas. When WFH is active, intercept CanvasRenderingContext2D.prototype.fillText
+  // and strokeText (plus window.drawLabelBox if exposed) so the captured attendance photo carries
+  // authentic WFH labels: "Rumah WFH: ...", "Radius WFH: ...", "R" pin, and "S: Saya  R: Rumah",
+  // matching the official mobile attendance app 1:1.
+  function isWfhActiveForWatermark() {
+    try {
+      if (onLegacyWfhPage()) return true;
+      if (isWfhModeActive()) return true;
+      if (wfhV2Enabled()) return true;
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function sanitizeWfhText(text) {
+    if (typeof text !== "string") return text;
+    if (!isWfhActiveForWatermark()) return text;
+
+    var str = text;
+
+    // 1. "Office: -6.xxx, 106.xxx" -> "Rumah WFH: -6.xxx, 106.xxx"
+    if (/^\s*Office\s*:/i.test(str)) {
+      str = str.replace(/^\s*Office\s*:\s*/i, "Rumah WFH: ");
+    } else if (/\bOffice\s*:\s*-?\d+/i.test(str)) {
+      str = str.replace(/\bOffice\s*:\s*/gi, "Rumah WFH: ");
+    }
+
+    // 2. "Radius: 80 meter" -> "Radius WFH: 80 meter" (prevent duplicate "Radius WFH WFH")
+    if (/^\s*Radius\s*:\s*(?!WFH)/i.test(str)) {
+      str = str.replace(/^\s*Radius\s*:\s*/i, "Radius WFH: ");
+    }
+
+    // 3. Mini-map pin marker: "K" -> "R"
+    if (str.trim() === "K") {
+      str = "R";
+    }
+
+    // 4. Mini-map legend: "S: Saya   K: Kantor" -> "S: Saya  R: Rumah"
+    if (/S\s*:\s*Saya\s+K\s*:\s*Kantor/i.test(str)) {
+      str = str.replace(/S\s*:\s*Saya\s+K\s*:\s*Kantor/gi, "S: Saya  R: Rumah");
+    } else if (/K\s*:\s*Kantor/i.test(str)) {
+      str = str.replace(/K\s*:\s*Kantor/gi, "R: Rumah");
+    }
+
+    // 5. Status text if rendered (e.g. on /cek-lokasi): "Status: WFO" -> "Status: WFH"
+    if (/Status\s*:\s*WFO/i.test(str)) {
+      str = str.replace(/Status\s*:\s*WFO/gi, "Status: WFH");
+    }
+
+    return str;
+  }
+
+  function patchCanvasWfhWatermark() {
+    try {
+      if (typeof CanvasRenderingContext2D !== "undefined" && !CanvasRenderingContext2D.prototype._ehWfhPatched) {
+        var origFillText = CanvasRenderingContext2D.prototype.fillText;
+        var origStrokeText = CanvasRenderingContext2D.prototype.strokeText;
+
+        CanvasRenderingContext2D.prototype.fillText = function (text, x, y, maxWidth) {
+          var filtered = sanitizeWfhText(text);
+          if (arguments.length > 3) {
+            return origFillText.call(this, filtered, x, y, maxWidth);
+          }
+          return origFillText.call(this, filtered, x, y);
+        };
+
+        if (origStrokeText) {
+          CanvasRenderingContext2D.prototype.strokeText = function (text, x, y, maxWidth) {
+            var filtered = sanitizeWfhText(text);
+            if (arguments.length > 3) {
+              return origStrokeText.call(this, filtered, x, y, maxWidth);
+            }
+            return origStrokeText.call(this, filtered, x, y);
+          };
+        }
+
+        CanvasRenderingContext2D.prototype._ehWfhPatched = true;
+      }
+
+      // Also patch window.drawLabelBox if exposed
+      if (typeof window !== "undefined" && typeof window.drawLabelBox === "function" && !window.drawLabelBox._ehPatched) {
+        var origDrawLabelBox = window.drawLabelBox;
+        window.drawLabelBox = function (ctx, lines, x, y, w, lineHeight) {
+          if (isWfhActiveForWatermark() && Array.isArray(lines)) {
+            lines = lines.map(sanitizeWfhText);
+            if (typeof w === "number") {
+              var isBottomBox = lines.some(function (l) {
+                return typeof l === "string" && (/\bOffice\s*:/i.test(l) || /\bRumah WFH\s*:/i.test(l));
+              });
+              if (isBottomBox) {
+                w = Math.max(w, 290);
+              }
+            }
+          }
+          return origDrawLabelBox.call(this, ctx, lines, x, y, w, lineHeight);
+        };
+        window.drawLabelBox._ehPatched = true;
+      }
+    } catch (_) {}
+  }
+
+  // Install canvas watermark patch immediately
+  patchCanvasWfhWatermark();
+
   // ---- Endpoint rewrite: /api/absensi/cek-lokasi -> /api/absensi/v2/cek-lokasi ----
   //
   // Only that ONE endpoint. Everything else the page calls (liveness, photo
@@ -734,21 +843,25 @@
       }
       relabelWfhMarker();
       relabelWfhDistance();
+      patchCanvasWfhWatermark();
     }, 250);
 
     var _wfhMarkerObserver = new MutationObserver(function () {
       relabelWfhMarker();
       relabelWfhDistance();
+      patchCanvasWfhWatermark();
     });
     _wfhMarkerObserver.observe(document.documentElement, { childList: true, subtree: true });
 
     document.addEventListener("DOMContentLoaded", function () {
       relabelWfhMarker();
       relabelWfhDistance();
+      patchCanvasWfhWatermark();
     });
     window.addEventListener("load", function () {
       relabelWfhMarker();
       relabelWfhDistance();
+      patchCanvasWfhWatermark();
     });
   } catch (_) {}
 

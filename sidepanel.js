@@ -645,6 +645,12 @@ function initSegmentedGliders() {
 
 // Changelog data and renderer
 const CHANGELOG = [
+  { ver: "3.2.1", date: "2026-11-13", items: [
+    "Penyelarasan Label Geometri & Watermark Foto Kehadiran WFH:",
+    "Autentikasi Label Watermark Foto: mengintersepsi proses rendering teks kanvas (fillText & strokeText) saat pengambilan foto kehadiran sehingga label pada kotak informasi bawah otomatis menggunakan format resmi 'Rumah WFH: ...' dan 'Radius WFH: ...', menggantikan label bawaan 'Office: ...' dan 'Radius: ...'.",
+    "Penyelarasan Pin & Legenda Mini-Map Foto: menyelaraskan penanda target lokasi pada kanvas mini-map foto menjadi pin 'R' (Rumah) dengan legenda 'S: Saya  R: Rumah', selaras 1:1 dengan standar aplikasi presensi mobile resmi.",
+    "Perlindungan Terpadu Dua Lapis: menerapkan penyesuaian teks pada level prototipe konteks grafis kanvas sekaligus wrapper fungsi kotak informasi untuk memastikan seluruh foto bukti kehadiran tercetak akurat tanpa mengubah data autentikasi dan token kehadiran.",
+  ]},
   { ver: "3.2.0", date: "2026-10-16", items: [
     "Pembersihan Menyeluruh & Penghapusan Fitur Eksperimental Revamp UI:",
     "Penghapusan Fitur Revamp UI: menghapus seluruh modul injeksi antarmuka Revamp UI (skrip manipulasi DOM, observer tata letak, dan gaya antarmuka kustom) demi menjaga keaslian antarmuka bawaan sistem presensi.",
